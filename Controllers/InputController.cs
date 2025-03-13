@@ -4,11 +4,11 @@ using DADN.Models;
 
 namespace DADN.Controllers;
 
-public class HomeController : Controller
+public class InputController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<InputController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public InputController(ILogger<InputController> logger)
     {
         _logger = logger;
     }
@@ -19,7 +19,7 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult Test()
     {
         return View();
     }
