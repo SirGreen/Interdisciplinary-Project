@@ -1,0 +1,167 @@
+@{
+    ViewData["Title"] = "Nhập dữ liệu băng tải";
+}
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Nhập dữ liệu băng tải</h2>
+    <form id="conveyorForm" class="form-control">
+        <label for="force">Lực vòng trên băng tải (N):</label>
+        <input type="number" id="force" required><br>
+
+        <label for="velocity">Vận tốc băng tải (m/s):</label>
+        <input type="number" id="velocity" required><br>
+
+        <label for="machineType">Loại trục máy công tác:</label>
+        <select id="machineType">
+            <option value="">-- Chọn loại trục --</option>
+            <option value="Drum">Trục tang quay</option>
+            <option value="Chain">Đĩa xích tải</option>
+        </select><br>
+
+        <div id="drumFields" class="hidden">
+            <label for="drumDiameter">Đường kính tang (mm):</label>
+            <input type="number" id="drumDiameter"><br>
+        </div>
+
+        <div id="chainFields" class="hidden">
+            <label for="chainTeeth">Số răng đĩa xích:</label>
+            <input type="number" id="chainTeeth"><br>
+
+            <label for="chainPitch">Bước xích (mm):</label>
+            <input type="number" id="chainPitch"><br>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Lưu</button>
+    </form>
+
+    <h3 class="mt-5">Dữ liệu đã lưu</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Lực vòng (N)</th>
+                <th>Vận tốc (m/s)</th>
+                <th>Loại trục</th>
+                <th>Đường kính tang (mm)</th>
+                <th>Số răng đĩa xích</th>
+                <th>Bước xích (mm)</th>
+                <th>Hành động</th> <!-- Cột chứa nút Xóa -->
+            </tr>
+        </thead>
+        <tbody id="dataTable"></tbody>
+    </table>
+
+    <!-- Nút Xóa tất cả -->
+    <button class="btn btn-danger mt-3" onclick="clearAllData()">Xóa tất cả</button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("conveyorForm");
+        const machineType = document.getElementById("machineType");
+        const drumFields = document.getElementById("drumFields");
+        const chainFields = document.getElementById("chainFields");
+
+        // Ẩn/Hiện các trường nhập dữ liệu tùy theo loại trục
+        machineType.addEventListener("change", function () {
+            if (this.value === "Drum") {
+                drumFields.classList.remove("hidden");
+                chainFields.classList.add("hidden");
+            } else if (this.value === "Chain") {
+                drumFields.classList.add("hidden");
+                chainFields.classList.remove("hidden");
+            } else {
+                drumFields.classList.add("hidden");
+                chainFields.classList.add("hidden");
+            }
+        });
+
+        // ✅ Lưu dữ liệu vào Local Storage
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const data = {
+                Force: document.getElementById("force").value,
+                Velocity: document.getElementById("velocity").value,
+                MachineType: machineType.value,
+                DrumDiameter: machineType.value === "Drum" ? document.getElementById("drumDiameter").value : "",
+                ChainTeeth: machineType.value === "Chain" ? document.getElementById("chainTeeth").value : "",
+                ChainPitch: machineType.value === "Chain" ? document.getElementById("chainPitch").value : ""
+            };
+
+            if (!data.Force || !data.Velocity || !data.MachineType) {
+                alert("Vui lòng nhập đầy đủ thông tin!");
+                return;
+            }
+
+            let storedData = localStorage.getItem("conveyorData");
+            try {
+                storedData = storedData ? JSON.parse(storedData) : [];
+                if (!Array.isArray(storedData)) {
+                    storedData = [];
+                }
+            } catch {
+                storedData = [];
+            }
+
+            storedData.push(data);
+            localStorage.setItem("conveyorData", JSON.stringify(storedData));
+            form.reset(); // Xóa dữ liệu trong form
+            machineType.dispatchEvent(new Event("change")); // Cập nhật giao diện
+            loadData(); // Hiển thị lại danh sách
+        });
+
+        // ✅ Hiển thị dữ liệu đã lưu
+        function loadData() {
+            let storedData = localStorage.getItem("conveyorData");
+            try {
+                storedData = storedData ? JSON.parse(storedData) : [];
+                if (!Array.isArray(storedData)) {
+                    storedData = [];
+                }
+            } catch {
+                storedData = [];
+            }
+
+            let table = document.getElementById("dataTable");
+            table.innerHTML = "";
+
+            storedData.forEach((item, index) => {
+                let row = `<tr>
+                    <td>${index + 1}</td>
+                    <td>${item.Force}</td>
+                    <td>${item.Velocity}</td>
+                    <td>${item.MachineType}</td>
+                    <td>${item.DrumDiameter || "—"}</td>
+                    <td>${item.ChainTeeth || "—"}</td>
+                    <td>${item.ChainPitch || "—"}</td>
+                    <td><button class="btn btn-danger btn-sm" onclick="deleteRow(${index})">Xóa</button></td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+
+        // ✅ Xóa một dòng dữ liệu
+        window.deleteRow = function (index) {
+            let storedData = JSON.parse(localStorage.getItem("conveyorData")) || [];
+            storedData.splice(index, 1); // Xóa phần tử theo index
+            localStorage.setItem("conveyorData", JSON.stringify(storedData)); // Lưu lại
+            loadData(); // Cập nhật bảng
+        };
+
+        // ✅ Xóa toàn bộ dữ liệu
+        window.clearAllData = function () {
+            if (confirm("Bạn có chắc chắn muốn xóa tất cả dữ liệu?")) {
+                localStorage.removeItem("conveyorData"); // Xóa toàn bộ dữ liệu
+                loadData(); // Cập nhật bảng
+            }
+        };
+
+        loadData(); // Tải dữ liệu khi trang load
+    });
+</script>
