@@ -35,8 +35,7 @@
                                                     <label for="shaftSelection" class="form-label">Chọn loại trục</label>
                                                     <select class="form-select" id="shaftSelection">
                                                         <option selected>Chọn loại trục</option>
-                                                        <option value="1">Trục loại 1</option>
-                                                        <option value="2">Trục loại 2</option>
+                                                        <option value="1">Trục tang quay</option>
                                                     </select>
                                                 </div>
                                             </div><!--end col-->
@@ -71,35 +70,46 @@
                                             </div><!--end col-->
 
                                             <div class="col-6">
+                                                
+                                                    <label class="form-label">Danh sách tải (T, t)</label>
+
+                                                    <div class="d-flex mb-2">
+                                                    <input type="number" class="form-control me-2" id="loadTInput" placeholder="Nhập tải T">
+                                                    <input type="number" class="form-control me-2" id="loadtInput" placeholder="Nhập thời gian t">
+                                                    <button type="button" class="btn btn-success me-2" onclick="addBadge()">+</button>
+                                                    </div>
+                                                
+                                                
+                                            </div>
+
+                                            <div class="col-6">
                                                 <div class="mb-3">
                                                     <label for="loadTypesInput" class="form-label">Số loại tải khác nhau (n)</label>
-                                                    <input type="number" class="form-control" id="loadTypesInput" placeholder="Nhập số loại tải">
+                                                    <input type="number" class="form-control" id="loadTypesInput" placeholder="Nhập số loại tải" min="1" value="1" readonly>
                                                 </div>
-                                            </div><!--end col-->
+                                            </div>
+
+                                            
+
+                                            <div class="col-6 mb-3">
+                                                <div class="mb-3">
+
+                                                <div id="loadBadges" class="mt-3 d-flex flex-wrap gap-2"></div>
+                                                </div>
+                                            </div>
+                                            
+                                                
+                                            
 
                                             <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Danh sách tải (T, t)</label>
-                                                    <div id="loadList">
-                                                        <div class="d-flex mb-2">
-                                                            <input type="number" class="form-control me-2" placeholder="Tải T">
-                                                            <input type="number" class="form-control me-2" placeholder="Thời gian t">
-                                                            <button type="button" class="btn btn-success" onclick="addLoad()">+</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div><!--end col-->
-
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
+                                                <div class="mb-4">
                                                     <label for="startupMoment" class="form-label">Mômen mở máy</label>
                                                     <input type="number" class="form-control" id="startupMoment" placeholder="Nhập mômen mở máy">
                                                 </div>
                                             </div><!--end col-->
 
                                             <div class="col-6">
-                                                <div class="mb-3">
+                                                <div class="mb-4">
                                                     <label for="loadMoment" class="form-label">Mômen tải</label>
                                                     <input type="number" class="form-control" id="loadMoment" placeholder="Nhập mômen tải">
                                                 </div>
@@ -123,16 +133,16 @@
                                             <div class="col-6">
                                                 <div class="mb-3">
                                                     <label for="requiredMotorEfficiency" class="form-label">Hiệu suất cần thiết của động cơ</label>
-                                                    <input type="number" class="form-control" id="requiredMotorEfficiency" readonly>
+                                                    <input type="number" class="form-control" id="requiredMotorEfficiency" min="1" value="1" readonly>
                                                 </div>
                                             </div><!--end col-->
 
 
                                             <div class="col-12">
                                                 <div class="text-center mt-4">
-                                                    <button type="submit" class="btn btn-success">Xác nhận</button>
+                                                    <button type="submit" class="btn btn-success" id="submitButton">Xác nhận</button>
                                                 </div>
-                                            </div><!--end col-->
+                                            </div>
                                         </div><!--end row-->
                                     </form>
 
@@ -144,31 +154,117 @@
                 </div>
             </div>
 
-<script>
-        function showImage(imageId) {
-            // Ẩn tất cả ảnh trước
-            document.querySelectorAll('.image-container img').forEach(img => img.style.display = 'none');
-            
-            // Hiển thị ảnh được chọn
-            document.getElementById(imageId).style.display = 'block';
-        }
 
-        // Hiển thị ảnh mặc định khi trang tải xong
-        window.onload = function() {
-            showImage('img2'); // Hiển thị ảnh của radio mặc định được chọn
+
+
+<script>
+    let loads = [];
+
+    function addBadge() {
+        const T = document.getElementById('loadTInput').value;
+        const t = document.getElementById('loadtInput').value;
+
+        if (T && t) {
+            loads.push({ T, t });
+            updateBadges();
+        }
+    }
+
+    function removeBadge(index) {
+        loads.splice(index, 1);
+        updateBadges();
+    }
+
+    function updateBadges() {
+        const badgesDiv = document.getElementById("loadBadges");
+        const loadTypesInput = document.getElementById("loadTypesInput");
+        badgesDiv.innerHTML = "";
+
+        loads.forEach((load, index) => {
+            const badge = document.createElement("span");
+            badge.className = "badge border border-info text-info mt-3 fs-5 rounded";
+            badge.innerHTML = `T${index + 1}: ${load.T}, t${index + 1}: ${load.t} <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>`;
+            badgesDiv.appendChild(badge);
+        });
+
+        loadTypesInput.value = loads.length; // Cập nhật số loại tải
+    }
+
+    
+
+    function initOverloadFactorCalculation() {
+        const startupInput = document.getElementById('startupMoment');
+        const loadInput = document.getElementById('loadMoment');
+        const output = document.getElementById('overloadFactor');
+
+        if (startupInput && loadInput && output) {
+            startupInput.addEventListener('input', () => calculateOverloadFactor(startupInput, loadInput, output));
+            loadInput.addEventListener('input', () => calculateOverloadFactor(startupInput, loadInput, output));
+        }
+    }
+
+    // Tính toán hệ số quá tải
+    function calculateOverloadFactor(startupInput, loadInput, output) {
+        const startupMoment = parseFloat(startupInput.value) || 0;
+        const loadMoment = parseFloat(loadInput.value) || 1; // Tránh chia cho 0
+
+        const overloadFactor = (loadMoment !== 0) ? (startupMoment / loadMoment).toFixed(2) : "N/A";
+        output.value = overloadFactor;
+    }
+
+    document.addEventListener('DOMContentLoaded', initOverloadFactorCalculation);
+
+    document.getElementById('submitButton').addEventListener('click', function (e) {
+    e.preventDefault(); // Ngăn form reload trang
+    submitFormData(); // Gọi hàm xử lý dữ liệu
+});
+
+    function submitFormData() {
+        // Lấy giá trị các input
+        const force = document.getElementById('forceInput').value;
+        const speed = document.getElementById('speedInput').value;
+        const shaftType = document.getElementById('shaftSelection').value;
+        const diameter = document.getElementById('diameterInput').value;
+        const serviceTime = document.getElementById('serviceTimeInput').value;
+        const workDays = document.getElementById('workDaysInput').value;
+        const workHours = document.getElementById('workHoursInput').value;
+        const startupMoment = document.getElementById('startupMoment').value;
+        const loadMoment = document.getElementById('loadMoment').value;
+        const overloadFactor = document.getElementById('overloadFactor').value;
+        const overallEfficiency = document.getElementById('overallEfficiency').value;
+        const requiredMotorEfficiency = document.getElementById('requiredMotorEfficiency').value;
+
+        // Danh sách tải
+        const loadData = loads.map((load, index) => ({
+            id: index + 1,
+            T: load.T,
+            t: load.t
+        }));
+
+        // Tạo object dữ liệu
+        const formData = {
+            force,
+            speed,
+            shaftType,
+            diameter,
+            serviceTime,
+            workDays,
+            workHours,
+            startupMoment,
+            loadMoment,
+            overloadFactor,
+            overallEfficiency,
+            requiredMotorEfficiency,
+            loadData
         };
 
-        document.getElementById('startupMoment').addEventListener('input', calculateOverloadFactor);
-        document.getElementById('loadMoment').addEventListener('input', calculateOverloadFactor);
+        // Log dữ liệu ra console
+        console.log('Dữ liệu nhập vào:', formData);
 
-        function calculateOverloadFactor() {
-            let startupMoment = parseFloat(document.getElementById('startupMoment').value) || 0;
-            let loadMoment = parseFloat(document.getElementById('loadMoment').value) || 1; // Tránh chia cho 0
-
-            let overloadFactor = (loadMoment !== 0) ? (startupMoment / loadMoment).toFixed(2) : "N/A";
-            document.getElementById('overloadFactor').value = overloadFactor;
-}
+        
+    }
 
 </script>
+
 
 
