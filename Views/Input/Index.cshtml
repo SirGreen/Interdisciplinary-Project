@@ -1,8 +1,174 @@
 @{
     ViewData["Title"] = "Input Main";
 }
+<!-- Basic Input -->
+<!-- B1 -->
+<div class="row">
+                <div class="col-12">
+                    <div class="card">
+                                <div class="card-header align-items-center d-flex">
+                                    <h4 class="card-title mb-0 flex-grow-1">Nhập thông số</h4>
+                                </div><!-- end card header -->
+                                <div class="card-body align-items-center d-flex">
+                                    <!-- With Controls -->    
+                                    <!-- Input with Placeholder -->
+                                    <form action="javascript:void(0);">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="forceInput" class="form-label">Lực vòng trên băng tải F (N)</label>
+                                                    <input type="number" class="form-control" id="forceInput" placeholder="Nhập lực vòng (N)">
+                                                </div>
+                                            </div><!--end col-->
 
-<div class="text-center">
-    <h1 class="display-4">Vo input!</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="speedInput" class="form-label">Vận tốc băng tải v (m/s)</label>
+                                                    <input type="number" class="form-control" id="speedInput" placeholder="Nhập vận tốc (m/s)">
+                                                </div>
+                                            </div><!--end col-->
+
+                    
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="shaftSelection" class="form-label">Chọn loại trục</label>
+                                                    <select class="form-select" id="shaftSelection">
+                                                        <option selected>Chọn loại trục</option>
+                                                        <option value="1">Trục loại 1</option>
+                                                        <option value="2">Trục loại 2</option>
+                                                    </select>
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="diameterInput" class="form-label">Đường kính tang D (mm)</label>
+                                                    <input type="number" class="form-control" id="diameterInput" placeholder="Nhập đường kính (mm)">
+                                                </div>
+                                            </div><!--end col-->
+
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="serviceTimeInput" class="form-label">Thời gian phục vụ L (năm)</label>
+                                                    <input type="number" class="form-control" id="serviceTimeInput" placeholder="Nhập thời gian phục vụ (năm)">
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="workDaysInput" class="form-label">Số ngày làm việc mỗi năm</label>
+                                                    <input type="number" class="form-control" id="workDaysInput" placeholder="Nhập số ngày làm việc">
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="workHoursInput" class="form-label">Số giờ làm việc mỗi ngày</label>
+                                                    <input type="number" class="form-control" id="workHoursInput" placeholder="Nhập số giờ làm việc">
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="loadTypesInput" class="form-label">Số loại tải khác nhau (n)</label>
+                                                    <input type="number" class="form-control" id="loadTypesInput" placeholder="Nhập số loại tải">
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Danh sách tải (T, t)</label>
+                                                    <div id="loadList">
+                                                        <div class="d-flex mb-2">
+                                                            <input type="number" class="form-control me-2" placeholder="Tải T">
+                                                            <input type="number" class="form-control me-2" placeholder="Thời gian t">
+                                                            <button type="button" class="btn btn-success" onclick="addLoad()">+</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div><!--end col-->
+
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="startupMoment" class="form-label">Mômen mở máy</label>
+                                                    <input type="number" class="form-control" id="startupMoment" placeholder="Nhập mômen mở máy">
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="loadMoment" class="form-label">Mômen tải</label>
+                                                    <input type="number" class="form-control" id="loadMoment" placeholder="Nhập mômen tải">
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <!-- Hệ số quá tải (Tính tự động) -->
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="overloadFactor" class="form-label">Hệ số quá tải</label>
+                                                    <input type="text" class="form-control" id="overloadFactor" readonly>
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="overallEfficiency" class="form-label">Hiệu suất chung</label>
+                                                    <input type="number" class="form-control" id="overallEfficiency" value="0.85676" readonly>
+                                                </div>
+                                            </div><!--end col-->
+
+                                            <div class="col-6">
+                                                <div class="mb-3">
+                                                    <label for="requiredMotorEfficiency" class="form-label">Hiệu suất cần thiết của động cơ</label>
+                                                    <input type="number" class="form-control" id="requiredMotorEfficiency" readonly>
+                                                </div>
+                                            </div><!--end col-->
+
+
+                                            <div class="col-12">
+                                                <div class="text-center mt-4">
+                                                    <button type="submit" class="btn btn-success">Xác nhận</button>
+                                                </div>
+                                            </div><!--end col-->
+                                        </div><!--end row-->
+                                    </form>
+
+
+                                    
+                                    
+                                </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div>
+            </div>
+
+<script>
+        function showImage(imageId) {
+            // Ẩn tất cả ảnh trước
+            document.querySelectorAll('.image-container img').forEach(img => img.style.display = 'none');
+            
+            // Hiển thị ảnh được chọn
+            document.getElementById(imageId).style.display = 'block';
+        }
+
+        // Hiển thị ảnh mặc định khi trang tải xong
+        window.onload = function() {
+            showImage('img2'); // Hiển thị ảnh của radio mặc định được chọn
+        };
+
+        document.getElementById('startupMoment').addEventListener('input', calculateOverloadFactor);
+        document.getElementById('loadMoment').addEventListener('input', calculateOverloadFactor);
+
+        function calculateOverloadFactor() {
+            let startupMoment = parseFloat(document.getElementById('startupMoment').value) || 0;
+            let loadMoment = parseFloat(document.getElementById('loadMoment').value) || 1; // Tránh chia cho 0
+
+            let overloadFactor = (loadMoment !== 0) ? (startupMoment / loadMoment).toFixed(2) : "N/A";
+            document.getElementById('overloadFactor').value = overloadFactor;
+}
+
+</script>
+
+
