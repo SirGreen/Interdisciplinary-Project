@@ -157,27 +157,55 @@
                         </div>
                     </div><!--end row-->
                 </form>
-
-
-
-
             </div><!-- end card-body -->
         </div><!-- end card -->
     </div>
 </div>
 
-
-
+<!-- Khu vực hiển thị dữ liệu đã lưu -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Dữ liệu đã lưu từ LocalStorage</h4>
+            </div><!-- end card header -->
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Lực vòng (N)</th>
+                            <th>Vận tốc (m/s)</th>
+                            <th>Loại trục</th>
+                            <th>Đường kính (mm)</th>
+                            <th>Thời gian phục vụ (năm)</th>
+                            <th>Số ngày làm việc</th>
+                            <th>Số giờ làm việc</th>
+                            <th>Mômen mở máy</th>
+                            <th>Mômen tải</th>
+                            <th>Hệ số quá tải</th>
+                            <th>Hiệu suất chung</th>
+                            <th>Hiệu suất cần thiết của động cơ</th>
+                            <th>Danh sách tải</th>
+                        </tr>
+                    </thead>
+                    <tbody id="savedDataTable">
+                        <!-- Dữ liệu sẽ được thêm vào đây từ LocalStorage -->
+                    </tbody>
+                </table>
+            </div><!-- end card-body -->
+        </div><!-- end card -->
+    </div>
+</div>
 
 <script>
     let loads = [];
 
     function addBadge() {
-        const T = document.getElementById('loadTInput').value;
-        const t = document.getElementById('loadtInput').value;
+        const Torch = document.getElementById('loadTInput').value;
+        const time = document.getElementById('loadtInput').value;
 
-        if (T && t) {
-            loads.push({ T, t });
+        if (Torch && time) {
+            loads.push({ Torch, time });
             updateBadges();
         }
     }
@@ -195,7 +223,7 @@
         loads.forEach((load, index) => {
             const badge = document.createElement("span");
             badge.className = "badge border border-info text-info mt-3 fs-5 rounded";
-            badge.innerHTML = `T${index + 1}: ${load.T}, t${index + 1}: ${load.t} <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>`;
+            badge.innerHTML = `T${index + 1}: ${load.Torch}, t${index + 1}: ${load.time} <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>`;
             badgesDiv.appendChild(badge);
         });
 
@@ -249,8 +277,8 @@
         // Danh sách tải
         const loadData = loads.map((load, index) => ({
             Id: index + 1,
-            T: load.T,
-            t: load.t
+            Torch: load.Torch,
+            time: load.time
         }));
 
         // Tạo object dữ liệu
@@ -278,16 +306,70 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
-            .then(response => response.json())
+            .then(response => {
+                // Kiểm tra nếu response trả về thành công (mã trạng thái 200)
+                if (response.ok) {
+                    return response.json();  // Parse dữ liệu JSON từ response
+                } else {
+                    throw new Error("Lỗi khi gửi dữ liệu: " + response.statusText);
+                }
+            })
             .then(data => {
+                // Lưu dữ liệu vào localStorage nếu response thành công
                 let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
                 storedData.push(data);
                 localStorage.setItem("inputData", JSON.stringify(storedData));
 
                 alert("Dữ liệu đã lưu vào Local Storage!");
             })
-            .catch(error => console.error("Lỗi khi gửi dữ liệu:", error));
+            .catch(error => {
+                // Hiển thị lỗi nếu có bất kỳ vấn đề gì
+                console.error("Lỗi khi gửi dữ liệu:", error);
+                alert("Có lỗi xảy ra khi gửi dữ liệu.");
+            });
+
 
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        displayStoredData();
+    });
+
+    function displayStoredData() {
+        // Lấy dữ liệu từ localStorage
+        const savedData = JSON.parse(localStorage.getItem("inputData")) || [];
+
+        // In dữ liệu ra console để debug
+        console.log("Dữ liệu trong localStorage:", savedData);
+
+        const savedDataTable = document.getElementById("savedDataTable");
+
+        savedDataTable.innerHTML = ""; // Làm sạch bảng trước khi thêm dữ liệu mới
+
+        savedData.forEach(item => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+            <td>${item.force}</td>
+            <td>${item.speed}</td>
+            <td>${item.shaftType}</td>
+            <td>${item.diameter}</td>
+            <td>${item.serviceTime}</td>
+            <td>${item.workDays}</td>
+            <td>${item.workHours}</td>
+            <td>${item.startupMoment}</td>
+            <td>${item.loadMoment}</td>
+            <td>${item.overloadFactor}</td>
+            <td>${item.overallEfficiency}</td>
+            <td>${item.requiredMotorEfficiency}</td>
+            <td>
+                ${item.loadData.map(load => `T${load.id}: ${load.torch}, t${load.id}: ${load.time}`).join(', ')}
+            </td>
+        `;
+
+            savedDataTable.appendChild(row);
+        });
+    }
+
 
 </script>
