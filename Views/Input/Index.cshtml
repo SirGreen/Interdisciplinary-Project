@@ -4,168 +4,208 @@
 <!-- Basic Input -->
 <!-- B1 -->
 <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                                <div class="card-header align-items-center d-flex">
-                                    <h4 class="card-title mb-0 flex-grow-1">Nhập thông số</h4>
-                                </div><!-- end card header -->
-                                <div class="card-body align-items-center d-flex">
-                                    <!-- With Controls -->    
-                                    <!-- Input with Placeholder -->
-                                    <form action="javascript:void(0);">
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="forceInput" class="form-label">Lực vòng trên băng tải F (N)</label>
-                                                    <input type="number" class="form-control" id="forceInput" placeholder="Nhập lực vòng (N)">
-                                                </div>
-                                            </div><!--end col-->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Nhập thông số</h4>
+            </div><!-- end card header -->
+            <div class="card-body align-items-center d-flex">
+                <!-- With Controls -->
+                <!-- Input with Placeholder -->
+                <form action="javascript:void(0);">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="forceInput" class="form-label">Lực vòng trên băng tải F (N)</label>
+                                <input type="number" class="form-control" id="forceInput"
+                                    placeholder="Nhập lực vòng (N)">
+                            </div>
+                        </div><!--end col-->
 
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="speedInput" class="form-label">Vận tốc băng tải v (m/s)</label>
-                                                    <input type="number" class="form-control" id="speedInput" placeholder="Nhập vận tốc (m/s)">
-                                                </div>
-                                            </div><!--end col-->
-
-                    
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="shaftSelection" class="form-label">Chọn loại trục</label>
-                                                    <select class="form-select" id="shaftSelection">
-                                                        <option selected>Chọn loại trục</option>
-                                                        <option value="1">Trục tang quay</option>
-                                                    </select>
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="diameterInput" class="form-label">Đường kính tang D (mm)</label>
-                                                    <input type="number" class="form-control" id="diameterInput" placeholder="Nhập đường kính (mm)">
-                                                </div>
-                                            </div><!--end col-->
-
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="serviceTimeInput" class="form-label">Thời gian phục vụ L (năm)</label>
-                                                    <input type="number" class="form-control" id="serviceTimeInput" placeholder="Nhập thời gian phục vụ (năm)">
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="workDaysInput" class="form-label">Số ngày làm việc mỗi năm</label>
-                                                    <input type="number" class="form-control" id="workDaysInput" placeholder="Nhập số ngày làm việc">
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="workHoursInput" class="form-label">Số giờ làm việc mỗi ngày</label>
-                                                    <input type="number" class="form-control" id="workHoursInput" placeholder="Nhập số giờ làm việc">
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                
-                                                    <label class="form-label">Danh sách tải (T, t)</label>
-
-                                                    <div class="d-flex mb-2">
-                                                    <input type="number" class="form-control me-2" id="loadTInput" placeholder="Nhập tải T">
-                                                    <input type="number" class="form-control me-2" id="loadtInput" placeholder="Nhập thời gian t">
-                                                    <button type="button" class="btn btn-success me-2" onclick="addBadge()">+</button>
-                                                    </div>
-                                                
-                                                
-                                            </div>
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="loadTypesInput" class="form-label">Số loại tải khác nhau (n)</label>
-                                                    <input type="number" class="form-control" id="loadTypesInput" placeholder="Nhập số loại tải" min="1" value="1" readonly>
-                                                </div>
-                                            </div>
-
-                                            
-
-                                            <div class="col-6 mb-3">
-                                                <div class="mb-3">
-
-                                                <div id="loadBadges" class="mt-3 d-flex flex-wrap gap-2"></div>
-                                                </div>
-                                            </div>
-                                            
-                                                
-                                            
-
-                                            <div class="col-6">
-                                                <div class="mb-4">
-                                                    <label for="startupMoment" class="form-label">Mômen mở máy</label>
-                                                    <input type="number" class="form-control" id="startupMoment" placeholder="Nhập mômen mở máy">
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                <div class="mb-4">
-                                                    <label for="loadMoment" class="form-label">Mômen tải</label>
-                                                    <input type="number" class="form-control" id="loadMoment" placeholder="Nhập mômen tải">
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <!-- Hệ số quá tải (Tính tự động) -->
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="overloadFactor" class="form-label">Hệ số quá tải</label>
-                                                    <input type="text" class="form-control" id="overloadFactor" readonly>
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="overallEfficiency" class="form-label">Hiệu suất chung</label>
-                                                    <input type="number" class="form-control" id="overallEfficiency" value="0.85676" readonly>
-                                                </div>
-                                            </div><!--end col-->
-
-                                            <div class="col-6">
-                                                <div class="mb-3">
-                                                    <label for="requiredMotorEfficiency" class="form-label">Hiệu suất cần thiết của động cơ</label>
-                                                    <input type="number" class="form-control" id="requiredMotorEfficiency" min="1" value="1" readonly>
-                                                </div>
-                                            </div><!--end col-->
-
-
-                                            <div class="col-12">
-                                                <div class="text-center mt-4">
-                                                    <button type="submit" class="btn btn-success" id="submitButton">Xác nhận</button>
-                                                </div>
-                                            </div>
-                                        </div><!--end row-->
-                                    </form>
-
-
-                                    
-                                    
-                                </div><!-- end card-body -->
-                    </div><!-- end card -->
-                </div>
-            </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="speedInput" class="form-label">Vận tốc băng tải v (m/s)</label>
+                                <input type="number" class="form-control" id="speedInput"
+                                    placeholder="Nhập vận tốc (m/s)">
+                            </div>
+                        </div><!--end col-->
 
 
 
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="shaftSelection" class="form-label">Chọn loại trục</label>
+                                <select class="form-select" id="shaftSelection">
+                                    <option selected>Chọn loại trục</option>
+                                    <option value="1">Trục tang quay</option>
+                                </select>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="diameterInput" class="form-label">Đường kính tang D (mm)</label>
+                                <input type="number" class="form-control" id="diameterInput"
+                                    placeholder="Nhập đường kính (mm)">
+                            </div>
+                        </div><!--end col-->
+
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="serviceTimeInput" class="form-label">Thời gian phục vụ L (năm)</label>
+                                <input type="number" class="form-control" id="serviceTimeInput"
+                                    placeholder="Nhập thời gian phục vụ (năm)">
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="workDaysInput" class="form-label">Số ngày làm việc mỗi năm</label>
+                                <input type="number" class="form-control" id="workDaysInput"
+                                    placeholder="Nhập số ngày làm việc">
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="workHoursInput" class="form-label">Số giờ làm việc mỗi ngày</label>
+                                <input type="number" class="form-control" id="workHoursInput"
+                                    placeholder="Nhập số giờ làm việc">
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+
+                            <label class="form-label">Danh sách tải (T, t)</label>
+
+                            <div class="d-flex mb-2">
+                                <input type="number" class="form-control me-2" id="loadTInput" placeholder="Nhập tải T">
+                                <input type="number" class="form-control me-2" id="loadtInput"
+                                    placeholder="Nhập thời gian t">
+                                <button type="button" class="btn btn-success me-2" onclick="addBadge()">+</button>
+                            </div>
+
+
+                        </div>
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="loadTypesInput" class="form-label">Số loại tải khác nhau (n)</label>
+                                <input type="number" class="form-control" id="loadTypesInput"
+                                    placeholder="Nhập số loại tải" min="1" value="1" readonly>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-6 mb-3">
+                            <div class="mb-3">
+
+                                <div id="loadBadges" class="mt-3 d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+
+
+
+
+                        <div class="col-6">
+                            <div class="mb-4">
+                                <label for="startupMoment" class="form-label">Mômen mở máy</label>
+                                <input type="number" class="form-control" id="startupMoment"
+                                    placeholder="Nhập mômen mở máy">
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-4">
+                                <label for="loadMoment" class="form-label">Mômen tải</label>
+                                <input type="number" class="form-control" id="loadMoment" placeholder="Nhập mômen tải">
+                            </div>
+                        </div><!--end col-->
+
+                        <!-- Hệ số quá tải (Tính tự động) -->
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="overloadFactor" class="form-label">Hệ số quá tải</label>
+                                <input type="text" class="form-control" id="overloadFactor" readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="overallEfficiency" class="form-label">Hiệu suất chung</label>
+                                <input type="number" class="form-control" id="overallEfficiency" value="0.85676"
+                                    readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="requiredMotorEfficiency" class="form-label">Hiệu suất cần thiết của động
+                                    cơ</label>
+                                <input type="number" class="form-control" id="requiredMotorEfficiency" min="1" value="1"
+                                    readonly>
+                            </div>
+                        </div><!--end col-->
+
+
+                        <div class="col-12">
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success" id="submitButton">Xác nhận</button>
+                            </div>
+                        </div>
+                    </div><!--end row-->
+                </form>
+            </div><!-- end card-body -->
+        </div><!-- end card -->
+    </div>
+</div>
+
+<!-- Khu vực hiển thị dữ liệu đã lưu -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Dữ liệu đã lưu từ LocalStorage</h4>
+            </div><!-- end card header -->
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Lực vòng (N)</th>
+                            <th>Vận tốc (m/s)</th>
+                            <th>Loại trục</th>
+                            <th>Đường kính (mm)</th>
+                            <th>Thời gian phục vụ (năm)</th>
+                            <th>Số ngày làm việc</th>
+                            <th>Số giờ làm việc</th>
+                            <th>Mômen mở máy</th>
+                            <th>Mômen tải</th>
+                            <th>Hệ số quá tải</th>
+                            <th>Hiệu suất chung</th>
+                            <th>Hiệu suất cần thiết của động cơ</th>
+                            <th>Danh sách tải</th>
+                        </tr>
+                    </thead>
+                    <tbody id="savedDataTable">
+                        <!-- Dữ liệu sẽ được thêm vào đây từ LocalStorage -->
+                    </tbody>
+                </table>
+            </div><!-- end card-body -->
+        </div><!-- end card -->
+    </div>
+</div>
 
 <script>
     let loads = [];
 
     function addBadge() {
-        const T = document.getElementById('loadTInput').value;
-        const t = document.getElementById('loadtInput').value;
+        const Torch = document.getElementById('loadTInput').value;
+        const time = document.getElementById('loadtInput').value;
 
-        if (T && t) {
-            loads.push({ T, t });
+        if (Torch && time) {
+            loads.push({ Torch, time });
             updateBadges();
         }
     }
@@ -183,14 +223,14 @@
         loads.forEach((load, index) => {
             const badge = document.createElement("span");
             badge.className = "badge border border-info text-info mt-3 fs-5 rounded";
-            badge.innerHTML = `T${index + 1}: ${load.T}, t${index + 1}: ${load.t} <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>`;
+            badge.innerHTML = `T${index + 1}: ${load.Torch}, t${index + 1}: ${load.time} <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>`;
             badgesDiv.appendChild(badge);
         });
 
         loadTypesInput.value = loads.length; // Cập nhật số loại tải
     }
 
-    
+
 
     function initOverloadFactorCalculation() {
         const startupInput = document.getElementById('startupMoment');
@@ -215,9 +255,9 @@
     document.addEventListener('DOMContentLoaded', initOverloadFactorCalculation);
 
     document.getElementById('submitButton').addEventListener('click', function (e) {
-    e.preventDefault(); // Ngăn form reload trang
-    submitFormData(); // Gọi hàm xử lý dữ liệu
-});
+        e.preventDefault(); // Ngăn form reload trang
+        submitFormData(); // Gọi hàm xử lý dữ liệu
+    });
 
     function submitFormData() {
         // Lấy giá trị các input
@@ -236,9 +276,9 @@
 
         // Danh sách tải
         const loadData = loads.map((load, index) => ({
-            id: index + 1,
-            T: load.T,
-            t: load.t
+            Id: index + 1,
+            Torch: load.Torch,
+            time: load.time
         }));
 
         // Tạo object dữ liệu
@@ -261,10 +301,75 @@
         // Log dữ liệu ra console
         console.log('Dữ liệu nhập vào:', formData);
 
-        
+        fetch('/Input/Submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                // Kiểm tra nếu response trả về thành công (mã trạng thái 200)
+                if (response.ok) {
+                    return response.json();  // Parse dữ liệu JSON từ response
+                } else {
+                    throw new Error("Lỗi khi gửi dữ liệu: " + response.statusText);
+                }
+            })
+            .then(data => {
+                // Lưu dữ liệu vào localStorage nếu response thành công
+                let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
+                storedData.push(data);
+                localStorage.setItem("inputData", JSON.stringify(storedData));
+
+                alert("Dữ liệu đã lưu vào Local Storage!");
+            })
+            .catch(error => {
+                // Hiển thị lỗi nếu có bất kỳ vấn đề gì
+                console.error("Lỗi khi gửi dữ liệu:", error);
+                alert("Có lỗi xảy ra khi gửi dữ liệu.");
+            });
+
+
     }
 
+    document.addEventListener('DOMContentLoaded', function () {
+        displayStoredData();
+    });
+
+    function displayStoredData() {
+        // Lấy dữ liệu từ localStorage
+        const savedData = JSON.parse(localStorage.getItem("inputData")) || [];
+
+        // In dữ liệu ra console để debug
+        console.log("Dữ liệu trong localStorage:", savedData);
+
+        const savedDataTable = document.getElementById("savedDataTable");
+
+        savedDataTable.innerHTML = ""; // Làm sạch bảng trước khi thêm dữ liệu mới
+
+        savedData.forEach(item => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+            <td>${item.force}</td>
+            <td>${item.speed}</td>
+            <td>${item.shaftType}</td>
+            <td>${item.diameter}</td>
+            <td>${item.serviceTime}</td>
+            <td>${item.workDays}</td>
+            <td>${item.workHours}</td>
+            <td>${item.startupMoment}</td>
+            <td>${item.loadMoment}</td>
+            <td>${item.overloadFactor}</td>
+            <td>${item.overallEfficiency}</td>
+            <td>${item.requiredMotorEfficiency}</td>
+            <td>
+                ${item.loadData.map(load => `T${load.id}: ${load.torch}, t${load.id}: ${load.time}`).join(', ')}
+            </td>
+        `;
+
+            savedDataTable.appendChild(row);
+        });
+    }
+
+
 </script>
-
-
-
