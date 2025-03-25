@@ -1,15 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Configuration;
 
 public class AdminController : Controller
 {
     private readonly ICatalogService _catalogService;
     private readonly IExtractionService _extractionService;
+    private readonly Cloudinary _cloudinary;
 
-    public AdminController(ICatalogService catalogService, IExtractionService extractionService)
+    public AdminController(ICatalogService catalogService, IExtractionService extractionService, IConfiguration configuration)
     {
         _catalogService = catalogService;
         _extractionService = extractionService;
+
+        // Lấy thông tin Cloudinary từ appsettings.json
+        var cloudName = configuration["Cloudinary:CloudName"];
+        var apiKey = configuration["Cloudinary:ApiKey"];
+        var apiSecret = configuration["Cloudinary:ApiSecret"];
+
+        _cloudinary = new Cloudinary(new Account(cloudName, apiKey, apiSecret));
     }
 
     // Hiển thị form upload
@@ -37,8 +48,36 @@ public class AdminController : Controller
             return RedirectToAction("UploadCatalog");
         }
 
-        await _catalogService.AddCatalogAsync(extractedData);
-        TempData["Success"] = "Dữ liệu đã được lưu thành công!";
+        // 🛠 Render view để người dùng chỉnh sửa thông tin
+        return View("ConfirmCatalog", extractedData);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> ConfirmCatalog(MotorCatalog catalog, List<IFormFile>? imageFiles)
+    {
+        if (imageFiles != null && imageFiles.Count > 0)
+        {
+            foreach (var imageFile in imageFiles)
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
+                    PublicId = $"motor_catalog/{Guid.NewGuid()}",
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    catalog.ImageUrls.Add(uploadResult.SecureUrl.ToString());
+                }
+            }
+        }
+
+        await _catalogService.AddCatalogAsync(catalog);
+
+        TempData["Success"] = "Thông tin đã được cập nhật!";
         return RedirectToAction("CatalogList");
     }
 

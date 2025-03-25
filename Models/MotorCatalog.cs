@@ -19,4 +19,5 @@ public class MotorCatalog
     public required string Protection { get; set; }
     public required string ShaftDiameter { get; set; }
     public required string Footprint { get; set; }
+    public List<string> ImageUrls { get; set; } = new List<string>();
 }
