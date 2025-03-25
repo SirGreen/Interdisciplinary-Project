@@ -1,0 +1,35 @@
+@model IEnumerable<MotorCatalog>
+@{
+    ViewData["Title"] = "Danh sách Catalog";
+}
+
+<h2>Danh sách Catalog</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Model</th>
+            <th>Công suất</th>
+            <th>Điện áp</th>
+            <th>Bảo vệ</th>
+            <th>Chi tiết</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Model</td>
+                <td>@item.Power</td>
+                <td>@item.Voltage</td>
+                <td>@item.Protection</td>
+                <td><a href="@item.URL" target="_blank">Xem</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

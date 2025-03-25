@@ -1,0 +1,40 @@
+@model MotorCatalog
+@{
+    ViewData["Title"] = "Thêm động cơ thủ công";
+}
+
+<h2>Thêm động cơ thủ công</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="AddMotorManual" method="post">
+    <div class="mb-3">
+        <label class="form-label">Model</label>
+        <input type="text" class="form-control" asp-for="Model" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Công suất</label>
+        <input type="text" class="form-control" asp-for="Power" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Điện áp</label>
+        <input type="text" class="form-control" asp-for="Voltage" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Bảo vệ</label>
+        <input type="text" class="form-control" asp-for="Protection">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">URL</label>
+        <input type="text" class="form-control" asp-for="URL">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Thêm</button>
+</form>

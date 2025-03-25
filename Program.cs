@@ -1,10 +1,22 @@
+using MongoDB.Driver;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
 
+// Load config MongoDB
+var mongoSettings = builder.Configuration.GetSection("MongoDB");
+var mongoClient = new MongoClient(mongoSettings["ConnectionString"]);
+
+// Add MongoDB services
+builder.Services.AddSingleton<IMongoClient>(mongoClient);
+builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
+builder.Services.AddScoped<ICatalogService, CatalogService>();
+builder.Services.AddHttpClient<IExtractionService, ExtractionService>();
+
+
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
