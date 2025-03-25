@@ -49,15 +49,32 @@ public class AdminController : Controller
         }
 
         // 🛠 Render view để người dùng chỉnh sửa thông tin
-        return View("ConfirmCatalog", extractedData);
+        return View("AddMotorManual", extractedData);
     }
 
 
     [HttpPost]
-    public async Task<IActionResult> ConfirmCatalog(MotorCatalog catalog, List<IFormFile>? imageFiles)
+    public async Task<IActionResult> AddMotorManual(MotorCatalog catalog, List<IFormFile>? imageFiles)
     {
+        // Gán giá trị mặc định "Unknown" nếu trường bị bỏ trống
+        catalog.Power = string.IsNullOrWhiteSpace(catalog.Power) ? "Unknown" : catalog.Power;
+        catalog.Voltage = string.IsNullOrWhiteSpace(catalog.Voltage) ? "Unknown" : catalog.Voltage;
+        catalog.Poles = string.IsNullOrWhiteSpace(catalog.Poles) ? "Unknown" : catalog.Poles;
+        catalog.FrameSize = string.IsNullOrWhiteSpace(catalog.FrameSize) ? "Unknown" : catalog.FrameSize;
+        catalog.Protection = string.IsNullOrWhiteSpace(catalog.Protection) ? "Unknown" : catalog.Protection;
+        catalog.Standard = string.IsNullOrWhiteSpace(catalog.Standard) ? "Unknown" : catalog.Standard;
+        catalog.Material = string.IsNullOrWhiteSpace(catalog.Material) ? "Unknown" : catalog.Material;
+        catalog.MountingType = string.IsNullOrWhiteSpace(catalog.MountingType) ? "Unknown" : catalog.MountingType;
+        catalog.ShaftDiameter = string.IsNullOrWhiteSpace(catalog.ShaftDiameter) ? "Unknown" : catalog.ShaftDiameter;
+        catalog.Footprint = string.IsNullOrWhiteSpace(catalog.Footprint) ? "Unknown" : catalog.Footprint;
+        catalog.Technology = string.IsNullOrWhiteSpace(catalog.Technology) ? "Unknown" : catalog.Technology;
+        catalog.URL = string.IsNullOrWhiteSpace(catalog.URL) ? "Unknown" : catalog.URL;
+
+        // Xử lý upload ảnh
         if (imageFiles != null && imageFiles.Count > 0)
         {
+            catalog.ImageUrls = new List<string>(); // Đảm bảo danh sách không null
+
             foreach (var imageFile in imageFiles)
             {
                 var uploadParams = new ImageUploadParams
@@ -81,6 +98,7 @@ public class AdminController : Controller
         return RedirectToAction("CatalogList");
     }
 
+
     // Hiển thị danh sách catalog
     [HttpGet]
     public async Task<IActionResult> CatalogList()
@@ -94,20 +112,5 @@ public class AdminController : Controller
     public IActionResult AddMotorManual()
     {
         return View();
-    }
-
-    // Xử lý thêm catalog bằng nhập tay
-    [HttpPost]
-    public async Task<IActionResult> AddMotorManual(MotorCatalog motor)
-    {
-        if (motor == null)
-        {
-            TempData["Error"] = "Dữ liệu không hợp lệ.";
-            return RedirectToAction("AddMotorManual");
-        }
-
-        await _catalogService.AddCatalogAsync(motor);
-        TempData["Success"] = "Dữ liệu động cơ đã được thêm thành công!";
-        return RedirectToAction("CatalogList");
     }
 }

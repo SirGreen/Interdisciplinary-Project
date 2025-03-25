@@ -1,40 +1,85 @@
 @model MotorCatalog
+
 @{
-    ViewData["Title"] = "Thêm động cơ thủ công";
+    ViewData["Title"] = "Thêm thông tin động cơ";
 }
 
-<h2>Thêm động cơ thủ công</h2>
+<h2>Thêm thông tin động cơ</h2>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
-<form asp-action="AddMotorManual" method="post">
-    <div class="mb-3">
-        <label class="form-label">Model</label>
-        <input type="text" class="form-control" asp-for="Model" required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Công suất</label>
-        <input type="text" class="form-control" asp-for="Power" required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Điện áp</label>
-        <input type="text" class="form-control" asp-for="Voltage" required>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Bảo vệ</label>
-        <input type="text" class="form-control" asp-for="Protection">
-    </div>
+<form asp-action="AddMotorManual" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
         <label class="form-label">URL</label>
-        <input type="text" class="form-control" asp-for="URL">
+        <input type="text" class="form-control" asp-for="URL" readonly />
     </div>
+
+    <div class="mb-3">
+        <label class="form-label">Power <span class="text-danger">*</span> </label>
+        <input type="text" class="form-control" asp-for="Power" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Model <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="Model" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Voltage <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="Voltage" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Poles</label>
+        <input type="text" class="form-control" asp-for="Poles" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Standard</label>
+        <input type="text" class="form-control" asp-for="Standard" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Material</label>
+        <input type="text" class="form-control" asp-for="Material" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Protection</label>
+        <input type="text" class="form-control" asp-for="Protection" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Shaft Diameter</label>
+        <input type="text" class="form-control" asp-for="ShaftDiameter" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Frame Size</label>
+        <input type="text" class="form-control" asp-for="FrameSize" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mounting Type</label>
+        <input type="text" class="form-control" asp-for="MountingType" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Footprint</label>
+        <input type="text" class="form-control" asp-for="Footprint" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Technology</label>
+        <input type="text" class="form-control" asp-for="Technology" />
+    </div>
+
+    <!-- Upload ảnh -->
+    <div class="mb-3">
+        <label class="form-label">Hình ảnh</label>
+        <input type="file" class="form-control" name="imageFiles" multiple />
+    </div>
+
 
     <button type="submit" class="btn btn-primary">Thêm</button>
 </form>
