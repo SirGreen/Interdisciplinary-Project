@@ -14,4 +14,7 @@ public class CatalogService : ICatalogService
 
     public async Task AddCatalogAsync(MotorCatalog catalog) =>
         await _repository.AddAsync(catalog);
+
+    public async Task DeleteCatalogAsync(string id) => // Thêm hàm xóa
+        await _repository.DeleteAsync(id);
 }

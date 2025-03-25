@@ -113,4 +113,26 @@ public class AdminController : Controller
     {
         return View();
     }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteMotorCatalog(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            TempData["Error"] = "ID không hợp lệ.";
+            return RedirectToAction("CatalogList");
+        }
+
+        try
+        {
+            await _catalogService.DeleteCatalogAsync(id);
+            TempData["Success"] = "Catalog đã được xóa thành công!";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = "Lỗi khi xóa catalog: " + ex.Message;
+        }
+
+        return RedirectToAction("CatalogList");
+    }
 }

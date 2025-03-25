@@ -10,9 +10,10 @@
     <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<table class="table table-bordered table-hover">
+<table class="table table-bordered table-hover table-responsive">
     <thead class="table-dark">
         <tr>
+            <th style="width: 50px;">STT</th> <!-- Cột số thứ tự -->
             <th style="width: 150px;">Hình ảnh</th>
             <th>Model</th>
             <th>Công suất</th>
@@ -27,12 +28,15 @@
             <th>Footprint</th>
             <th>Công nghệ</th>
             <th>Chi tiết</th>
+            <th>Hành động</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @for (int i = 0; i < Model.Count(); i++)
         {
+            var item = Model.ElementAt(i);
             <tr>
+                <td>@(i + 1)</td> <!-- Hiển thị số thứ tự -->
                 <td>
                     @if (item.ImageUrls != null && item.ImageUrls.Any())
                     {
@@ -62,7 +66,40 @@
                 <td>@item.Footprint</td>
                 <td>@item.Technology</td>
                 <td><a href="@item.URL" target="_blank" class="btn btn-primary btn-sm">Xem</a></td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">Xóa</button>
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+<!-- Popup xác nhận xóa -->
+<div id="deleteModal" class="modal fade" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa catalog này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(catalogId) {
+        var deleteForm = document.getElementById("deleteForm");
+        deleteForm.action = "/Admin/DeleteMotorCatalog/" + catalogId;
+        var deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
+        deleteModal.show();
+    }
+</script>

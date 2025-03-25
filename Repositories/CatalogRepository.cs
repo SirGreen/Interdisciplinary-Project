@@ -8,7 +8,7 @@ public class CatalogRepository : ICatalogRepository
 
     public CatalogRepository(IMongoClient mongoClient)
     {
-        var database = mongoClient.GetDatabase("CatalogDB");
+        var database = mongoClient.GetDatabase("MotorDB");
         _catalogCollection = database.GetCollection<MotorCatalog>("MotorCatalogs");
     }
 
@@ -20,4 +20,7 @@ public class CatalogRepository : ICatalogRepository
 
     public async Task AddAsync(MotorCatalog catalog) =>
         await _catalogCollection.InsertOneAsync(catalog);
+
+    public async Task DeleteAsync(string id) =>
+        await _catalogCollection.DeleteOneAsync(c => c.Id == id);
 }
