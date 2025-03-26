@@ -1,65 +1,348 @@
-// đoạn này là structure của mấy bộ truyền dẫn ngoài, tới class Design ở dưới là tính hộp giảm tốc
+public class GearboxDesign
+{
+    private double LucF; // Lực vòng trên băng tải (N)
+    private double VantocV; // Vận tốc băng tải (m/s)
+    private double DuongkinhD; // Đường kính tang (mm)
+    private double ThoigianL; // Thời gian phục vụ (năm)
+    private double loadN; // Hệ số quá tải
+    private double[] Tlist; // Hệ số quá tải
+    private double[] tlist; // Hệ số quá tải
+
+    public GearboxDesign(double force, double velocity, double diameter, double serviceLife, double load, double[] Tlst, double[] tlst)
+    {
+        LucF = force;
+        VantocV = velocity;
+        DuongkinhD = diameter;
+        ThoigianL = serviceLife;
+        loadN = load;
+        Tlist = Tlst;
+        tlist = tlst;
+    }
+    
+    // B3
+    private double TinhHieuSuatChungN(double Nx = 0, double Nbr = 0, double Nol = 0, double Nkn = 0)
+    {
+        // Tính công suất (đang return cứng luôn)
+        return 0.85676;
+    }
+
+    // B4
+    private double TinhCongSuatCanThietPct(double N)
+    {
+        double Plv = LucF * VantocV / 1000;
+        double sum1 = 0; double sum2 = 0;
+        for (int i=0;i<loadN;i++){
+            sum1 += tlist[i] * Tlist[i] * Tlist[i];
+            sum2 += tlist[i];
+        }
+        double Ptd = Plv * Math.Sqrt(sum1/sum2);
+        double Pct = Ptd / N;
+        return Pct; //(kW)
+    }
+
+    // B5
+    // nếu cho chọn nhiều loại trục thì thêm 1 arg để phân biệt
+    private double TinhTocDoQuayCanThietNlv()
+    {
+        double Nlv = 60000 * VantocV / (Math.PI * DuongkinhD);
+        return Nlv;
+    }
+
+    // B6
+    private double TinhTocDoSoBoNsb(double Nlv)
+    {
+        double Ux = 2.56; double Uh = 18;
+        double Usb = Ux * Uh; 
+        // Tính tổng tỉ số truyền
+        return Nlv * Usb;
+    }
+
+    // B7
+    // function chọn động cơ, hiện đang in với return max sai số tại chưa có cấu trúc return
+    private double ChonDongCo(double Nsb, double Pct)
+    {
+        // Giả lập việc chọn động cơ từ catalog
+        Console.WriteLine($"Selected Motor: CongSuat >= {Pct} kW, VanToc khoang [{Nsb * 0.96}, {Nsb * 1.04} ] vg/gi");
+        
+        return Nsb * 1.04;
+    }
+
+    // B8
+        private double TinhTiSoTruyenUn(double Ndc,double Nlv)
+    {
+        double Ut = Ndc / Nlv;
+        // cần array 2.4
+        double Un = 1;
+        double Uh = Ut/Un;
+        // cần array 3.1
+        double u1 = 1;double u2 = 1;
+        Un = Ut / (u1*u2);
+
+        return Un;
+    }
+
+    // B9
+    // return array hay gì đó để lấy hết
+    private void TinhCSMomenSoVongQuay(double Pct, double Ndc)
+    {   
+        // cái này thông số bên hiệu suất, mà lười tra bảng quá nên lấy của file excel
+        double Nol = 0.993, Nx = 0.91, Nbr = 0.97, Nk = 1;
+        double Plv = LucF * VantocV / 1000;
+        // lấy từ B8 mà ko bt tính
+        double Uk = 1, U1 = 1, U2 = 1, Ux = 1;
+        
+        // công suất
+        double P3 = Plv / (Nol * Nx);
+        double P2 = P3 / (Nol * Nbr);
+        double P1 = P2 / (Nol * Nbr);
+        double Pdc2 = P1 / (Nol * Nk);
+        // vòng quay
+        double N1 = Ndc / Uk;
+        double N2 = N1 / U1;
+        double N3 = N2 / U2;
+        double Nct = N3 / Ux;
+        // momen
+        double Tct = 9.55 * 1000000 * Pct / Nct;
+        double T3 = 9.55 * 1000000 * P3 / N3;
+        double T2 = 9.55 * 1000000 * P2 / N2;
+        double T1 = 9.55 * 1000000 * P1 / N1;
+        double Tdc = 9.55 * 1000000 * Pdc2 / Ndc;
+
+        Console.WriteLine($"Shaft 1: Power = {P1} kW, Speed = {N1} rpm, Torque = {T3} N.mm");
+    }
+
+    public void Calculate()
+    {
+        // B3: Tính hiệu suất chung của hệ thống
+        double hschungN = TinhHieuSuatChungN();
+
+        // B4: Xác định công suất cần thiết cho động cơ
+        double Pct = TinhCongSuatCanThietPct(hschungN);
+
+        // B5: Xác định tốc độ quay cần thiết của động cơ
+        double Nlv = TinhTocDoQuayCanThietNlv();
+
+        // B6: Tính tỉ số truyền rồi tính tốc độ quay sơ bộ
+        double Nsb = TinhTocDoSoBoNsb(Nlv);
+
+        // B7: Chọn động cơ phù hợp từ catalog (giả lập)
+        double Ndc = ChonDongCo(Nsb, Pct);
+
+        // B8: Xác định tỷ số truyền của hệ dẫn động
+        double Un = TinhTiSoTruyenUn(Ndc,Nlv);
+
+        // B9: Tính công suất, momen và số vòng quay trên các trục
+        TinhCSMomenSoVongQuay(Pct, Ndc);
+    }
+}
+
+// đoạn này là structure của mấy bộ truyền
 public interface ITransmissionCalculation
 {
-    double CalculateEfficiency();
-    double CalculateTransmissionRatio();
+    double Calculate();
 }
 
 public class BeltTransmission : ITransmissionCalculation
 {
-    public double CalculateEfficiency()
+    public double Calculate()
     {
-        // Tính hiệu suất bộ truyền đai
-        return 0.95; // Ví dụ
-    }
-
-    public double CalculateTransmissionRatio()
-    {
-        // Tính tỉ số truyền bộ truyền đai
-        return 2.0; // Ví dụ
+        return 0.95;
     }
 }
 
 public class ChainTransmission : ITransmissionCalculation
 {
-    public double CalculateEfficiency()
+    private double P3;
+    private double U3;
+    private double Uct;
+    private double N3;
+    private double T3;
+    private double Z1;
+    private double Z2;
+
+    public ChainTransmission(double Power3, double UTruc3, double Speed3, double UCongTac, double Torque3)
     {
-        // Tính hiệu suất bộ truyền xích
-        return 0.92; // Ví dụ
+        P3 = Power3;
+        U3 = UTruc3;
+        Uct = UCongTac;
+        N3 = Speed3;
+        T3 = Torque3;
+    }
+    
+    // B10.1
+    private void TinhSoRangDiaXich(double limit = 29)
+    {
+        double Ux = 2.578;
+        Z1 = Math.Floor(limit - 2*Ux);
+        Z2 = Math.Floor(Z1 * Ux);
+    }
+    // B10.2
+    private double TinhBuocXichP(double limit = 29)
+    {
+        double K = 1.95;
+        double Kz = 25 / Z1;
+
+        // cần 1 array các giá trị bảng 5.5 để lọc tìm số gần nhất thay vì =50
+        double N01 = 50;
+        double Kn = N01 / N3;
+        double Pt = P3*K*Kz*Kn;
+        // cần array object bảng 5.5 ở trên để lọc tìm thông số
+        double Psquare = 10.5;
+        double p = 38.1;
+        double Dc = 11.12;
+        double B = 35.46;
+        // cần array bảng 5.8 để xác định n1 thỏa mãn >N3
+        return p;
     }
 
-    public double CalculateTransmissionRatio()
+    // B11
+    private double TinhKhoangCachTruc(double p,bool Above,double a,int controlType,int Shift,int envi, int LubeType)
     {
-        // Tính tỉ số truyền bộ truyền xích
-        return 2.56; // Ví dụ
+        double K0 = Above ? 1.25 : 1;
+        double Ka;
+        if (a > 30*p && a < 50*p) {
+            Ka = 1;
+        }  else if (a <= 25*p) {
+            Ka = 1.25;
+        } else if(a >= 80*p) {
+            Ka = 0.8;
+        }
+        double Kdc = controlType == 1 ? 1 : controlType == 2 ? 1.1 : 1.25;
+        // Kd
+        double Kc = Shift == 1 ? 1 : Shift == 2 ? 1.25 : 1.45;
+        double Kbt;
+        if (envi == 0 && LubeType == 1) {
+            Kbt = 0.8;
+        }  else if (envi == 0 && LubeType == 2) {
+            Kbt = 1;
+        } else if(envi == 1 && LubeType == 2) {
+            Kbt = 1.3;
+        } else if (envi == 1 && LubeType == 3) {
+            Kbt = 1.8;
+        }  else if (envi == 2 && LubeType == 3) {
+            Kbt = 3;
+        } else if(envi == 2 && LubeType == 4) {
+            Kbt = 6;
+        }
+
+        double x = Math.Floor(2*a / p + (Z1+Z2)/2 + (Z2-Z1)*(Z2-Z1)*p/(4*a*Math.PI*Math.PI));
+        if (x%2 == 1) x -= 1;
+
+        double aNew = 0.25*p*(x - 0.5*(Z2+Z1) + Math.Sqrt(Math.Pow(x-0.5*(Z2 + Z1),2) - 2*Math.Pow((Z2-Z1)/Math.PI,2)));
+        double aStan = aNew - 0.002*aNew;
+        double i = Z1*N3 / (15*x);
+
+        return aStan;
+    }
+
+    // B12
+    private bool KiemNghiemXich(double p,int LoadType, double aStan)
+    {
+        // cần array bảng 5.2 để dò từ p
+        double Q = 127;
+        double q = 5.5;
+        double Kd = LoadType == 1 ? 1.2 : LoadType == 2 ? 1.7 : 2.0;
+
+        double v = Z1 * p * N3 / 60000;
+        double Ft = 1000*P3 / v;
+        double Fv = q*v*v;
+        double F0 = 9.81*6*q*aStan;
+        double s = Q/(Kd*Ft + F0 + Fv);
+
+        // array bảng 5.10 để tìm sLimit
+        double sLimit = 8.5;
+        return s>sLimit;
+    }
+
+    // B13
+    private void TinhDuongKinhDiaXich(double p)
+    {
+        double d1 = p / Math.Sin(Math.PI / Z1);
+        double d2 = p / Math.Sin(Math.PI / Z2);
+        double da1 = p*(0.5+1/Math.Tan(Math.PI/Z1));
+        double da2 = p*(0.5+1/Math.Tan(Math.PI/Z2));
+        // cần array bảng 5.2 để dò từ p
+        double dl = 22.23;
+        double r = 0.5025*dl + 0.05;
+        double df1 = d1-2*r;
+        double df2 = d2-2*r;
+    }
+
+    // B14
+    private double KiemNghiemDoBen(double p,int LoadType)
+    {
+        // hình như cần tra bảng tr87 dựa trên z1
+        double Kr = 0.44;
+
+        double v = Z1 * p * N3 / 60000;
+        double Ft = 1000*P3 / v;
+        double Kd = LoadType == 1 ? 1.2 : LoadType == 2 ? 1.2 : 1.8;
+        double Fvd = 13*Math.Pow(10,-7)*N3*p*p*p;
+        double E = 1.6*100000;
+        // tra bảng 5.12
+        double A = 395;
+        double Kde = 1;
+        double Oh1 = 0.47*Math.Sqrt(Kr*(Ft*Kd+Fvd)*E / (A*Kde));
+        // tra bảng 5.11 và tìm số/vật liệu lớn hơn Oh1
+        double Oh = 550;
+
+        return Oh;
+    }
+
+    // B14
+        private double TinhLucTrenTruc(double p,bool Below)
+    {
+        double Kx = Below ? 1.15 : 1.05;
+        double v = Z1 * p * N3 / 60000;
+        double Ft = 1000*P3 / v;
+        double Frk = Kx * Ft;
+
+        return Frk;
+    }
+
+    public double Calculate()
+    {
+        // B10: Xác định thông số xích
+        TinhSoRangDiaXich();
+        double p = TinhBuocXichP();
+
+        // B11: Khoảng cách trục và số mắt xích
+        double aStan = TinhKhoangCachTruc(p,false,40*p,1,1,0,1);
+
+        // B12: Tính kiểm nghiệm xích về độ bền (true nếu an toàn)
+        bool safe = KiemNghiemXich(p,1,aStan);
+
+        // B13: Tính đường kính đĩa xích
+        TinhDuongKinhDiaXich(p);
+
+        // B14: Kiểm nghiệm độ bền tiếp xúc và chọn vật liệu cho bộ truyền xích
+        double materialOh = KiemNghiemDoBen(p,1);
+
+        // B15: Tính lực tác dụng lên trục
+        double Frk = TinhLucTrenTruc(p,true);
+
+        return Frk;
     }
 }
 
 public class GearTransmission : ITransmissionCalculation
 {
-    public double CalculateEfficiency()
+    public double Calculate()
     {
-        // Tính hiệu suất bộ truyền bánh răng
-        return 0.98; // Ví dụ
-    }
-
-    public double CalculateTransmissionRatio()
-    {
-        // Tính tỉ số truyền bộ truyền bánh răng
-        return 3.0; // Ví dụ
+        return 0.98;
     }
 }
 
-public class GearboxFactory
+public class TransmissionFactory
 {
-    public static ITransmissionCalculation CreateTransmission(string type)
+    public static ITransmissionCalculation CreateTransmission(string type,double Power3, double UTruc3, double Speed3, double UCongTac, double Torque3)
     {
         switch (type.ToLower())
         {
             case "belt":
                 return new BeltTransmission();
             case "chain":
-                return new ChainTransmission();
+                return new ChainTransmission(Power3,UTruc3,Speed3,UCongTac,Torque3);
             case "gear":
                 return new GearTransmission();
             default:
@@ -68,140 +351,16 @@ public class GearboxFactory
     }
 }
 
-public class GearboxDesign
-{
-    private ITransmissionCalculation _transmission;
-    private double _force; // Lực vòng trên băng tải (N)
-    private double _velocity; // Vận tốc băng tải (m/s)
-    private double _diameter; // Đường kính tang (mm)
-    private double _serviceLife; // Thời gian phục vụ (năm)
-    private double _loadT1; // Hệ số quá tải
-    private double _loadT2; // Hệ số quá tải
-
-    public GearboxDesign(ITransmissionCalculation transmission, double force, double velocity, double diameter, double serviceLife, double loadT1,double loadT2)
-    {
-        _transmission = transmission;
-        _force = force;
-        _velocity = velocity;
-        _diameter = diameter;
-        _serviceLife = serviceLife;
-        _loadT1 = loadT1;
-        _loadT2 = loadT2;
-    }
-
-    public void Calculate()
-    {
-        // B3: Tính hiệu suất chung của hệ thống
-        double engine_efficiency = CalculateEfficiency();
-
-        // B4: Xác định công suất cần thiết cho động cơ
-        double power = CalculateRequiredPower(engine_efficiency);
-
-        // B5: Xác định tốc độ quay cần thiết của động cơ
-        double rotationSpeed = CalculateRequiredRotationSpeed();
-
-        // B6: Tính tỉ số truyền
-        double transmissionRatio = CalculateTransmissionRatio(rotationSpeed);
-
-        // B7: Chọn động cơ phù hợp từ catalog (giả lập)
-        double engine = SelectEngine(power, transmissionRatio);
-
-        // B8: Xác định tỷ số truyền của hệ dẫn động
-        double totalTransmissionRatio = CalculateTotalTransmissionRatio(transmissionRatio,engine);
-
-        // B9: Tính công suất, momen và số vòng quay trên các trục
-        CalculateShaftParameters(power, rotationSpeed, totalTransmissionRatio);
-    }
-
-    private double CalculateEfficiency(double n1 = 0, double n2 = 0, double n3 = 0, double n4 = 0)
-    {
-        // Tính công suất (đang return cứng luôn)
-        return 0.85676;
-    }
-
-    private double CalculateRequiredPower(double efficiency)
-    {
-        // Tính công suất cần thiết
-        double power_lever = _force * _velocity / 1000;
-        // tui đang cho T1/T với T2/T theo cái excel, ko bt có cần input cái đó ko
-        double power_approx = power_lever * Math.Sqrt((_loadT1 + _loadT2 * 0.8*0.8 )/(_loadT1 + _loadT2));
-        double power = power_approx / efficiency;
-        return power;
-    }
-
-// nếu cho chọn nhiều loại trục thì thêm 1 arg để phân biệt, giống cái transmission ở đầu
-    private double CalculateRequiredRotationSpeed()
-    {
-        // Tính tốc độ quay cần thiết
-        double rotationSpeed = (60000 * _velocity) / (Math.PI * _diameter);
-        return rotationSpeed;
-    }
-
-// theo tui hiểu thì sau sẽ cần thêm input loại thiết kế để biết ux, uh?
-    private double CalculateTransmissionRatio(double rotationSpeed)
-    {
-        double Ux = 2.56; double Uh = 18;
-        double Usb = Ux * Uh; 
-        // Tính tổng tỉ số truyền
-        return rotationSpeed * Usb;
-    }
-
-    // function chọn động cơ, hiện đang in với return max sai số, sau chắc return nguyên object engine
-    private double SelectEngine(double power, double transmissionRatio)
-    {
-        // Giả lập việc chọn động cơ từ catalog
-        Console.WriteLine($"Selected Motor: Power > {power} kW, Rotation Speed in [{transmissionRatio * 0.96}, {transmissionRatio * 1.04} ] rpm");
-        Console.WriteLine("T");
-        return transmissionRatio * 1.04;
-    }
-
-// chắc cũng cần arg loại thiết kế
-    private double CalculateTotalTransmissionRatio(double transmissionRatio,double engine_speed)
-    {
-        double Ut = engine_speed / transmissionRatio; 
-        // Còn tính 3 cái U bằng tra bảng mà ko rõ cách làm ở đây lắm
-
-        return Ut;
-    }
-
-    private void CalculateShaftParameters(double power, double rotationSpeed, double totalTransmissionRatio)
-    {   
-        // cái này thông số bên hiệu suất, mà lười tra bảng quá nên lấy của file excel :))
-        double Nol = power / 0.993, Nx = 0.91, Nbr = 0.97, Nk = 1;
-        // ko bt lấy đâu, mà dự là sẽ truyền qua cái totalTransmissionRatio kia
-        double Uk = 1, U1 = 1, U2 = 1, Ux = 1;
-        // Tính toán các thông số trên các trục
-        // công suất
-        double Power3 = power / (Nol * Nx);
-        double Power2 = Power3 / (Nol * Nbr);
-        double Power1 = Power2 / (Nol * Nbr);
-        double PowerEngine = Power1 / (Nol * Nk);
-        // vòng quay
-        double shaft1Speed = rotationSpeed / Uk;
-        double shaft2Speed = shaft1Speed / U1;
-        double shaft3Speed = shaft2Speed / U2;
-        double shaftFinal = shaft3Speed / Ux;
-        // momen
-        double TorqueCT = 9.55 * Math.Pow(10,6) * power / shaftFinal;
-        double shaft3Torque = 9.55 * Math.Pow(10,6) * Power3 / shaft3Speed;
-        double shaft2Torque = 9.55 * Math.Pow(10,6) * Power2 / shaft2Speed;
-        double shaft1Torque = 9.55 * Math.Pow(10,6) * Power1 / shaft1Speed;
-        double shaftEngine = 9.55 * Math.Pow(10,6) * PowerEngine / rotationSpeed;
-
-        Console.WriteLine($"Shaft 1: Power = {PowerEngine} kW, Speed = {shaftFinal} rpm, Torque = {shaftEngine} N.mm");
-    }
-}
-
 // code chạy mẫu
 // class Program
 // {
 //     static void Main(string[] args)
 //     {
-//         // Tạo bộ truyền xích bằng Factory Pattern
-//         ITransmissionCalculation transmission = GearboxFactory.CreateTransmission("chain");
-
 //         // Tạo đối tượng thiết kế hộp giảm tốc
-//         GearboxDesign gearboxDesign = new GearboxDesign(transmission, 6000, 1.5, 650, 10, 45, 30);
+//         GearboxDesign gearboxDesign = new GearboxDesign(6000, 1.5, 650, 10, 1, []);
+
+//         // Tạo bộ truyền xích bằng Factory Pattern
+//         ITransmissionCalculation transmission = TransmissionFactory.CreateTransmission("chain",0, 0, 0, 0, 0);
 
 //         // Thực hiện tính toán
 //         gearboxDesign.Calculate();
