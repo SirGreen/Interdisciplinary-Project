@@ -1,32 +1,110 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using DADN.Models;
+using System.Text.Json;
 
-namespace DADN.Controllers;
-
-public class InputController : Controller
+namespace DADN.Controllers
 {
-    private readonly ILogger<InputController> _logger;
-
-    public InputController(ILogger<InputController> logger)
+    public class InputController : Controller
     {
-        _logger = logger;
+        private readonly ILogger<InputController> _logger;
+
+        public InputController(ILogger<InputController> logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Submit([FromBody] InputModel input)
+        {
+            if (input == null)
+            {
+                return BadRequest(new { message = "Dữ liệu không hợp lệ!" });
+            }
+
+            _logger.LogInformation($"Dữ liệu nhận: {JsonSerializer.Serialize(input)}");
+
+            // Trả về dữ liệu để frontend lưu vào Local Storage
+            return Ok(input);
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+
+        
     }
 
-    public IActionResult Index()
+    [ApiController]
+    [Route("Input")]
+    public class GearBoxController : Controller
     {
-        // _logger.LogInformation("Home page visited");
-        return View();
+        [HttpPost("CalGear")]
+        public IActionResult Calculate([FromBody] CalGearRequestModel request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.transType))
+            {
+                return BadRequest("Thiếu dữ liệu đầu vào!");
+            }
+
+            // Truyền các tham số từ request
+            GearboxDesign gearbox = new GearboxDesign(
+                request.force,
+                request.speed,
+                request.diameter,
+                request.serviceTime,
+                request.loadN,
+                request.Torchlist,
+                request.tlist
+            );
+
+            // Tạo bộ truyền dựa trên lựa chọn của người dùng
+            ITransmissionCalculation transmission;
+            switch (request.transType.ToLower())
+            {
+                case "belt":
+                    transmission = TransmissionFactory.CreateTransmission("belt", request.force, request.speed, request.diameter, request.serviceTime, request.loadN);
+                    break;
+                case "chain":
+                    transmission = TransmissionFactory.CreateTransmission("chain", request.force, request.speed, request.diameter, request.serviceTime, request.loadN);
+                    break;
+                case "gear":
+                    transmission = TransmissionFactory.CreateTransmission("gear", request.force, request.speed, request.diameter, request.serviceTime, request.loadN);
+                    break;
+                default:
+                    return BadRequest("Loại bộ truyền không hợp lệ");
+            }
+
+            // Thực hiện tính toán
+            //gearbox.Calculate();
+
+            // Lấy kết quả
+            var results = gearbox.Calculate();
+
+            return Ok(results);
+        }
     }
 
-    public IActionResult Test()
+    // Model nhận dữ liệu từ request
+    public class CalGearRequestModel
     {
-        return View();
+        public string transType { get; set; }
+        public double force { get; set; }
+        public double speed { get; set; }
+        public double diameter { get; set; }
+        public double serviceTime { get; set; }
+        public double loadN { get; set; }
+        public double[] Torchlist { get; set; }
+        public double[] tlist { get; set; }
     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-    }
+        
 }
