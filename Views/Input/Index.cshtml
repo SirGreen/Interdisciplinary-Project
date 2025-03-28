@@ -124,30 +124,17 @@
                             </div>
                         </div><!--end col-->
 
-                        <!-- Hệ số quá tải (Tính tự động) -->
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="overloadFactor" class="form-label">Hệ số quá tải</label>
-                                <input type="text" class="form-control" id="overloadFactor" readonly>
+                                <label for="transSelection" class="form-label">Chọn bộ truyền</label>
+                                <select class="form-select" id="transSelection">
+                                    <option selected disabled>Chọn bộ truyền</option>
+                                    <option value="belt">Belt</option>
+                                    <option value="chain">Chain</option>
+                                    <option value="gear">Gear</option>
+                                </select>
                             </div>
-                        </div><!--end col-->
-
-                        <div class="col-6">
-                            <div class="mb-3">
-                                <label for="overallEfficiency" class="form-label">Hiệu suất chung</label>
-                                <input type="number" class="form-control" id="overallEfficiency" value="0.85676"
-                                    readonly>
-                            </div>
-                        </div><!--end col-->
-
-                        <div class="col-6">
-                            <div class="mb-3">
-                                <label for="requiredMotorEfficiency" class="form-label">Hiệu suất cần thiết của động
-                                    cơ</label>
-                                <input type="number" class="form-control" id="requiredMotorEfficiency" min="1" value="1"
-                                    readonly>
-                            </div>
-                        </div><!--end col-->
+                        </div>
 
 
                         <div class="col-12">
@@ -161,7 +148,77 @@
         </div><!-- end card -->
     </div>
 </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Tính thông số</h4>
+            </div><!-- end card header -->
+            <div class="card-body align-items-center d-flex">
+                <!-- With Controls -->
+                <!-- Input with Placeholder -->
+                <form action="javascript:void(0);">
+                    <div class="row">
 
+                        <!-- Hệ số quá tải (Tính tự động) -->  
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="overloadFactor" class="form-label">Hệ số quá tải</label>
+                                <input type="text" class="form-control" id="overloadFactor" readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6"> <!--TinhHieuSuatChungN-->
+                            <div class="mb-3"> 
+                                <label for="overallEfficiency" class="form-label">Hiệu suất chung</label>
+                                <input type="number" class="form-control" id="overallEfficiency"  readonly> 
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3"><!--TinhCongSuatCanThietPct(double N)-->
+                                <label for="requiredMotorEfficiency" class="form-label">Công suất cần thiết của động cơ</label>
+                                <input type="number" class="form-control" id="requiredMotorEfficiency" readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3"><!--TinhTocDoQuayCanThietNlv()-->
+                                <label for="requiredMotorSpeed" class="form-label">Tốc độ quay cần thiết</label>
+                                <input type="number" class="form-control" id="requiredMotorSpeed" readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3"><!--TinhTocDoSoBoNsb-->
+                                <label for="NsbSpeed" class="form-label">Tốc độ sơ bộ Nsb</label>
+                                <input type="number" class="form-control" id="NsbSpeed" readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3"><!--TinhTiSoTruyenUn(double Ndc,double Nlv)-->
+                                <label for="Un" class="form-label">Tỷ số Truyền Un</label>
+                                <input type="number" class="form-control" id="Un" readonly>
+                            </div>
+                        </div><!--end col-->
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="MomenSoVongQuay" class="form-label">MomenSoVongQuay</label>
+                                <textarea class="form-control" id="MomenSoVongQuay" rows="4" readonly></textarea>
+                            </div>
+                        </div>
+
+
+
+                    
+                    </div><!--end row-->
+                </form>
+            </div><!-- end card-body -->
+        </div><!-- end card -->
+    </div>
+</div>
 <!-- Khu vực hiển thị dữ liệu đã lưu -->
 <div class="row">
     <div class="col-12">
@@ -197,6 +254,8 @@
     </div>
 </div>
 
+
+
 <script>
     let loads = [];
 
@@ -230,56 +289,46 @@
         loadTypesInput.value = loads.length; // Cập nhật số loại tải
     }
 
-
-
-    function initOverloadFactorCalculation() {
-        const startupInput = document.getElementById('startupMoment');
-        const loadInput = document.getElementById('loadMoment');
-        const output = document.getElementById('overloadFactor');
-
-        if (startupInput && loadInput && output) {
-            startupInput.addEventListener('input', () => calculateOverloadFactor(startupInput, loadInput, output));
-            loadInput.addEventListener('input', () => calculateOverloadFactor(startupInput, loadInput, output));
-        }
-    }
-
-    // Tính toán hệ số quá tải
-    function calculateOverloadFactor(startupInput, loadInput, output) {
-        const startupMoment = parseFloat(startupInput.value) || 0;
-        const loadMoment = parseFloat(loadInput.value) || 1; // Tránh chia cho 0
-
-        const overloadFactor = (loadMoment !== 0) ? (startupMoment / loadMoment).toFixed(2) : "N/A";
-        output.value = overloadFactor;
-    }
-
-    document.addEventListener('DOMContentLoaded', initOverloadFactorCalculation);
-
     document.getElementById('submitButton').addEventListener('click', function (e) {
         e.preventDefault(); // Ngăn form reload trang
         submitFormData(); // Gọi hàm xử lý dữ liệu
     });
 
     function submitFormData() {
-        // Lấy giá trị các input
-        const force = document.getElementById('forceInput').value;
-        const speed = document.getElementById('speedInput').value;
+        // Lấy giá trị từ các input
+        const force = parseFloat(document.getElementById('forceInput').value) || 0;
+        const speed = parseFloat(document.getElementById('speedInput').value) || 0;
         const shaftType = document.getElementById('shaftSelection').value;
-        const diameter = document.getElementById('diameterInput').value;
-        const serviceTime = document.getElementById('serviceTimeInput').value;
-        const workDays = document.getElementById('workDaysInput').value;
-        const workHours = document.getElementById('workHoursInput').value;
-        const startupMoment = document.getElementById('startupMoment').value;
-        const loadMoment = document.getElementById('loadMoment').value;
-        const overloadFactor = document.getElementById('overloadFactor').value;
-        const overallEfficiency = document.getElementById('overallEfficiency').value;
-        const requiredMotorEfficiency = document.getElementById('requiredMotorEfficiency').value;
+        const diameter = parseFloat(document.getElementById('diameterInput').value) || 0;
+        const serviceTime = parseFloat(document.getElementById('serviceTimeInput').value) || 0;
+        const workDays = parseFloat(document.getElementById('workDaysInput').value) || 0;
+        const workHours = parseFloat(document.getElementById('workHoursInput').value) || 0;
+        const startupMoment = parseFloat(document.getElementById('startupMoment').value) || 0;
+        const loadMoment = parseFloat(document.getElementById('loadMoment').value) || 0;
+        const transType = document.getElementById('transSelection').value; // Lấy bộ truyền
 
-        // Danh sách tải
+        // Kiểm tra danh sách tải có tồn tại không
+        if (!Array.isArray(loads) || loads.length === 0) {
+            alert("Danh sách tải không hợp lệ!");
+            return;
+        }
+
+        // Tạo danh sách T và t
+        const Torchlist = loads.map(load => parseFloat(load.Torch) || 0);  
+        const tlist = loads.map(load => parseFloat(load.time) || 0);
+
+        // Danh sách tải đầy đủ
         const loadData = loads.map((load, index) => ({
             Id: index + 1,
-            Torch: load.Torch,
-            time: load.time
+            Torch: parseFloat(load.Torch) || 0,
+            time: parseFloat(load.time) || 0
         }));
+
+        // Nếu loadMoment = 0, không gọi CalGear()
+        if (loadMoment === 0) return;
+
+        // Tính loadN
+        let loadN = Math.round((startupMoment / loadMoment) * 100) / 100; // Làm tròn 2 số thập phân
 
         // Tạo object dữ liệu
         const formData = {
@@ -292,44 +341,42 @@
             workHours,
             startupMoment,
             loadMoment,
-            overloadFactor,
-            overallEfficiency,
-            requiredMotorEfficiency,
-            loadData
+            loadData,
+            Torchlist,
+            tlist
         };
 
-        // Log dữ liệu ra console
         console.log('Dữ liệu nhập vào:', formData);
 
+        // Gửi dữ liệu lên server
         fetch('/Input/Submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
-            .then(response => {
-                // Kiểm tra nếu response trả về thành công (mã trạng thái 200)
-                if (response.ok) {
-                    return response.json();  // Parse dữ liệu JSON từ response
-                } else {
-                    throw new Error("Lỗi khi gửi dữ liệu: " + response.statusText);
-                }
-            })
-            .then(data => {
-                // Lưu dữ liệu vào localStorage nếu response thành công
-                let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
-                storedData.push(data);
-                localStorage.setItem("inputData", JSON.stringify(storedData));
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Lỗi HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Lưu vào localStorage
+            let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
+            storedData.push(data);
+            localStorage.setItem("inputData", JSON.stringify(storedData));
 
-                alert("Dữ liệu đã lưu vào Local Storage!");
-            })
-            .catch(error => {
-                // Hiển thị lỗi nếu có bất kỳ vấn đề gì
-                console.error("Lỗi khi gửi dữ liệu:", error);
-                alert("Có lỗi xảy ra khi gửi dữ liệu.");
-            });
+            alert("Dữ liệu đã được lưu vào Local Storage!");
 
-
+            
+            CalGear(transType, force, speed, diameter, serviceTime, loadN, Torchlist, tlist );
+        })
+        .catch(error => {
+            console.error("Lỗi khi gửi dữ liệu:", error);
+            alert(`Có lỗi xảy ra: ${error.message}`);
+        });
     }
+
 
     document.addEventListener('DOMContentLoaded', function () {
         displayStoredData();
@@ -371,5 +418,51 @@
         });
     }
 
+    function CalGear(transType, force, speed, diameter, serviceTime, loadN, Torchlist, tlist) {
+        console.log("Gọi CalGear");
+        if (!transType || transType === "Chọn bộ truyền") {
+            console.warn("Chưa chọn bộ truyền, không thể tính toán!");
+            return;
+        }
+
+        console.log("Gọi CalGear với bộ truyền:", transType);
+
+        // Chuẩn bị dữ liệu gửi lên server
+        const requestData = {
+            transType,
+            force,
+            speed,
+            diameter,
+            serviceTime,
+            loadN,
+            Torchlist,
+            tlist
+        };
+
+        console.log("Gọi CalGear với bộ truyền:", requestData);
+
+        fetch("/Input/CalGear", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Lỗi mạng hoặc backend không phản hồi!");
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Gán dữ liệu vào các input field
+            document.getElementById("overloadFactor").value = data.overloadFactor || "";
+            document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
+            document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
+            document.getElementById("requiredMotorSpeed").value = data.requiredMotorSpeed || "";
+            document.getElementById("NsbSpeed").value = data.NsbSpeed || "";
+            document.getElementById("Un").value = data.Un || "";
+            document.getElementById("MomenSoVongQuay").value = data.MomenSoVongQuay || "";
+        })
+        .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+    }
 
 </script>

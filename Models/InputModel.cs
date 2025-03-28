@@ -23,4 +23,17 @@ namespace DADN.Models
         public double RequiredMotorEfficiency { get; set; }
         public List<LoadData> LoadData { get; set; } = new List<LoadData>();
     }
+
+    // Model nhận dữ liệu từ request
+    public class CalGearRequestModel
+    {
+        public string transType { get; set; }
+        public double force { get; set; }
+        public double speed { get; set; }
+        public double diameter { get; set; }
+        public double serviceTime { get; set; }
+        public double loadN { get; set; }
+        public double[] Tlist { get; set; }
+        public double[] tlist { get; set; }
+    }
 }

@@ -5,7 +5,7 @@ public class GearboxDesign
     private double DuongkinhD; // Đường kính tang (mm)
     private double ThoigianL; // Thời gian phục vụ (năm)
     private double loadN; // Hệ số quá tải
-    private double[] Tlist; // Hệ số quá tải
+    private double[] Torchlist; // Hệ số quá tải
     private double[] tlist; // Hệ số quá tải
 
     public GearboxDesign(double force, double velocity, double diameter, double serviceLife, double load, double[] Tlst, double[] tlst)
@@ -15,7 +15,7 @@ public class GearboxDesign
         DuongkinhD = diameter;
         ThoigianL = serviceLife;
         loadN = load;
-        Tlist = Tlst;
+        Torchlist = Tlst;
         tlist = tlst;
     }
     
@@ -26,15 +26,24 @@ public class GearboxDesign
         return 0.85676;
     }
 
+    private double TinhHeSoQuaTai()
+    {
+        // Tránh chia cho 0
+        return loadN;
+    }
+
+
     // B4
     private double TinhCongSuatCanThietPct(double N)
     {
         double Plv = LucF * VantocV / 1000;
         double sum1 = 0; double sum2 = 0;
-        for (int i=0;i<loadN;i++){
-            sum1 += tlist[i] * Tlist[i] * Tlist[i];
+        int length = Math.Min(tlist.Length, Torchlist.Length);
+        for (int i = 0; i < length; i++) {
+            sum1 += tlist[i] * Torchlist[i] * Torchlist[i];
             sum2 += tlist[i];
         }
+
         double Ptd = Plv * Math.Sqrt(sum1/sum2);
         double Pct = Ptd / N;
         return Pct; //(kW)
@@ -83,7 +92,7 @@ public class GearboxDesign
 
     // B9
     // return array hay gì đó để lấy hết
-    private void TinhCSMomenSoVongQuay(double Pct, double Ndc)
+    private string TinhCSMomenSoVongQuay(double Pct, double Ndc)
     {   
         // cái này thông số bên hiệu suất, mà lười tra bảng quá nên lấy của file excel
         double Nol = 0.993, Nx = 0.91, Nbr = 0.97, Nk = 1;
@@ -108,10 +117,16 @@ public class GearboxDesign
         double T1 = 9.55 * 1000000 * P1 / N1;
         double Tdc = 9.55 * 1000000 * Pdc2 / Ndc;
 
-        Console.WriteLine($"Shaft 1: Power = {P1} kW, Speed = {N1} rpm, Torque = {T3} N.mm");
+        // Xây dựng chuỗi kết quả
+        string result = $"Shaft 1: Power = {P1} kW, Speed = {N1} rpm, Torque = {T3} N.mm\n" +
+                        $"Shaft 2: Power = {P2} kW, Speed = {N2} rpm, Torque = {T2} N.mm\n" +
+                        $"Shaft 3: Power = {P3} kW, Speed = {N3} rpm, Torque = {T1} N.mm\n" +
+                        $"Final Shaft: Power = {Pdc2} kW, Speed = {Nct} rpm, Torque = {Tct} N.mm";
+
+        return result;
     }
 
-    public void Calculate()
+    public Dictionary<string, object> Calculate()
     {
         // B3: Tính hiệu suất chung của hệ thống
         double hschungN = TinhHieuSuatChungN();
@@ -132,8 +147,27 @@ public class GearboxDesign
         double Un = TinhTiSoTruyenUn(Ndc,Nlv);
 
         // B9: Tính công suất, momen và số vòng quay trên các trục
-        TinhCSMomenSoVongQuay(Pct, Ndc);
+        string momenSoVongQuay = TinhCSMomenSoVongQuay(Pct, Ndc);
+
+        // Tính hệ số quá tải
+        double overloadFactor = TinhHeSoQuaTai();
+
+        return new Dictionary<string, object>
+        {
+            { "overloadFactor", overloadFactor },
+            { "overallEfficiency", hschungN },
+            { "requiredMotorEfficiency", Pct },
+            { "requiredMotorSpeed", Nlv },
+            { "NsbSpeed", Nsb },
+            { "Un", Un },
+            { "MomenSoVongQuay", momenSoVongQuay }
+        };
     }
+
+    
+
+
+
 }
 
 // đoạn này là structure của mấy bộ truyền
