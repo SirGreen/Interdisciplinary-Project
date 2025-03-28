@@ -227,6 +227,7 @@
     <thead class="table-dark">
         <tr>
             <th>#</th>
+            <th>Ảnh</th>
             <th>Model</th>
             <th>Công suất</th>
             <th>Điện áp</th>
@@ -491,8 +492,8 @@
                 document.getElementById("MomenSoVongQuay").value = data.MomenSoVongQuay || "";
 
                 // Kiểm tra giá trị trước khi gọi API
-                if (data.requiredMotorEfficiency && data.requiredMotorSpeed) {
-                    getFilteredCatalogs(data.requiredMotorEfficiency, data.requiredMotorSpeed);
+                if (data.requiredMotorEfficiency && data.NsbSpeed) {
+                    getFilteredCatalogs(data.requiredMotorEfficiency, data.NsbSpeed);
                 } else {
                     console.error("Lỗi: requiredMotorEfficiency hoặc requiredMotorSpeed không hợp lệ!", data);
                 }
@@ -501,9 +502,9 @@
             .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
     }
 
-    function getFilteredCatalogs(requiredMotorEfficiency, requiredMotorSpeed) {
+    function getFilteredCatalogs(requiredMotorEfficiency, NsbSpeed) {
         // Gọi API với 2 tham số
-        fetch(`/api/filter-catalogs?requiredMotorEfficiency=${requiredMotorEfficiency}&requiredMotorSpeed=${requiredMotorSpeed}`)
+        fetch(`/api/filter-catalogs?requiredMotorEfficiency=${requiredMotorEfficiency}&NsbSpeed=${NsbSpeed}`)
             .then(response => {
                 if (!response.ok) throw new Error("Lỗi khi gọi API Catalog!");
                 return response.json();
@@ -529,26 +530,38 @@
         catalogs.forEach((item, index) => {
             console.log("Dữ liệu từng item:", item);
 
+            // Kiểm tra nếu ImageUrls tồn tại và có ảnh
+            let imagesHtml = "";
+            if (item.imageUrls && Array.isArray(item.imageUrls) && item.imageUrls.length > 0) {
+                imagesHtml = `<div class="d-flex flex-wrap">` +
+                    item.imageUrls.slice(0, 3).map(url =>
+                        `<img src="${url}" alt="Hình ảnh ${item.model}" class="img-thumbnail" width="70" height="70" style="margin: 2px; object-fit: cover;">`
+                    ).join("") +
+                    `</div>`;
+            } else {
+                imagesHtml = `<span class="text-muted">Không có ảnh</span>`;
+            }
+
             let row = `<tr id="motor-${index}">
-            <td>${index + 1}</td>
-            <td><img src="${item.imageUrl || 'default-image.jpg'}" alt="Motor Image" width="100"></td>
-            <td>${item.model || "Không có dữ liệu"}</td>
-            <td>${item.power || "Không có dữ liệu"}</td>
-            <td>${item.voltage || "Không có dữ liệu"}</td>
-            <td>${item.poles || "Không có dữ liệu"}</td>
-            <td>${item.frameSize || "Không có dữ liệu"}</td>
-            <td>${item.material || "Không có dữ liệu"}</td>
-            <td>${item.protection || "Không có dữ liệu"}</td>
-            <td>${item.standard || "Không có dữ liệu"}</td>
-            <td>${item.mountingType || "Không có dữ liệu"}</td>
-            <td>${item.shaftDiameter || "Không có dữ liệu"}</td>
-            <td>${item.footprint || "Không có dữ liệu"}</td>
-            <td>${item.technology || "Không có dữ liệu"}</td>
-            <td>
-                <a href="${item.url || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
-                <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
-            </td>
-        </tr>`;
+        <td>${index + 1}</td>
+        <td>${imagesHtml}</td>
+        <td>${item.model || "Không có dữ liệu"}</td>
+        <td>${item.power || "Không có dữ liệu"}</td>
+        <td>${item.voltage || "Không có dữ liệu"}</td>
+        <td>${item.poles || "Không có dữ liệu"}</td>
+        <td>${item.frameSize || "Không có dữ liệu"}</td>
+        <td>${item.material || "Không có dữ liệu"}</td>
+        <td>${item.protection || "Không có dữ liệu"}</td>
+        <td>${item.standard || "Không có dữ liệu"}</td>
+        <td>${item.mountingType || "Không có dữ liệu"}</td>
+        <td>${item.shaftDiameter || "Không có dữ liệu"}</td>
+        <td>${item.footprint || "Không có dữ liệu"}</td>
+        <td>${item.technology || "Không có dữ liệu"}</td>
+        <td>
+            <a href="${item.url || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
+            <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
+        </td>
+    </tr>`;
 
             tableBody.innerHTML += row;
         });

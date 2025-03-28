@@ -139,10 +139,17 @@ public class AdminController : Controller
 
     [HttpGet]
     [Route("api/filter-catalogs")]
-    public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double requiredMotorSpeed)
+    public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
 
+        // Khoảng tốc độ quay hợp lệ
+        double minSpeed = NsbSpeed * 0.96;
+        double maxSpeed = NsbSpeed * 1.04;
+
+        // In thông số ra console
+        Console.WriteLine($"Min Speed (RPS): {minSpeed}");
+        Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
         // Lọc danh sách động cơ phù hợp
         var filteredCatalogs = catalogs
             .Where(m =>
@@ -150,18 +157,6 @@ public class AdminController : Controller
                 double motorPower = ExtractKW(m.Power);
                 int motorPoles = ExtractPoles(m.Poles);
                 double baseSpeed = GetSpeedFromPoles(motorPoles);
-
-                // Khoảng tốc độ quay hợp lệ
-                double minSpeed = requiredMotorSpeed * 0.96;
-                double maxSpeed = requiredMotorSpeed * 1.04;
-
-                // In thông số ra console
-                Console.WriteLine($"Motor Power (KW): {motorPower}");
-                Console.WriteLine($"Motor Poles: {motorPoles}");
-                Console.WriteLine($"Base Speed (RPS): {baseSpeed}");
-                Console.WriteLine($"Min Speed (RPS): {minSpeed}");
-                Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
-
                 return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
             })
             .ToList();
@@ -192,10 +187,10 @@ public class AdminController : Controller
     {
         return poles switch
         {
-            2 => 2850 / 60.0,  // 47.5 vòng/giây
-            4 => 1425 / 60.0,  // 23.75 vòng/giây
-            6 => 950 / 60.0,   // 15.83 vòng/giây
-            8 => 720 / 60.0,   // 12 vòng/giây
+            2 => 2850,
+            4 => 1425,
+            6 => 950,
+            8 => 720,
             _ => 0             // Nếu không xác định số cực, trả về 0
         };
     }
