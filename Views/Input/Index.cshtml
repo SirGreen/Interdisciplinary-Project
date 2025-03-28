@@ -160,7 +160,7 @@
                 <form action="javascript:void(0);">
                     <div class="row">
 
-                        <!-- Hệ số quá tải (Tính tự động) -->  
+                        <!-- Hệ số quá tải (Tính tự động) -->
                         <div class="col-6">
                             <div class="mb-3">
                                 <label for="overloadFactor" class="form-label">Hệ số quá tải</label>
@@ -169,15 +169,16 @@
                         </div><!--end col-->
 
                         <div class="col-6"> <!--TinhHieuSuatChungN-->
-                            <div class="mb-3"> 
+                            <div class="mb-3">
                                 <label for="overallEfficiency" class="form-label">Hiệu suất chung</label>
-                                <input type="number" class="form-control" id="overallEfficiency"  readonly> 
+                                <input type="number" class="form-control" id="overallEfficiency" readonly>
                             </div>
                         </div><!--end col-->
 
                         <div class="col-6">
                             <div class="mb-3"><!--TinhCongSuatCanThietPct(double N)-->
-                                <label for="requiredMotorEfficiency" class="form-label">Công suất cần thiết của động cơ</label>
+                                <label for="requiredMotorEfficiency" class="form-label">Công suất cần thiết của động
+                                    cơ</label>
                                 <input type="number" class="form-control" id="requiredMotorEfficiency" readonly>
                             </div>
                         </div><!--end col-->
@@ -212,13 +213,40 @@
 
 
 
-                    
+
                     </div><!--end row-->
                 </form>
             </div><!-- end card-body -->
         </div><!-- end card -->
     </div>
 </div>
+
+
+<h2>Danh sách động cơ phù hợp</h2>
+<table class="table table-bordered table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Model</th>
+            <th>Công suất</th>
+            <th>Điện áp</th>
+            <th>Cực</th>
+            <th>Kích thước khung</th>
+            <th>Chất liệu</th>
+            <th>Bảo vệ</th>
+            <th>Tiêu chuẩn</th>
+            <th>Kiểu lắp đặt</th>
+            <th>Đường kính trục</th>
+            <th>Footprint</th>
+            <th>Công nghệ</th>
+            <th>Chi tiết</th>
+        </tr>
+    </thead>
+    <tbody id="catalogTableBody">
+        <!-- Dữ liệu động cơ sẽ được render ở đây -->
+    </tbody>
+</table>
+
 <!-- Khu vực hiển thị dữ liệu đã lưu -->
 <div class="row">
     <div class="col-12">
@@ -314,7 +342,7 @@
         }
 
         // Tạo danh sách T và t
-        const Torchlist = loads.map(load => parseFloat(load.Torch) || 0);  
+        const Torchlist = loads.map(load => parseFloat(load.Torch) || 0);
         const tlist = loads.map(load => parseFloat(load.time) || 0);
 
         // Danh sách tải đầy đủ
@@ -354,27 +382,27 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Lỗi HTTP ${response.status}: ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Lưu vào localStorage
-            let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
-            storedData.push(data);
-            localStorage.setItem("inputData", JSON.stringify(storedData));
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Lưu vào localStorage
+                let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
+                storedData.push(data);
+                localStorage.setItem("inputData", JSON.stringify(storedData));
 
-            alert("Dữ liệu đã được lưu vào Local Storage!");
+                alert("Dữ liệu đã được lưu vào Local Storage!");
 
-            
-            CalGear(transType, force, speed, diameter, serviceTime, loadN, Torchlist, tlist );
-        })
-        .catch(error => {
-            console.error("Lỗi khi gửi dữ liệu:", error);
-            alert(`Có lỗi xảy ra: ${error.message}`);
-        });
+
+                CalGear(transType, force, speed, diameter, serviceTime, loadN, Torchlist, tlist);
+            })
+            .catch(error => {
+                console.error("Lỗi khi gửi dữ liệu:", error);
+                alert(`Có lỗi xảy ra: ${error.message}`);
+            });
     }
 
 
@@ -446,23 +474,91 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestData)
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Lỗi mạng hoặc backend không phản hồi!");
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Lỗi mạng hoặc backend không phản hồi!");
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Gán dữ liệu vào các input field
+                document.getElementById("overloadFactor").value = data.overloadFactor || "";
+                document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
+                document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
+                document.getElementById("requiredMotorSpeed").value = data.requiredMotorSpeed || "";
+                document.getElementById("NsbSpeed").value = data.NsbSpeed || "";
+                document.getElementById("Un").value = data.Un || "";
+                document.getElementById("MomenSoVongQuay").value = data.MomenSoVongQuay || "";
+
+                // Sau khi lấy được requiredMotorEfficiency, gọi API để lấy danh sách catalog
+                getFilteredCatalogs(data.requiredMotorEfficiency);
+            })
+            .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+    }
+
+    function getFilteredCatalogs(requiredMotorEfficiency) {
+        fetch(`/api/filter-catalogs?requiredMotorEfficiency=${requiredMotorEfficiency}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Lỗi khi gọi API Catalog!");
+                return response.json();
+            })
+            .then(data => {
+                console.log("Danh sách catalog phù hợp:", data);
+                renderCatalogTable(data);
+            })
+            .catch(error => console.error(error));
+    }
+
+    function renderCatalogTable(catalogs) {
+        console.log("Dữ liệu nhận được:", catalogs);
+
+        if (!catalogs || catalogs.length === 0) {
+            console.warn("Không có động cơ phù hợp!");
+            return;
+        }
+
+        let tableBody = document.getElementById("catalogTableBody");
+        tableBody.innerHTML = "";
+
+        catalogs.forEach((item, index) => {
+            console.log("Dữ liệu từng item:", item);
+
+            let row = `<tr id="motor-${index}">
+            <td>${index + 1}</td>
+            <td>${item?.model || "Không có dữ liệu"}</td>
+            <td>${item?.power || "Không có dữ liệu"}</td>
+            <td>${item?.voltage || "Không có dữ liệu"}</td>
+            <td>${item?.poles || "Không có dữ liệu"}</td>
+            <td>${item?.frameSize || "Không có dữ liệu"}</td>
+            <td>${item?.material || "Không có dữ liệu"}</td>
+            <td>${item?.protection || "Không có dữ liệu"}</td>
+            <td>${item?.standard || "Không có dữ liệu"}</td>
+            <td>${item?.mountingType || "Không có dữ liệu"}</td>
+            <td>${item?.shaftDiameter || "Không có dữ liệu"}</td>
+            <td>${item?.footprint || "Không có dữ liệu"}</td>
+            <td>${item?.technology || "Không có dữ liệu"}</td>
+            <td>
+                <a href="${item?.URL || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
+                <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
+            </td>
+        </tr>`;
+
+            tableBody.innerHTML += row;
+        });
+    }
+
+
+    function selectMotor(index) {
+        let tableBody = document.getElementById("catalogTableBody");
+        let rows = tableBody.getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+            if (i === index) {
+                rows[i].style.display = ""; // Hiển thị dòng được chọn
+            } else {
+                rows[i].style.display = "none"; // Ẩn các dòng khác
             }
-            return response.json();
-        })
-        .then(data => {
-            // Gán dữ liệu vào các input field
-            document.getElementById("overloadFactor").value = data.overloadFactor || "";
-            document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
-            document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
-            document.getElementById("requiredMotorSpeed").value = data.requiredMotorSpeed || "";
-            document.getElementById("NsbSpeed").value = data.NsbSpeed || "";
-            document.getElementById("Un").value = data.Un || "";
-            document.getElementById("MomenSoVongQuay").value = data.MomenSoVongQuay || "";
-        })
-        .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+        }
     }
 
 </script>

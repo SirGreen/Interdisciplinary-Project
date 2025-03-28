@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 
 public class AdminController : Controller
 {
@@ -135,4 +136,34 @@ public class AdminController : Controller
 
         return RedirectToAction("CatalogList");
     }
+
+    [HttpGet]
+    [Route("api/filter-catalogs")]
+    public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency)
+    {
+        var catalogs = await _catalogService.GetAllAsync();
+
+        // Lọc danh sách theo công suất
+        var filteredCatalogs = catalogs
+            .Where(m => ExtractKW(m.Power) > requiredMotorEfficiency)
+            .ToList();
+        Console.WriteLine(filteredCatalogs.ToString());
+        return Ok(filteredCatalogs);
+    }
+
+    // Hàm trích xuất số KW từ chuỗi dạng "0.75kw/1HP" hoặc "22KW/30HP"
+    private double ExtractKW(string powerString)
+    {
+        if (string.IsNullOrEmpty(powerString)) return 0;
+
+        // Regex để lấy số KW trong chuỗi, không phân biệt hoa/thường
+        var match = Regex.Match(powerString, @"([\d\.]+)\s*[kK][wW]", RegexOptions.IgnoreCase);
+        if (match.Success && double.TryParse(match.Groups[1].Value, out double kwValue))
+        {
+            return kwValue;
+        }
+
+        return 0; // Nếu không tìm thấy giá trị KW, mặc định là 0
+    }
+
 }
