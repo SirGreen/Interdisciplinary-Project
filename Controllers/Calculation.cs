@@ -44,7 +44,7 @@ public class GearboxDesign
             sum2 += tlist[i];
         }
 
-        double Ptd = Plv * Math.Sqrt(sum1/sum2);
+        double Ptd = Plv * (sum1/sum2);
         double Pct = Ptd / N;
         return Pct; //(kW)
     }
