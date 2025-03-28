@@ -490,14 +490,20 @@
                 document.getElementById("Un").value = data.Un || "";
                 document.getElementById("MomenSoVongQuay").value = data.MomenSoVongQuay || "";
 
-                // Sau khi lấy được requiredMotorEfficiency, gọi API để lấy danh sách catalog
-                getFilteredCatalogs(data.requiredMotorEfficiency);
+                // Kiểm tra giá trị trước khi gọi API
+                if (data.requiredMotorEfficiency && data.requiredMotorSpeed) {
+                    getFilteredCatalogs(data.requiredMotorEfficiency, data.requiredMotorSpeed);
+                } else {
+                    console.error("Lỗi: requiredMotorEfficiency hoặc requiredMotorSpeed không hợp lệ!", data);
+                }
+
             })
             .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
     }
 
-    function getFilteredCatalogs(requiredMotorEfficiency) {
-        fetch(`/api/filter-catalogs?requiredMotorEfficiency=${requiredMotorEfficiency}`)
+    function getFilteredCatalogs(requiredMotorEfficiency, requiredMotorSpeed) {
+        // Gọi API với 2 tham số
+        fetch(`/api/filter-catalogs?requiredMotorEfficiency=${requiredMotorEfficiency}&requiredMotorSpeed=${requiredMotorSpeed}`)
             .then(response => {
                 if (!response.ok) throw new Error("Lỗi khi gọi API Catalog!");
                 return response.json();
@@ -506,39 +512,40 @@
                 console.log("Danh sách catalog phù hợp:", data);
                 renderCatalogTable(data);
             })
-            .catch(error => console.error(error));
+            .catch(error => console.error("Lỗi:", error));
     }
 
     function renderCatalogTable(catalogs) {
         console.log("Dữ liệu nhận được:", catalogs);
 
+        let tableBody = document.getElementById("catalogTableBody");
+        tableBody.innerHTML = ""; // Xóa dữ liệu cũ
+
         if (!catalogs || catalogs.length === 0) {
-            console.warn("Không có động cơ phù hợp!");
+            tableBody.innerHTML = `<tr><td colspan="15" class="text-center">Không có động cơ phù hợp!</td></tr>`;
             return;
         }
-
-        let tableBody = document.getElementById("catalogTableBody");
-        tableBody.innerHTML = "";
 
         catalogs.forEach((item, index) => {
             console.log("Dữ liệu từng item:", item);
 
             let row = `<tr id="motor-${index}">
             <td>${index + 1}</td>
-            <td>${item?.model || "Không có dữ liệu"}</td>
-            <td>${item?.power || "Không có dữ liệu"}</td>
-            <td>${item?.voltage || "Không có dữ liệu"}</td>
-            <td>${item?.poles || "Không có dữ liệu"}</td>
-            <td>${item?.frameSize || "Không có dữ liệu"}</td>
-            <td>${item?.material || "Không có dữ liệu"}</td>
-            <td>${item?.protection || "Không có dữ liệu"}</td>
-            <td>${item?.standard || "Không có dữ liệu"}</td>
-            <td>${item?.mountingType || "Không có dữ liệu"}</td>
-            <td>${item?.shaftDiameter || "Không có dữ liệu"}</td>
-            <td>${item?.footprint || "Không có dữ liệu"}</td>
-            <td>${item?.technology || "Không có dữ liệu"}</td>
+            <td><img src="${item.imageUrl || 'default-image.jpg'}" alt="Motor Image" width="100"></td>
+            <td>${item.model || "Không có dữ liệu"}</td>
+            <td>${item.power || "Không có dữ liệu"}</td>
+            <td>${item.voltage || "Không có dữ liệu"}</td>
+            <td>${item.poles || "Không có dữ liệu"}</td>
+            <td>${item.frameSize || "Không có dữ liệu"}</td>
+            <td>${item.material || "Không có dữ liệu"}</td>
+            <td>${item.protection || "Không có dữ liệu"}</td>
+            <td>${item.standard || "Không có dữ liệu"}</td>
+            <td>${item.mountingType || "Không có dữ liệu"}</td>
+            <td>${item.shaftDiameter || "Không có dữ liệu"}</td>
+            <td>${item.footprint || "Không có dữ liệu"}</td>
+            <td>${item.technology || "Không có dữ liệu"}</td>
             <td>
-                <a href="${item?.URL || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
+                <a href="${item.url || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
                 <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
             </td>
         </tr>`;
@@ -547,7 +554,7 @@
         });
     }
 
-
+    // Ẩn các dòng không được chọn
     function selectMotor(index) {
         let tableBody = document.getElementById("catalogTableBody");
         let rows = tableBody.getElementsByTagName("tr");

@@ -139,15 +139,34 @@ public class AdminController : Controller
 
     [HttpGet]
     [Route("api/filter-catalogs")]
-    public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency)
+    public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double requiredMotorSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
 
-        // Lọc danh sách theo công suất
+        // Lọc danh sách động cơ phù hợp
         var filteredCatalogs = catalogs
-            .Where(m => ExtractKW(m.Power) > requiredMotorEfficiency)
+            .Where(m =>
+            {
+                double motorPower = ExtractKW(m.Power);
+                int motorPoles = ExtractPoles(m.Poles);
+                double baseSpeed = GetSpeedFromPoles(motorPoles);
+
+                // Khoảng tốc độ quay hợp lệ
+                double minSpeed = requiredMotorSpeed * 0.96;
+                double maxSpeed = requiredMotorSpeed * 1.04;
+
+                // In thông số ra console
+                Console.WriteLine($"Motor Power (KW): {motorPower}");
+                Console.WriteLine($"Motor Poles: {motorPoles}");
+                Console.WriteLine($"Base Speed (RPS): {baseSpeed}");
+                Console.WriteLine($"Min Speed (RPS): {minSpeed}");
+                Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
+
+                return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
+            })
             .ToList();
-        Console.WriteLine(filteredCatalogs.ToString());
+
+        Console.WriteLine($"Số động cơ phù hợp: {filteredCatalogs.Count}");
         return Ok(filteredCatalogs);
     }
 
@@ -156,14 +175,30 @@ public class AdminController : Controller
     {
         if (string.IsNullOrEmpty(powerString)) return 0;
 
-        // Regex để lấy số KW trong chuỗi, không phân biệt hoa/thường
-        var match = Regex.Match(powerString, @"([\d\.]+)\s*[kK][wW]", RegexOptions.IgnoreCase);
-        if (match.Success && double.TryParse(match.Groups[1].Value, out double kwValue))
-        {
-            return kwValue;
-        }
-
-        return 0; // Nếu không tìm thấy giá trị KW, mặc định là 0
+        var match = Regex.Match(powerString, @"(\d+(\.\d+)?)\s*(KW|kw|kW)");
+        return match.Success ? double.Parse(match.Groups[1].Value) : 0;
     }
+
+    private int ExtractPoles(string polesString)
+    {
+        if (string.IsNullOrEmpty(polesString)) return 0;
+
+        var match = Regex.Match(polesString, @"(\d+)P", RegexOptions.IgnoreCase);
+        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+    }
+
+
+    private double GetSpeedFromPoles(int poles)
+    {
+        return poles switch
+        {
+            2 => 2850 / 60.0,  // 47.5 vòng/giây
+            4 => 1425 / 60.0,  // 23.75 vòng/giây
+            6 => 950 / 60.0,   // 15.83 vòng/giây
+            8 => 720 / 60.0,   // 12 vòng/giây
+            _ => 0             // Nếu không xác định số cực, trả về 0
+        };
+    }
+
 
 }
