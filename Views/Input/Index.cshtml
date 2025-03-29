@@ -248,6 +248,10 @@
     </tbody>
 </table>
 
+<div class="w-100 text-center my-3">
+    <button class="btn btn-primary" onclick="ExportPDF()">Export</button>
+</div>
+
 <!-- Khu vực hiển thị dữ liệu đã lưu -->
 <div class="row">
     <div class="col-12">
@@ -287,6 +291,7 @@
 
 <script>
     let loads = [];
+    let pdfContent = {};
 
     function addBadge() {
         const Torch = document.getElementById('loadTInput').value;
@@ -482,6 +487,7 @@
                 return response.json();
             })
             .then(data => {
+                pdfContent = data;
                 // Gán dữ liệu vào các input field
                 document.getElementById("overloadFactor").value = data.overloadFactor || "";
                 document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
@@ -579,6 +585,36 @@
                 rows[i].style.display = "none"; // Ẩn các dòng khác
             }
         }
+    }
+
+    function ExportPDF() {
+        console.log(pdfContent);
+
+        // Chuẩn bị dữ liệu gửi lên server
+
+        fetch("/Input/ExportPdf", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(pdfContent)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Lỗi mạng hoặc backend không phản hồi!");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                // Gán dữ liệu vào các input field
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `GearboxDesign_${new Date().toISOString().slice(0,10)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
     }
 
 </script>
