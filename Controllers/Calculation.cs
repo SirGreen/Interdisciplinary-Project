@@ -18,7 +18,7 @@ public class GearboxDesign
         Torchlist = Tlst;
         tlist = tlst;
     }
-    
+
     // B3
     private double TinhHieuSuatChungN(double Nx = 0, double Nbr = 0, double Nol = 0, double Nkn = 0)
     {
@@ -39,12 +39,13 @@ public class GearboxDesign
         double Plv = LucF * VantocV / 1000;
         double sum1 = 0; double sum2 = 0;
         int length = Math.Min(tlist.Length, Torchlist.Length);
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
+        {
             sum1 += tlist[i] * Torchlist[i] * Torchlist[i];
             sum2 += tlist[i];
         }
 
-        double Ptd = Plv * Math.Sqrt(sum1/sum2);
+        double Ptd = Plv * (sum1 / sum2);
         double Pct = Ptd / N;
         return Pct; //(kW)
     }
@@ -61,7 +62,7 @@ public class GearboxDesign
     private double TinhTocDoSoBoNsb(double Nlv)
     {
         double Ux = 2.56; double Uh = 18;
-        double Usb = Ux * Uh; 
+        double Usb = Ux * Uh;
         // Tính tổng tỉ số truyền
         return Nlv * Usb;
     }
@@ -72,20 +73,20 @@ public class GearboxDesign
     {
         // Giả lập việc chọn động cơ từ catalog
         Console.WriteLine($"Selected Motor: CongSuat >= {Pct} kW, VanToc khoang [{Nsb * 0.96}, {Nsb * 1.04} ] vg/gi");
-        
+
         return Nsb * 1.04;
     }
 
     // B8
-        private double TinhTiSoTruyenUn(double Ndc,double Nlv)
+    private double TinhTiSoTruyenUn(double Ndc, double Nlv)
     {
         double Ut = Ndc / Nlv;
         // cần array 2.4
         double Un = 1;
-        double Uh = Ut/Un;
+        double Uh = Ut / Un;
         // cần array 3.1
-        double u1 = 1;double u2 = 1;
-        Un = Ut / (u1*u2);
+        double u1 = 1; double u2 = 1;
+        Un = Ut / (u1 * u2);
 
         return Un;
     }
@@ -93,13 +94,13 @@ public class GearboxDesign
     // B9
     // return array hay gì đó để lấy hết
     private string TinhCSMomenSoVongQuay(double Pct, double Ndc)
-    {   
+    {
         // cái này thông số bên hiệu suất, mà lười tra bảng quá nên lấy của file excel
         double Nol = 0.993, Nx = 0.91, Nbr = 0.97, Nk = 1;
         double Plv = LucF * VantocV / 1000;
         // lấy từ B8 mà ko bt tính
         double Uk = 1, U1 = 1, U2 = 1, Ux = 1;
-        
+
         // công suất
         double P3 = Plv / (Nol * Nx);
         double P2 = P3 / (Nol * Nbr);
@@ -144,7 +145,7 @@ public class GearboxDesign
         double Ndc = ChonDongCo(Nsb, Pct);
 
         // B8: Xác định tỷ số truyền của hệ dẫn động
-        double Un = TinhTiSoTruyenUn(Ndc,Nlv);
+        double Un = TinhTiSoTruyenUn(Ndc, Nlv);
 
         // B9: Tính công suất, momen và số vòng quay trên các trục
         string momenSoVongQuay = TinhCSMomenSoVongQuay(Pct, Ndc);
@@ -164,7 +165,7 @@ public class GearboxDesign
         };
     }
 
-    
+
 
 
 
@@ -202,12 +203,12 @@ public class ChainTransmission : ITransmissionCalculation
         N3 = Speed3;
         T3 = Torque3;
     }
-    
+
     // B10.1
     private void TinhSoRangDiaXich(double limit = 29)
     {
         double Ux = 2.578;
-        Z1 = Math.Floor(limit - 2*Ux);
+        Z1 = Math.Floor(limit - 2 * Ux);
         Z2 = Math.Floor(Z1 * Ux);
     }
     // B10.2
@@ -219,7 +220,7 @@ public class ChainTransmission : ITransmissionCalculation
         // cần 1 array các giá trị bảng 5.5 để lọc tìm số gần nhất thay vì =50
         double N01 = 50;
         double Kn = N01 / N3;
-        double Pt = P3*K*Kz*Kn;
+        double Pt = P3 * K * Kz * Kn;
         // cần array object bảng 5.5 ở trên để lọc tìm thông số
         double Psquare = 10.5;
         double p = 38.1;
@@ -230,47 +231,63 @@ public class ChainTransmission : ITransmissionCalculation
     }
 
     // B11
-    private double TinhKhoangCachTruc(double p,bool Above,double a,int controlType,int Shift,int envi, int LubeType)
+    private double TinhKhoangCachTruc(double p, bool Above, double a, int controlType, int Shift, int envi, int LubeType)
     {
         double K0 = Above ? 1.25 : 1;
         double Ka;
-        if (a > 30*p && a < 50*p) {
+        if (a > 30 * p && a < 50 * p)
+        {
             Ka = 1;
-        }  else if (a <= 25*p) {
+        }
+        else if (a <= 25 * p)
+        {
             Ka = 1.25;
-        } else if(a >= 80*p) {
+        }
+        else if (a >= 80 * p)
+        {
             Ka = 0.8;
         }
         double Kdc = controlType == 1 ? 1 : controlType == 2 ? 1.1 : 1.25;
         // Kd
         double Kc = Shift == 1 ? 1 : Shift == 2 ? 1.25 : 1.45;
         double Kbt;
-        if (envi == 0 && LubeType == 1) {
+        if (envi == 0 && LubeType == 1)
+        {
             Kbt = 0.8;
-        }  else if (envi == 0 && LubeType == 2) {
+        }
+        else if (envi == 0 && LubeType == 2)
+        {
             Kbt = 1;
-        } else if(envi == 1 && LubeType == 2) {
+        }
+        else if (envi == 1 && LubeType == 2)
+        {
             Kbt = 1.3;
-        } else if (envi == 1 && LubeType == 3) {
+        }
+        else if (envi == 1 && LubeType == 3)
+        {
             Kbt = 1.8;
-        }  else if (envi == 2 && LubeType == 3) {
+        }
+        else if (envi == 2 && LubeType == 3)
+        {
             Kbt = 3;
-        } else if(envi == 2 && LubeType == 4) {
+        }
+        else if (envi == 2 && LubeType == 4)
+        {
             Kbt = 6;
         }
 
-        double x = Math.Floor(2*a / p + (Z1+Z2)/2 + (Z2-Z1)*(Z2-Z1)*p/(4*a*Math.PI*Math.PI));
-        if (x%2 == 1) x -= 1;
+        double x = Math.Floor(2 * a / p + (Z1 + Z2) / 2 + (Z2 - Z1) * (Z2 - Z1) * p / (4 * a * Math.PI * Math.PI));
+        if (x % 2 == 1) x -= 1;
 
-        double aNew = 0.25*p*(x - 0.5*(Z2+Z1) + Math.Sqrt(Math.Pow(x-0.5*(Z2 + Z1),2) - 2*Math.Pow((Z2-Z1)/Math.PI,2)));
-        double aStan = aNew - 0.002*aNew;
-        double i = Z1*N3 / (15*x);
+        double aNew = 0.25 * p * (x - 0.5 * (Z2 + Z1) + Math.Sqrt(Math.Pow(x - 0.5 * (Z2 + Z1), 2) - 2 * Math.Pow((Z2 - Z1) / Math.PI, 2)));
+        double aStan = aNew - 0.002 * aNew;
+        double i = Z1 * N3 / (15 * x);
 
         return aStan;
     }
 
     // B12
-    private bool KiemNghiemXich(double p,int LoadType, double aStan)
+    private bool KiemNghiemXich(double p, int LoadType, double aStan)
     {
         // cần array bảng 5.2 để dò từ p
         double Q = 127;
@@ -278,14 +295,14 @@ public class ChainTransmission : ITransmissionCalculation
         double Kd = LoadType == 1 ? 1.2 : LoadType == 2 ? 1.7 : 2.0;
 
         double v = Z1 * p * N3 / 60000;
-        double Ft = 1000*P3 / v;
-        double Fv = q*v*v;
-        double F0 = 9.81*6*q*aStan;
-        double s = Q/(Kd*Ft + F0 + Fv);
+        double Ft = 1000 * P3 / v;
+        double Fv = q * v * v;
+        double F0 = 9.81 * 6 * q * aStan;
+        double s = Q / (Kd * Ft + F0 + Fv);
 
         // array bảng 5.10 để tìm sLimit
         double sLimit = 8.5;
-        return s>sLimit;
+        return s > sLimit;
     }
 
     // B13
@@ -293,30 +310,30 @@ public class ChainTransmission : ITransmissionCalculation
     {
         double d1 = p / Math.Sin(Math.PI / Z1);
         double d2 = p / Math.Sin(Math.PI / Z2);
-        double da1 = p*(0.5+1/Math.Tan(Math.PI/Z1));
-        double da2 = p*(0.5+1/Math.Tan(Math.PI/Z2));
+        double da1 = p * (0.5 + 1 / Math.Tan(Math.PI / Z1));
+        double da2 = p * (0.5 + 1 / Math.Tan(Math.PI / Z2));
         // cần array bảng 5.2 để dò từ p
         double dl = 22.23;
-        double r = 0.5025*dl + 0.05;
-        double df1 = d1-2*r;
-        double df2 = d2-2*r;
+        double r = 0.5025 * dl + 0.05;
+        double df1 = d1 - 2 * r;
+        double df2 = d2 - 2 * r;
     }
 
     // B14
-    private double KiemNghiemDoBen(double p,int LoadType)
+    private double KiemNghiemDoBen(double p, int LoadType)
     {
         // hình như cần tra bảng tr87 dựa trên z1
         double Kr = 0.44;
 
         double v = Z1 * p * N3 / 60000;
-        double Ft = 1000*P3 / v;
+        double Ft = 1000 * P3 / v;
         double Kd = LoadType == 1 ? 1.2 : LoadType == 2 ? 1.2 : 1.8;
-        double Fvd = 13*Math.Pow(10,-7)*N3*p*p*p;
-        double E = 1.6*100000;
+        double Fvd = 13 * Math.Pow(10, -7) * N3 * p * p * p;
+        double E = 1.6 * 100000;
         // tra bảng 5.12
         double A = 395;
         double Kde = 1;
-        double Oh1 = 0.47*Math.Sqrt(Kr*(Ft*Kd+Fvd)*E / (A*Kde));
+        double Oh1 = 0.47 * Math.Sqrt(Kr * (Ft * Kd + Fvd) * E / (A * Kde));
         // tra bảng 5.11 và tìm số/vật liệu lớn hơn Oh1
         double Oh = 550;
 
@@ -324,11 +341,11 @@ public class ChainTransmission : ITransmissionCalculation
     }
 
     // B14
-        private double TinhLucTrenTruc(double p,bool Below)
+    private double TinhLucTrenTruc(double p, bool Below)
     {
         double Kx = Below ? 1.15 : 1.05;
         double v = Z1 * p * N3 / 60000;
-        double Ft = 1000*P3 / v;
+        double Ft = 1000 * P3 / v;
         double Frk = Kx * Ft;
 
         return Frk;
@@ -341,19 +358,19 @@ public class ChainTransmission : ITransmissionCalculation
         double p = TinhBuocXichP();
 
         // B11: Khoảng cách trục và số mắt xích
-        double aStan = TinhKhoangCachTruc(p,false,40*p,1,1,0,1);
+        double aStan = TinhKhoangCachTruc(p, false, 40 * p, 1, 1, 0, 1);
 
         // B12: Tính kiểm nghiệm xích về độ bền (true nếu an toàn)
-        bool safe = KiemNghiemXich(p,1,aStan);
+        bool safe = KiemNghiemXich(p, 1, aStan);
 
         // B13: Tính đường kính đĩa xích
         TinhDuongKinhDiaXich(p);
 
         // B14: Kiểm nghiệm độ bền tiếp xúc và chọn vật liệu cho bộ truyền xích
-        double materialOh = KiemNghiemDoBen(p,1);
+        double materialOh = KiemNghiemDoBen(p, 1);
 
         // B15: Tính lực tác dụng lên trục
-        double Frk = TinhLucTrenTruc(p,true);
+        double Frk = TinhLucTrenTruc(p, true);
 
         return Frk;
     }
@@ -369,14 +386,14 @@ public class GearTransmission : ITransmissionCalculation
 
 public class TransmissionFactory
 {
-    public static ITransmissionCalculation CreateTransmission(string type,double Power3, double UTruc3, double Speed3, double UCongTac, double Torque3)
+    public static ITransmissionCalculation CreateTransmission(string type, double Power3, double UTruc3, double Speed3, double UCongTac, double Torque3)
     {
         switch (type.ToLower())
         {
             case "belt":
                 return new BeltTransmission();
             case "chain":
-                return new ChainTransmission(Power3,UTruc3,Speed3,UCongTac,Torque3);
+                return new ChainTransmission(Power3, UTruc3, Speed3, UCongTac, Torque3);
             case "gear":
                 return new GearTransmission();
             default:

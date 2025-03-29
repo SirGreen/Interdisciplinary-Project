@@ -39,8 +39,6 @@ namespace DADN.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
-        
     }
 
     [ApiController]
@@ -106,5 +104,5 @@ namespace DADN.Controllers
         public double[] tlist { get; set; }
     }
 
-        
+
 }
