@@ -39,14 +39,50 @@ namespace DADN.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
-        
     }
 
     [ApiController]
     [Route("Input")]
+    
     public class GearBoxController : Controller
     {
+        private readonly PdfExportService _pdfExportService;
+
+        public GearBoxController()
+        {
+            _pdfExportService = new PdfExportService();
+        }
+        [HttpPost("ExportPdf")]
+        public IActionResult ExportToPdf([FromBody] TechnicalData content)
+        {
+            // if (request == null)
+            // {
+            //     return BadRequest("Invalid input data!");
+            // }
+
+            // // Perform calculation
+            // var gearbox = new GearboxDesign(
+            //     request.force,
+            //     request.speed,
+            //     request.diameter,
+            //     request.serviceTime,
+            //     request.loadN,
+            //     request.Torchlist,
+            //     request.tlist
+            // );
+
+            // var results = gearbox.Calculate();
+
+            // Generate PDF
+            Console.WriteLine(content);
+            var pdfBytes = _pdfExportService.GenerateGearboxPdf(content);
+
+            // // Return as file download
+            // return Ok(pdfBytes);
+            return File(pdfBytes, "application/pdf", $"GearboxDesign_{DateTime.Now:yyyyMMddHHmmss}.pdf");
+        }
+
+
         [HttpPost("CalGear")]
         public IActionResult Calculate([FromBody] CalGearRequestModel request)
         {
@@ -106,5 +142,14 @@ namespace DADN.Controllers
         public double[] tlist { get; set; }
     }
 
-        
+    public class TechnicalData
+    {
+        public double OverloadFactor { get; set; }
+        public double OverallEfficiency { get; set; }
+        public double RequiredMotorEfficiency { get; set; }
+        public double RequiredMotorSpeed { get; set; }
+        public double NsbSpeed { get; set; }
+        public double Un { get; set; }
+        public string MomenSoVongQuay { get; set; }
+    }
 }

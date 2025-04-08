@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Configuration;
+using System.Text.RegularExpressions;
 
 public class AdminController : Controller
 {
@@ -135,4 +136,64 @@ public class AdminController : Controller
 
         return RedirectToAction("CatalogList");
     }
+
+    [HttpGet]
+    [Route("api/filter-catalogs")]
+    public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
+    {
+        var catalogs = await _catalogService.GetAllAsync();
+
+        // Khoảng tốc độ quay hợp lệ
+        double minSpeed = NsbSpeed * 0.96;
+        double maxSpeed = NsbSpeed * 1.04;
+
+        // In thông số ra console
+        Console.WriteLine($"Min Speed (RPS): {minSpeed}");
+        Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
+        // Lọc danh sách động cơ phù hợp
+        var filteredCatalogs = catalogs
+            .Where(m =>
+            {
+                double motorPower = ExtractKW(m.Power);
+                int motorPoles = ExtractPoles(m.Poles);
+                double baseSpeed = GetSpeedFromPoles(motorPoles);
+                return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
+            })
+            .ToList();
+
+        Console.WriteLine($"Số động cơ phù hợp: {filteredCatalogs.Count}");
+        return Ok(filteredCatalogs);
+    }
+
+    // Hàm trích xuất số KW từ chuỗi dạng "0.75kw/1HP" hoặc "22KW/30HP"
+    private double ExtractKW(string powerString)
+    {
+        if (string.IsNullOrEmpty(powerString)) return 0;
+
+        var match = Regex.Match(powerString, @"(\d+(\.\d+)?)\s*(KW|kw|kW)");
+        return match.Success ? double.Parse(match.Groups[1].Value) : 0;
+    }
+
+    private int ExtractPoles(string polesString)
+    {
+        if (string.IsNullOrEmpty(polesString)) return 0;
+
+        var match = Regex.Match(polesString, @"(\d+)P", RegexOptions.IgnoreCase);
+        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+    }
+
+
+    private double GetSpeedFromPoles(int poles)
+    {
+        return poles switch
+        {
+            2 => 2850,
+            4 => 1425,
+            6 => 950,
+            8 => 720,
+            _ => 0             // Nếu không xác định số cực, trả về 0
+        };
+    }
+
+
 }
