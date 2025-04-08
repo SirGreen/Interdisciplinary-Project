@@ -167,7 +167,131 @@ public class GearboxDesign
 
 
 
+    // Chương 4: 2 bánh răng trong hộp giảm tốc
+    // B16:
+    private Dictionary<string, object> chonVatLieuBoTruyen() {
+        return new Dictionary<string, object>
+        {
+            {
+                "Bánh nhỏ", new Dictionary<string, object>
+                {
+                    { "Vật liệu", "Thép 40X - Tôi cải thiện" },
+                    { "Ob", 950 },
+                    { "Och", 700 },
+                    { "HB", "260 : 280" },
+                    { "Kích thước S", "<= 60" }
+                }
+            },
+            {
+                "Bánh lớn", new Dictionary<string, object>
+                {
+                    { "Vật liệu", "Thép 40X - Tôi cải thiện" },
+                    { "Ob", 850 },
+                    { "Och", 550 },
+                    { "HB", "230 : 260" },
+                    { "Kích thước", "<= 100" }
+                }
+            }
+        };
+    }
 
+    // B17
+    private Dictionary<string,double> DauVaoUngSuat(double HB) {
+        double Sh = 1.1;
+        double Sf = 1.75;
+        double HB1 = 265; double HB2 = 250;
+
+        double Ohlim1 = 2*HB1 + 70;
+        double Oflim1 = 1.8*HB1;
+        double Ohlim2 = 2*HB2 + 70;
+        double Oflim2 = 1.8*HB2;
+        double Nho1 = 30*Math.Pow(HB1,2.4);
+        double Nho2 = 30*Math.Pow(HB2,2.4);
+        double Nfo = 4*1000000;
+
+        return new Dictionary<string,double>
+        {
+            { "Ohlim1", Ohlim1 },
+            { "Ohlim2", Ohlim2 },
+            { "Sh", Sh },
+            { "Oflim1", Oflim1 },
+            { "Oflim2", Oflim2 },
+            { "Sf", Sf },
+            { "HB1", HB1 },
+            { "HB2", HB2 },
+            { "Nho1", Nho1 },
+            { "Nho2", Nho2 },
+            { "Nfo", Nfo }
+        };
+    }
+
+    // B18
+    private double TinhUngSuatChoPhep(double Lh,double n1, Dictionary<string,double> dauvao) {
+        double u1 = 5.66;
+        double sum1 = 0; double sumti = 0;
+        int length = Math.Min(tlist.Length, Torchlist.Length);
+        for (int i = 0; i < length; i++) {
+            sumti += tlist[i];
+        }
+        for (int i = 0; i < length; i++) {
+            sum1 += Math.Pow(Torchlist[i],3)*tlist[i]/sumti;
+        }
+        double Nhe2 = 60*1*(n1/u1)*Lh*sum1;
+        double Nhe1 = Nhe2*u1;
+        double Khl1 = 1;double Khl2 = 1;
+        if(Nhe1 <= dauvao["Nho1"]) {
+            double mH = 6;
+            Khl1 = Math.Pow(dauvao["Nho1"]/Nhe1,1/mH);
+        }
+        if(Nhe2 <= dauvao["Nho2"]) {
+            double mH = 6;
+            Khl2 = Math.Pow(dauvao["Nho2"]/Nhe2,1/mH);
+        }
+
+        double allowOh1 = dauvao["Ohlim1"]*Khl1/dauvao["Sh"];
+        double allowOh2 = dauvao["Ohlim2"]*Khl2/dauvao["Sh"];
+        return (allowOh1 + allowOh2)/2;
+    }
+
+    // B19
+    // thieu nfo1,2 va nfe2?
+    private double TinhUngXuatUonChoPhep(double Lh, double n1, Dictionary<string,double> dauvao) {
+        double u1 = 5.66;
+        double sum1 = 0; double sumti = 0;
+        int length = Math.Min(tlist.Length, Torchlist.Length);
+        for (int i = 0; i < length; i++) {
+            sumti += tlist[i];
+        }
+        for (int i = 0; i < length; i++) {
+            sum1 += Math.Pow(Torchlist[i],6)*tlist[i]/sumti;
+        }
+        double Nfe2 = 60*1*(n1/u1)*Lh*sum1;
+        double Nfe1 = Nfe2*u1;
+        double Kfl1 = 1;double Kfl2 = 1;
+        if(Nfe1 <= dauvao["Nfo1"]) {
+            double mF = 6;
+            Kfl1 = Math.Pow(dauvao["Nho1"]/Nfe1,1/mF);
+        }
+        if(Nfe2 <= dauvao["Nfo2"]) {
+            double mF = 6;
+            Kfl2 = Math.Pow(dauvao["Nfo2"]/Nfe2,1/mF);
+        }
+
+        double allowOf1 = dauvao["Oflim1"]*Kfl1/dauvao["Sf"];
+        double allowOf2 = dauvao["Oflim2"]*Kfl2/dauvao["Sf"];
+        return (allowOf1 + allowOf2)/2;
+    }
+
+    public void CalcBoTruyen() {
+        // B16
+        chonVatLieuBoTruyen();
+        // B17
+        var inp = DauVaoUngSuat(260);
+        // B18
+        double allowOh = TinhUngSuatChoPhep(43200,1450,inp);
+        // B19
+        TinhUngXuatUonChoPhep(43200,1450,inp);
+    }
 
 }
 
@@ -340,7 +464,7 @@ public class ChainTransmission : ITransmissionCalculation
         return Oh;
     }
 
-    // B14
+    // B15
     private double TinhLucTrenTruc(double p, bool Below)
     {
         double Kx = Below ? 1.15 : 1.05;

@@ -26,6 +26,9 @@ public class PdfExportService
                         column.Item().Text("Design Report").FontSize(20).Bold();
                         column.Item().PaddingTop(10);
 
+                        column.Item().Text("Design Blueprint").Bold().AlignLeft();
+                        column.Item().Image("wwwroot/assets/images/designdraw/hopgiamtoc.jpg");
+
                         column.Item().Table(table =>
                         {
                             table.ColumnsDefinition(columns =>
