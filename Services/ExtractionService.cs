@@ -97,7 +97,7 @@ public class ExtractionService : IExtractionService
                 Power = extractedData["Power"],
                 Model = extractedData["Model"],
                 Voltage = extractedData["Voltage"],
-                Poles = extractedData.GetValueOrDefault("Poles", "N/A"),
+                Speed = extractedData["Speed"],
                 Standard = extractedData.GetValueOrDefault("Standard", "N/A"),
                 Material = extractedData.GetValueOrDefault("Material", "N/A"),
                 Protection = extractedData.GetValueOrDefault("Protection", "N/A"),
