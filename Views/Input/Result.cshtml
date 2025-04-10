@@ -259,11 +259,11 @@
                             </div>
 
                                 </div><!--end row-->
-                            </form>
-                        </div><!-- end card-body -->
+                </form>
+            </div><!-- end card-body -->
 
                     </div>
-                </form>
+                
             </div><!-- end card -->
         </div>
     </div>
@@ -335,8 +335,8 @@
                 document.getElementById("sigmaAllow").value = data.sigmaAllow || "";
                 document.getElementById("chainCheck").value = data.chainCheck || "";
 
-                if (data.requiredMotorEfficiency && data.NsbSpeed) {
-                    getFilteredCatalogs(data.requiredMotorEfficiency, data.NsbSpeed);
+                if (data.requiredMotorEfficiency && data.nsbSpeed) {
+                    getFilteredCatalogs(data.requiredMotorEfficiency, data.nsbSpeed);
                 } else {
                     console.error("Lỗi: requiredMotorEfficiency hoặc requiredMotorSpeed không hợp lệ!", data);
                 }
