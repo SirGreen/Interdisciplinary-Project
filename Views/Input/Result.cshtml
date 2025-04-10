@@ -118,7 +118,6 @@
     </div>
 </div>
 
-
 <div class="row">
     <div class="col-12">
         <div class="card">
@@ -130,24 +129,6 @@
                 <!-- Input with Placeholder -->
                 <form action="javascript:void(0);">
                     <div class="row">
-
-                        <!-- Số răng đĩa xích nhỏ -->
-                        <div class="col-6">
-                            <div class="mb-3">
-                                <label for="z1" class="form-label">Số răng đĩa xích nhỏ (Z1)</label>
-                                <input type="number" class="form-control" id="z1" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Số răng đĩa xích lớn -->
-                        <div class="col-6">
-                            <div class="mb-3">
-                                <label for="z2" class="form-label">Số răng đĩa xích lớn (Z2)</label>
-                                <input type="number" class="form-control" id="z2" readonly>
-                            </div>
-                        </div>
-
-                        <!-- Bước xích (p) -->
                         <div class="col-6">
                             <div class="mb-3">
                                 <label for="pitch" class="form-label">Bước xích (p) [mm]</label>
@@ -155,7 +136,7 @@
                             </div>
                         </div>
 
-                        <!-- Khoảng cách trục -->
+                        <!-- Khoảng cách trục (KhoangCachTruc_aStan) -->
                         <div class="col-6">
                             <div class="mb-3">
                                 <label for="shaftDistance" class="form-label">Khoảng cách trục [mm]</label>
@@ -163,46 +144,37 @@
                             </div>
                         </div>
 
-                        <!-- Lực vòng (Ft) -->
+                        <!-- Kết luận an toàn xích (XichAnToan) -->
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="Ft" class="form-label">Lực vòng Ft [N]</label>
-                                <input type="number" class="form-control" id="Ft" readonly>
+                                <label for="chainSafe" class="form-label">Kết luận an toàn xích</label>
+                                <input type="text" class="form-control" id="chainSafe" readonly>
                             </div>
                         </div>
 
-                        <!-- Lực căng xích lớn nhất (Fmax) -->
+                        <!-- Trạng thái đường kính đĩa xích (DuongKinhDiaXich_TinhToan) -->
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="Fmax" class="form-label">Lực căng xích lớn nhất Fmax [N]</label>
-                                <input type="number" class="form-control" id="Fmax" readonly>
+                                <label for="diskDiameterCalc" class="form-label">Tính toán đường kính đĩa xích</label>
+                                <input type="text" class="form-control" id="diskDiameterCalc" readonly>
                             </div>
                         </div>
 
-                        <!-- Ứng suất kéo trên bản xích -->
+                        <!-- Độ bền tiếp xúc (DoBenTiepXuc_Oh) -->
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="sigmaK" class="form-label">Ứng suất kéo bản xích [MPa]</label>
-                                <input type="number" class="form-control" id="sigmaK" readonly>
+                                <label for="contactStrength" class="form-label">Độ bền tiếp xúc [MPa]</label>
+                                <input type="number" class="form-control" id="contactStrength" readonly>
                             </div>
                         </div>
 
-                        <!-- Ứng suất cho phép -->
+                        <!-- Lực tác dụng lên trục (LucTacDungTrenTruc_Frk) -->
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="sigmaAllow" class="form-label">Ứng suất cho phép [MPa]</label>
-                                <input type="number" class="form-control" id="sigmaAllow" readonly>
+                                <label for="shaftForce" class="form-label">Lực tác dụng lên trục [N]</label>
+                                <input type="number" class="form-control" id="shaftForce" readonly>
                             </div>
                         </div>
-
-                        <!-- Kiểm nghiệm -->
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label for="chainCheck" class="form-label">Kết luận kiểm nghiệm đĩa xích</label>
-                                <textarea class="form-control" id="chainCheck" rows="3" readonly></textarea>
-                            </div>
-                        </div>
-
                     </div><!--end row-->
                 </form>
             </div><!-- end card-body -->
@@ -210,70 +182,91 @@
     </div>
 </div>
 
+
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Vật liệu bộ truyền</h4>
-            </div><!-- end card header -->
-            <div class="card-body align-items-center d-flex">
-                <!-- With Controls -->
-                <!-- Input with Placeholder -->
-                <form action="javascript:void(0);">
+                <h4 class="card-title mb-0 flex-grow-1">Tính toán bộ truyền</h4>
+            </div>
+            <div class="card-body">
+                <form action="javascript:void(0);" class="w-100">
                     <div class="row">
-                        <!-- B16: Vật liệu bộ truyền -->
-                        <div class="col-md-6">
-                            <label for="vatLieuBanhNho" class="form-label">Bánh nhỏ - Vật liệu</label>
-                            <input type="text" class="form-control mb-2" id="vatLieuBanhNho" readonly>
-                            <label for="obBanhNho" class="form-label">Giới hạn bền (Ob)</label>
-                            <input type="text" class="form-control" id="obBanhNho" readonly>
+                        <!-- Bánh nhỏ -->
+                        <div class="col-6">
+                            <h5>Bánh nhỏ</h5>
+                            <div class="mb-2"><label>Vật liệu</label><input id="matSmall" class="form-control" readonly>
+                            </div>
+                            <div class="mb-2"><label>Ob [MPa]</label><input id="obSmall" type="number"
+                                    class="form-control" readonly></div>
+                            <div class="mb-2"><label>Och [MPa]</label><input id="ochSmall" type="number"
+                                    class="form-control" readonly></div>
+                            <div class="mb-2"><label>HB</label><input id="hbSmall" class="form-control" readonly></div>
+                            <div class="mb-2"><label>Kích thước S</label><input id="sizeSmall" class="form-control"
+                                    readonly></div>
                         </div>
 
                         <!-- Bánh lớn -->
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="vatLieuBanhLon" class="form-label">Bánh lớn - Vật liệu</label>
-                                <input type="text" class="form-control mb-2" id="vatLieuBanhLon" readonly>
-                                <label for="obBanhLon" class="form-label">Giới hạn bền (Ob)</label>
-                                <input type="text" class="form-control" id="obBanhLon" readonly>
+                        <div class="col-6">
+                            <h5>Bánh lớn</h5>
+                            <div class="mb-2"><label>Vật liệu</label><input id="matLarge" class="form-control" readonly>
+                            </div>
+                            <div class="mb-2"><label>Ob [MPa]</label><input id="obLarge" type="number"
+                                    class="form-control" readonly></div>
+                            <div class="mb-2"><label>Och [MPa]</label><input id="ochLarge" type="number"
+                                    class="form-control" readonly></div>
+                            <div class="mb-2"><label>HB</label><input id="hbLarge" class="form-control" readonly></div>
+                            <div class="mb-2"><label>Kích thước</label><input id="sizeLarge" class="form-control"
+                                    readonly></div>
+                        </div>
+
+                        <!-- Đầu vào ứng suất -->
+                        <div class="col-12 mt-3">
+                            <h5>Đầu vào ứng suất</h5>
+                            <div class="row">
+                                <div class="col-4 mb-2"><label>Ohlim1</label><input id="ohlim1" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Ohlim2</label><input id="ohlim2" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Sh</label><input id="sh" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Oflim1</label><input id="oflim1" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Oflim2</label><input id="oflim2" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Sf</label><input id="sf" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>HB1</label><input id="hb1" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>HB2</label><input id="hb2" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Nho1</label><input id="nho1" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Nho2</label><input id="nho2" type="number"
+                                        class="form-control" readonly></div>
+                                <div class="col-4 mb-2"><label>Nfo</label><input id="nfo" type="number"
+                                        class="form-control" readonly></div>
                             </div>
                         </div>
 
-
-                        <!-- B17-B19: Ứng suất cho phép -->
-                        <div class="col-12">
-                            <div class="mb-3">
-                                <label class="form-label">Thông số ứng suất cho phép</label>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="ungSuatTiepXuc" class="form-label">Ứng suất tiếp xúc (σH)
-                                            [MPa]</label>
-                                        <input type="text" class="form-control" id="ungSuatTiepXuc" readonly>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="ungSuatUon" class="form-label">Ứng suất uốn (σF) [MPa]</label>
-                                        <input type="text" class="form-control" id="ungSuatUon" readonly>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="dauVaoUngSuat" class="form-label">Hệ số ứng suất đầu vào</label>
-                                        <input type="text" class="form-control" id="dauVaoUngSuat" readonly>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Ứng suất cho phép -->
+                        <div class="col-6 mt-3">
+                            <label>Ứng suất tiếp xúc cho phép [MPa]</label>
+                            <input id="ohAllow" type="number" class="form-control" readonly>
                         </div>
 
-                    </div><!--end row-->
+                    </div>
                 </form>
-            </div><!-- end card-body -->
-
+            </div>
         </div>
-
-    </div><!-- end card -->
+    </div>
 </div>
-<!-- /////////////////////////////////////////// -->
 
-<div class="row justify-content-center">
-    <div class="w-50 text-center my-3">
+
+
+<!-- /////////////////////////////////////////// -->
+<div class="row">
+    <div class="w-100 text-center my-3">
         <button class="btn btn-primary" onclick="ExportPDF()">Export</button>
     </div>
 </div>
@@ -287,6 +280,7 @@
 
     function CalGear(transType, force, speed, diameter, serviceTime, loadN, Torchlist, tlist) {
         console.log("Gọi CalGear");
+
         if (!transType || transType === "Chọn bộ truyền") {
             console.warn("Chưa chọn bộ truyền, gán mặc định là 'chain'");
             transType = "chain";
@@ -318,8 +312,9 @@
             })
             .then(data => {
                 pdfContent = data;
+                console.log("data: ", data);
 
-                // Gán giá trị cho các input cũ
+                // Gán các giá trị đầu ra
                 document.getElementById("overloadFactor").value = data.overloadFactor || "";
                 document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
                 document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
@@ -328,45 +323,61 @@
                 document.getElementById("Un").value = data.un || "";
                 document.getElementById("MomenSoVongQuay").value = data.momenSoVongQuay || "";
 
-                // Gán giá trị mới cho form Thiết kế đĩa xích
-                document.getElementById("z1").value = data.z1 || "";
-                document.getElementById("z2").value = data.z2 || "";
                 document.getElementById("pitch").value = data.pitch || "";
                 document.getElementById("shaftDistance").value = data.shaftDistance || "";
-                document.getElementById("Ft").value = data.Ft || "";
-                document.getElementById("Fmax").value = data.Fmax || "";
-                document.getElementById("sigmaK").value = data.sigmaK || "";
-                document.getElementById("sigmaAllow").value = data.sigmaAllow || "";
-                document.getElementById("chainCheck").value = data.chainCheck || "";
+                document.getElementById("chainSafe").value = data.chainSafe ? "Đạt" : "Không đạt";
+                document.getElementById("diskDiameterCalc").value = data.diskDiameterCalc || "";
+                document.getElementById("contactStrength").value = data.contactStrength || "";
+                document.getElementById("shaftForce").value = data.shaftForce || "";
+
+
+
+                // Sửa tên đúng: vatLieuBoTruyen (viết thường)
+                const vl = data.vatLieuBoTruyen;
+                const input = data.dauVaoUngSuat;
+
+                if (vl && vl["Bánh nhỏ"] && vl["Bánh lớn"]) {
+                    document.getElementById("matSmall").value = vl["Bánh nhỏ"]["Vật liệu"] || "";
+                    document.getElementById("obSmall").value = vl["Bánh nhỏ"]["Ob"] || "";
+                    document.getElementById("ochSmall").value = vl["Bánh nhỏ"]["Och"] || "";
+                    document.getElementById("hbSmall").value = vl["Bánh nhỏ"]["HB"] || "";
+                    document.getElementById("sizeSmall").value = vl["Bánh nhỏ"]["Kích thước S"] || "";
+
+                    document.getElementById("matLarge").value = vl["Bánh lớn"]["Vật liệu"] || "";
+                    document.getElementById("obLarge").value = vl["Bánh lớn"]["Ob"] || "";
+                    document.getElementById("ochLarge").value = vl["Bánh lớn"]["Och"] || "";
+                    document.getElementById("hbLarge").value = vl["Bánh lớn"]["HB"] || "";
+                    document.getElementById("sizeLarge").value = vl["Bánh lớn"]["Kích thước"] || "";
+                } else {
+                    console.warn("vatLieuBoTruyen thiếu hoặc sai định dạng:", vl);
+                }
+
+                // Đầu vào ứng suất
+                if (input) {
+                    for (const key in input) {
+                        const el = document.getElementById(key.toLowerCase());
+                        if (el) el.value = input[key];
+                    }
+                }
+
+                // Ứng suất tiếp xúc cho phép
+                document.getElementById("ohAllow").value = data.ungSuatTiepXucChoPhep || "";
 
                 if (data.requiredMotorEfficiency && data.nsbSpeed) {
-                    getFilteredCatalogs(data.requiredMotorEfficiency, data.nsbSpeed);
+                    getFilteredCatalogs(data.requiredMotorEfficiency, data.nsbSpeed)
+                        .then(data => {
+                            console.log("Danh sách catalog phù hợp:", data);
+                            renderCatalogTable(data);
+                        })
+                        .catch(error => console.error("Lỗi khi lọc catalog:", error));
                 } else {
                     console.error("Lỗi: requiredMotorEfficiency hoặc requiredMotorSpeed không hợp lệ!", data);
                 }
 
-                // B16: Gán vật liệu bánh nhỏ & bánh lớn (nếu có)
-                if (data.VatLieuBoTruyen) {
-                    const vatlieu = data.VatLieuBoTruyen;
-                    if (vatlieu.BanhNho) {
-                        document.getElementById("vatLieuBanhNho").value = vatlieu.BanhNho.VatLieu || "";
-                        document.getElementById("obBanhNho").value = vatlieu.BanhNho.Ob || "";
-                    }
-                    if (vatlieu.BanhLon) {
-                        document.getElementById("vatLieuBanhLon").value = vatlieu.BanhLon.VatLieu || "";
-                        document.getElementById("obBanhLon").value = vatlieu.BanhLon.Ob || "";
-                    }
-                }
-
-                // B17–B19: Gán ứng suất & hệ số
-                document.getElementById("ungSuatTiepXuc").value = data.UngSuatTiepXucChoPhep || "";
-                document.getElementById("ungSuatUon").value = data.UngSuatUonChoPhep || "";
-                document.getElementById("dauVaoUngSuat").value = data.DauVaoUngSuat || "";
-
-
             })
             .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
     }
+
 
     // Đảm bảo CalGear đã được định nghĩa trước khi dùng
     document.addEventListener("DOMContentLoaded", function () {

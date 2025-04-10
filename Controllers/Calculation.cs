@@ -305,15 +305,13 @@ public class GearboxDesign
         // B18: Tính ứng suất tiếp xúc cho phép
         double oh = TinhUngSuatChoPhep(43200, 1450, input);
 
-        // B19: Tính ứng suất uốn cho phép
-        double of = TinhUngXuatUonChoPhep(43200, 1450, input);
+        
 
         return new Dictionary<string, object>
         {
             { "VatLieuBoTruyen", vatlieu },
             { "DauVaoUngSuat", input },
-            { "UngSuatTiepXucChoPhep", oh },
-            { "UngSuatUonChoPhep", of }
+            { "UngSuatTiepXucChoPhep", oh }
         };
     }
 

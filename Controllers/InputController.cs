@@ -130,7 +130,6 @@ namespace DADN.Controllers
         }
 
 
-
         [HttpPost("CalGear")]
         public IActionResult Calculate([FromBody] CalGearRequestModel request)
         {
@@ -156,12 +155,14 @@ namespace DADN.Controllers
             // Tính toán
             var gearboxResult = gearbox.Calculate();
             var transmissionResult = transmission.CalChain();
+            // Tính toán
+            var truyenResult = gearbox.CalcTruyen();
 
-            // Lấy thêm phần kết quả từ CalcBoTruyen
-            var vatlieuBoTruyen = gearboxResult.ContainsKey("VatLieuBoTruyen") ? gearboxResult["VatLieuBoTruyen"] : null;
-            var dauVaoUngSuat = gearboxResult.ContainsKey("DauVaoUngSuat") ? gearboxResult["DauVaoUngSuat"] : null;
-            var ungSuatTiepXuc = gearboxResult.ContainsKey("UngSuatTiepXucChoPhep") ? gearboxResult["UngSuatTiepXucChoPhep"] : null;
-            var ungSuatUon = gearboxResult.ContainsKey("UngSuatUonChoPhep") ? gearboxResult["UngSuatUonChoPhep"] : null;
+            // Trích xuất 4 giá trị
+            var vatlieuBoTruyen = truyenResult.GetValueOrDefault("VatLieuBoTruyen");
+            var dauVaoUngSuat = truyenResult.GetValueOrDefault("DauVaoUngSuat");
+            var ungSuatTiepXuc = truyenResult.GetValueOrDefault("UngSuatTiepXucChoPhep");
+            
 
             return Ok(new
             {
@@ -178,18 +179,17 @@ namespace DADN.Controllers
                 VatLieuBoTruyen = vatlieuBoTruyen,
                 DauVaoUngSuat = dauVaoUngSuat,
                 UngSuatTiepXucChoPhep = ungSuatTiepXuc,
-                UngSuatUonChoPhep = ungSuatUon,
 
-                // Transmission result (chain)
-                z1 = transmissionResult.ContainsKey("Z1") ? transmissionResult["Z1"] : null,
-                z2 = transmissionResult.ContainsKey("Z2") ? transmissionResult["Z2"] : null,
+                // Gán giá trị mới cho form Thiết kế đĩa xích
                 pitch = transmissionResult.ContainsKey("BuocXich_p") ? transmissionResult["BuocXich_p"] : null,
                 shaftDistance = transmissionResult.ContainsKey("KhoangCachTruc_aStan") ? transmissionResult["KhoangCachTruc_aStan"] : null,
                 chainSafe = transmissionResult.ContainsKey("XichAnToan") ? transmissionResult["XichAnToan"] : null,
                 contactStrength = transmissionResult.ContainsKey("DoBenTiepXuc_Oh") ? transmissionResult["DoBenTiepXuc_Oh"] : null,
-                shaftForce = transmissionResult.ContainsKey("LucTacDungTrenTruc_Frk") ? transmissionResult["LucTacDungTrenTruc_Frk"] : null
+                shaftForce = transmissionResult.ContainsKey("LucTacDungTrenTruc_Frk") ? transmissionResult["LucTacDungTrenTruc_Frk"] : null,
+                diskDiameterCalc = transmissionResult.ContainsKey("DuongKinhDiaXich_TinhToan") ? transmissionResult["DuongKinhDiaXich_TinhToan"] : null
+
             });
-        }
+        } 
 
 
     }
