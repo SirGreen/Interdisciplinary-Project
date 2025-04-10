@@ -164,6 +164,7 @@ public class GearboxDesign
             { "MomenSoVongQuay", momenSoVongQuay }
         };
     }
+    
 
 
 
@@ -293,12 +294,37 @@ public class GearboxDesign
         TinhUngXuatUonChoPhep(43200,1450,inp);
     }
 
+    public Dictionary<string, object> CalcTruyen()
+    {
+        // B16: Chọn vật liệu
+        var vatlieu = chonVatLieuBoTruyen();
+
+        // B17: Tính đầu vào ứng suất
+        var input = DauVaoUngSuat(260);
+
+        // B18: Tính ứng suất tiếp xúc cho phép
+        double oh = TinhUngSuatChoPhep(43200, 1450, input);
+
+        // B19: Tính ứng suất uốn cho phép
+        double of = TinhUngXuatUonChoPhep(43200, 1450, input);
+
+        return new Dictionary<string, object>
+        {
+            { "VatLieuBoTruyen", vatlieu },
+            { "DauVaoUngSuat", input },
+            { "UngSuatTiepXucChoPhep", oh },
+            { "UngSuatUonChoPhep", of }
+        };
+    }
+
+
 }
 
 // đoạn này là structure của mấy bộ truyền
 public interface ITransmissionCalculation
 {
     double Calculate();
+     Dictionary<string, object> CalChain(); // Thêm dòng này nếu muốn dùng CalChain
 }
 
 public class BeltTransmission : ITransmissionCalculation
@@ -306,6 +332,26 @@ public class BeltTransmission : ITransmissionCalculation
     public double Calculate()
     {
         return 0.95;
+    }
+    public Dictionary<string, object> CalChain()
+    {
+        return new Dictionary<string, object> {
+            { "Message", "BeltTransmission chưa hỗ trợ tính chi tiết CalChain" }
+        };
+    }
+}
+
+public class GearTransmission : ITransmissionCalculation
+{
+    public double Calculate()
+    {
+        return 0.98;
+    }
+    public Dictionary<string, object> CalChain()
+    {
+        return new Dictionary<string, object> {
+            { "Message", "GearTransmission chưa hỗ trợ tính chi tiết CalChain" }
+        };
     }
 }
 
@@ -498,14 +544,39 @@ public class ChainTransmission : ITransmissionCalculation
 
         return Frk;
     }
-}
 
-public class GearTransmission : ITransmissionCalculation
-{
-    public double Calculate()
+    public Dictionary<string, object> CalChain()
     {
-        return 0.98;
+        var result = new Dictionary<string, object>();
+
+        // B10: Xác định thông số xích
+        TinhSoRangDiaXich();
+        double p = TinhBuocXichP();
+        result["BuocXich_p"] = p;
+
+        // B11: Khoảng cách trục và số mắt xích
+        double aStan = TinhKhoangCachTruc(p, false, 40 * p, 1, 1, 0, 1);
+        result["KhoangCachTruc_aStan"] = aStan;
+
+        // B12: Kiểm nghiệm xích về độ bền
+        bool safe = KiemNghiemXich(p, 1, aStan);
+        result["XichAnToan"] = safe;
+
+        // B13: Tính đường kính đĩa xích
+        TinhDuongKinhDiaXich(p); // Không có giá trị trả về, giả sử cập nhật bên trong
+        result["DuongKinhDiaXich_TinhToan"] = "Đã tính";
+
+        // B14: Kiểm nghiệm độ bền tiếp xúc & vật liệu
+        double materialOh = KiemNghiemDoBen(p, 1);
+        result["DoBenTiepXuc_Oh"] = materialOh;
+
+        // B15: Lực tác dụng lên trục
+        double Frk = TinhLucTrenTruc(p, true);
+        result["LucTacDungTrenTruc_Frk"] = Frk;
+
+        return result;
     }
+
 }
 
 public class TransmissionFactory

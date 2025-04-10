@@ -36,4 +36,14 @@ namespace DADN.Models
         public double[] Tlist { get; set; }
         public double[] tlist { get; set; }
     }
+
+    public class PartialInputModel
+    {
+        public string field { get; set; }
+        public double value { get; set; }
+
+        public Dictionary<string, double> existingData { get; set; }
+    }
+
+
 }

@@ -19,6 +19,16 @@ namespace DADN.Controllers
             return View();
         }
 
+        public IActionResult Test()
+        {
+            return View();
+        }
+
+        public IActionResult Result()
+        {
+            return View();
+        }
+
         [HttpPost]
         public IActionResult Submit([FromBody] InputModel input)
         {
@@ -82,6 +92,44 @@ namespace DADN.Controllers
             return File(pdfBytes, "application/pdf", $"GearboxDesign_{DateTime.Now:yyyyMMddHHmmss}.pdf");
         }
 
+        [HttpPost("SuggestNext")]
+        public IActionResult SuggestNext([FromBody] PartialInputModel input)
+        {
+            if (input == null || string.IsNullOrWhiteSpace(input.field))
+            {
+                return BadRequest(new { message = "Dữ liệu đầu vào không hợp lệ!" });
+            }
+
+            var field = input.field.ToLower();
+            var data = input.existingData ?? new Dictionary<string, double>();
+
+            string suggestion = field switch
+            {
+                "force" => "Thường trong khoảng 100 - 500 N",
+                "speed" => "0.5 - 2.5 m/s nếu F > 200",
+                "diameter" => data.ContainsKey("force") && data["force"] > 300
+                                ? "Chọn D lớn hơn 200 mm để chịu tải"
+                                : "Thông thường D: 100 - 300 mm",
+                "serviceTime" => "Từ 3 đến 10 năm là hợp lý",
+                "workdays" => "Thường là 250 ngày/năm",
+                "workhours" => "Thông dụng: 8 giờ/ngày",
+                "startupmoment" => data.ContainsKey("loadmoment")
+                                    ? $"Nên lớn hơn mômen tải ({data["loadmoment"]} Nm)"
+                                    : "Chọn lớn hơn mômen tải",
+                "loadmoment" => "Tùy tải, khoảng 100 - 500 Nm",
+                "torch" => data.ContainsKey("force") ? $"Tải có thể ~ {data["force"] / 2} N" : "Tải khoảng 50 - 200 N",
+                "t" => data.ContainsKey("torch") ? $"Thời gian tương ứng ~ {Math.Round(data["torch"] / 10.0, 1)} giây" : "Thời gian khoảng 10 - 30 giây",
+                _ => "Gợi ý: nhập giá trị hợp lý theo hệ thống"
+            };
+
+            return Ok(new
+            {
+                field = input.field,
+                suggestion
+            });
+        }
+
+
 
         [HttpPost("CalGear")]
         public IActionResult Calculate([FromBody] CalGearRequestModel request)
@@ -91,7 +139,7 @@ namespace DADN.Controllers
                 return BadRequest("Thiếu dữ liệu đầu vào!");
             }
 
-            // Truyền các tham số từ request
+            // Khởi tạo gearbox
             GearboxDesign gearbox = new GearboxDesign(
                 request.force,
                 request.speed,
@@ -102,31 +150,48 @@ namespace DADN.Controllers
                 request.tlist
             );
 
-            // Tạo bộ truyền dựa trên lựa chọn của người dùng
-            ITransmissionCalculation transmission;
-            switch (request.transType.ToLower())
+            // Tạo bộ truyền theo loại được chọn
+            ITransmissionCalculation transmission = TransmissionFactory.CreateTransmission("chain", 7.088, 2.578, 80.561, 2.578, 840232.2606);
+
+            // Tính toán
+            var gearboxResult = gearbox.Calculate();
+            var transmissionResult = transmission.CalChain();
+
+            // Lấy thêm phần kết quả từ CalcBoTruyen
+            var vatlieuBoTruyen = gearboxResult.ContainsKey("VatLieuBoTruyen") ? gearboxResult["VatLieuBoTruyen"] : null;
+            var dauVaoUngSuat = gearboxResult.ContainsKey("DauVaoUngSuat") ? gearboxResult["DauVaoUngSuat"] : null;
+            var ungSuatTiepXuc = gearboxResult.ContainsKey("UngSuatTiepXucChoPhep") ? gearboxResult["UngSuatTiepXucChoPhep"] : null;
+            var ungSuatUon = gearboxResult.ContainsKey("UngSuatUonChoPhep") ? gearboxResult["UngSuatUonChoPhep"] : null;
+
+            return Ok(new
             {
-                case "belt":
-                    transmission = TransmissionFactory.CreateTransmission("belt", request.force, request.speed, request.diameter, request.serviceTime, request.loadN);
-                    break;
-                case "chain":
-                    transmission = TransmissionFactory.CreateTransmission("chain", request.force, request.speed, request.diameter, request.serviceTime, request.loadN);
-                    break;
-                case "gear":
-                    transmission = TransmissionFactory.CreateTransmission("gear", request.force, request.speed, request.diameter, request.serviceTime, request.loadN);
-                    break;
-                default:
-                    return BadRequest("Loại bộ truyền không hợp lệ");
-            }
+                // Gearbox results
+                overloadFactor = gearboxResult["overloadFactor"],
+                overallEfficiency = gearboxResult["overallEfficiency"],
+                requiredMotorEfficiency = gearboxResult["requiredMotorEfficiency"],
+                requiredMotorSpeed = gearboxResult["requiredMotorSpeed"],
+                NsbSpeed = gearboxResult["NsbSpeed"],
+                Un = gearboxResult["Un"],
+                MomenSoVongQuay = gearboxResult["MomenSoVongQuay"],
 
-            // Thực hiện tính toán
-            //gearbox.Calculate();
+                // Bo truyen B16–B19
+                VatLieuBoTruyen = vatlieuBoTruyen,
+                DauVaoUngSuat = dauVaoUngSuat,
+                UngSuatTiepXucChoPhep = ungSuatTiepXuc,
+                UngSuatUonChoPhep = ungSuatUon,
 
-            // Lấy kết quả
-            var results = gearbox.Calculate();
-
-            return Ok(results);
+                // Transmission result (chain)
+                z1 = transmissionResult.ContainsKey("Z1") ? transmissionResult["Z1"] : null,
+                z2 = transmissionResult.ContainsKey("Z2") ? transmissionResult["Z2"] : null,
+                pitch = transmissionResult.ContainsKey("BuocXich_p") ? transmissionResult["BuocXich_p"] : null,
+                shaftDistance = transmissionResult.ContainsKey("KhoangCachTruc_aStan") ? transmissionResult["KhoangCachTruc_aStan"] : null,
+                chainSafe = transmissionResult.ContainsKey("XichAnToan") ? transmissionResult["XichAnToan"] : null,
+                contactStrength = transmissionResult.ContainsKey("DoBenTiepXuc_Oh") ? transmissionResult["DoBenTiepXuc_Oh"] : null,
+                shaftForce = transmissionResult.ContainsKey("LucTacDungTrenTruc_Frk") ? transmissionResult["LucTacDungTrenTruc_Frk"] : null
+            });
         }
+
+
     }
 
     // Model nhận dữ liệu từ request
