@@ -60,7 +60,7 @@ public class AdminController : Controller
         // Gán giá trị mặc định "Unknown" nếu trường bị bỏ trống
         catalog.Power = string.IsNullOrWhiteSpace(catalog.Power) ? "Unknown" : catalog.Power;
         catalog.Voltage = string.IsNullOrWhiteSpace(catalog.Voltage) ? "Unknown" : catalog.Voltage;
-        catalog.Poles = string.IsNullOrWhiteSpace(catalog.Poles) ? "Unknown" : catalog.Poles;
+        catalog.Speed = string.IsNullOrWhiteSpace(catalog.Speed) ? "Unknown" : catalog.Speed;
         catalog.FrameSize = string.IsNullOrWhiteSpace(catalog.FrameSize) ? "Unknown" : catalog.FrameSize;
         catalog.Protection = string.IsNullOrWhiteSpace(catalog.Protection) ? "Unknown" : catalog.Protection;
         catalog.Standard = string.IsNullOrWhiteSpace(catalog.Standard) ? "Unknown" : catalog.Standard;
@@ -74,7 +74,7 @@ public class AdminController : Controller
         // Xử lý upload ảnh
         if (imageFiles != null && imageFiles.Count > 0)
         {
-            catalog.ImageUrls = new List<string>(); // Đảm bảo danh sách không null
+            catalog.Image = new List<string>(); // Đảm bảo danh sách không null
 
             foreach (var imageFile in imageFiles)
             {
@@ -88,7 +88,7 @@ public class AdminController : Controller
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
                 if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    catalog.ImageUrls.Add(uploadResult.SecureUrl.ToString());
+                    catalog.Image.Add(uploadResult.SecureUrl.ToString());
                 }
             }
         }
@@ -105,6 +105,10 @@ public class AdminController : Controller
     public async Task<IActionResult> CatalogList()
     {
         var catalogs = await _catalogService.GetAllAsync();
+        foreach (var item in catalogs)
+        {
+            Console.WriteLine($"Id: {item.Id}, Technology: {item.Technology}");
+        }
         return View(catalogs);
     }
 
@@ -155,8 +159,8 @@ public class AdminController : Controller
             .Where(m =>
             {
                 double motorPower = ExtractKW(m.Power);
-                int motorPoles = ExtractPoles(m.Poles);
-                double baseSpeed = GetSpeedFromPoles(motorPoles);
+                int motorSpeed = ExtractPoles(m.Speed);
+                double baseSpeed = motorSpeed;
                 return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
             })
             .ToList();
@@ -178,22 +182,6 @@ public class AdminController : Controller
     {
         if (string.IsNullOrEmpty(polesString)) return 0;
 
-        var match = Regex.Match(polesString, @"(\d+)P", RegexOptions.IgnoreCase);
-        return match.Success ? int.Parse(match.Groups[1].Value) : 0;
+        return int.Parse(polesString);
     }
-
-
-    private double GetSpeedFromPoles(int poles)
-    {
-        return poles switch
-        {
-            2 => 2850,
-            4 => 1425,
-            6 => 950,
-            8 => 720,
-            _ => 0             // Nếu không xác định số cực, trả về 0
-        };
-    }
-
-
 }
