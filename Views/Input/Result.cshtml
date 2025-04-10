@@ -40,7 +40,8 @@
 
                         <div class="col-6">
                             <div class="mb-3"><!--TinhTocDoQuayCanThietNlv()-->
-                                <label for="requiredMotorSpeed" class="form-label">Số vòng quay của trục công tác</label>
+                                <label for="requiredMotorSpeed" class="form-label">Số vòng quay của trục công
+                                    tác</label>
                                 <input type="number" class="form-control" id="requiredMotorSpeed" readonly>
                             </div>
                         </div><!--end col-->
@@ -111,7 +112,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
             </div><!-- end card-body -->
         </div><!-- end card -->
     </div>
@@ -228,7 +229,7 @@
                             <input type="text" class="form-control" id="obBanhNho" readonly>
                         </div>
 
-                                    <!-- Bánh lớn -->
+                        <!-- Bánh lớn -->
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="vatLieuBanhLon" class="form-label">Bánh lớn - Vật liệu</label>
@@ -237,38 +238,39 @@
                                 <input type="text" class="form-control" id="obBanhLon" readonly>
                             </div>
                         </div>
-                    
+
 
                         <!-- B17-B19: Ứng suất cho phép -->
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label">Thông số ứng suất cho phép</label>
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <label for="ungSuatTiepXuc" class="form-label">Ứng suất tiếp xúc (σH) [MPa]</label>
-                                            <input type="text" class="form-control" id="ungSuatTiepXuc" readonly>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="ungSuatUon" class="form-label">Ứng suất uốn (σF) [MPa]</label>
-                                            <input type="text" class="form-control" id="ungSuatUon" readonly>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label for="dauVaoUngSuat" class="form-label">Hệ số ứng suất đầu vào</label>
-                                            <input type="text" class="form-control" id="dauVaoUngSuat" readonly>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="ungSuatTiepXuc" class="form-label">Ứng suất tiếp xúc (σH)
+                                            [MPa]</label>
+                                        <input type="text" class="form-control" id="ungSuatTiepXuc" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="ungSuatUon" class="form-label">Ứng suất uốn (σF) [MPa]</label>
+                                        <input type="text" class="form-control" id="ungSuatUon" readonly>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="dauVaoUngSuat" class="form-label">Hệ số ứng suất đầu vào</label>
+                                        <input type="text" class="form-control" id="dauVaoUngSuat" readonly>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                                </div><!--end row-->
+                    </div><!--end row-->
                 </form>
             </div><!-- end card-body -->
 
-                    </div>
-                
-            </div><!-- end card -->
         </div>
-    </div>
+
+    </div><!-- end card -->
+</div>
+</div>
 </div>
 
 
@@ -282,7 +284,7 @@
 
 <script>
     ///////////////////////////////////////////////////////////////
-        
+
     function CalGear(transType, force, speed, diameter, serviceTime, loadN, Torchlist, tlist) {
         console.log("Gọi CalGear");
         if (!transType || transType === "Chọn bộ truyền") {
@@ -421,9 +423,9 @@
 
             // Kiểm tra nếu ImageUrls tồn tại và có ảnh
             let imagesHtml = "";
-            if (item.imageUrls && Array.isArray(item.imageUrls) && item.imageUrls.length > 0) {
+            if (item.image && Array.isArray(item.image) && item.image.length > 0) {
                 imagesHtml = `<div class="d-flex flex-wrap">` +
-                    item.imageUrls.slice(0, 3).map(url =>
+                    item.image.slice(0, 3).map(url =>
                         `<img src="${url}" alt="Hình ảnh ${item.model}" class="img-thumbnail" width="70" height="70" style="margin: 2px; object-fit: cover;">`
                     ).join("") +
                     `</div>`;
@@ -437,7 +439,7 @@
         <td>${item.model || "Không có dữ liệu"}</td>
         <td>${item.power || "Không có dữ liệu"}</td>
         <td>${item.voltage || "Không có dữ liệu"}</td>
-        <td>${item.poles || "Không có dữ liệu"}</td>
+        <td>${item.speed || "Không có dữ liệu"}</td>
         <td>${item.frameSize || "Không có dữ liệu"}</td>
         <td>${item.material || "Không có dữ liệu"}</td>
         <td>${item.protection || "Không có dữ liệu"}</td>
@@ -491,7 +493,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `GearboxDesign_${new Date().toISOString().slice(0,10)}.pdf`;
+                a.download = `GearboxDesign_${new Date().toISOString().slice(0, 10)}.pdf`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);

@@ -4,6 +4,7 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
+using System.IO.Pipelines;
 
 public class AdminController : Controller
 {
@@ -146,7 +147,7 @@ public class AdminController : Controller
     public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
-
+        Console.WriteLine("Hello");
         // Khoảng tốc độ quay hợp lệ
         double minSpeed = NsbSpeed * 0.96;
         double maxSpeed = NsbSpeed * 1.04;
@@ -172,7 +173,8 @@ public class AdminController : Controller
     // Hàm trích xuất số KW từ chuỗi dạng "0.75kw/1HP" hoặc "22KW/30HP"
     private double ExtractKW(string powerString)
     {
-        if (string.IsNullOrEmpty(powerString)) return 0;
+        Console.WriteLine(powerString);
+        if (string.IsNullOrEmpty(powerString) || powerString == "Unknown" || powerString == "N/A") return 0;
 
         var match = Regex.Match(powerString, @"(\d+(\.\d+)?)\s*(KW|kw|kW)");
         return match.Success ? double.Parse(match.Groups[1].Value) : 0;
