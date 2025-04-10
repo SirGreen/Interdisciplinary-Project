@@ -230,10 +230,12 @@
 
                                     <!-- Bánh lớn -->
                         <div class="col-md-6">
-                            <label for="vatLieuBanhLon" class="form-label">Bánh lớn - Vật liệu</label>
-                            <input type="text" class="form-control mb-2" id="vatLieuBanhLon" readonly>
-                            <label for="obBanhLon" class="form-label">Giới hạn bền (Ob)</label>
-                            <input type="text" class="form-control" id="obBanhLon" readonly>
+                            <div class="mb-3">
+                                <label for="vatLieuBanhLon" class="form-label">Bánh lớn - Vật liệu</label>
+                                <input type="text" class="form-control mb-2" id="vatLieuBanhLon" readonly>
+                                <label for="obBanhLon" class="form-label">Giới hạn bền (Ob)</label>
+                                <input type="text" class="form-control" id="obBanhLon" readonly>
+                            </div>
                         </div>
                     
 
@@ -320,9 +322,9 @@
                 document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
                 document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
                 document.getElementById("requiredMotorSpeed").value = data.requiredMotorSpeed || "";
-                document.getElementById("NsbSpeed").value = data.NsbSpeed || "";
-                document.getElementById("Un").value = data.Un || "";
-                document.getElementById("MomenSoVongQuay").value = data.MomenSoVongQuay || "";
+                document.getElementById("NsbSpeed").value = data.nsbSpeed || "";
+                document.getElementById("Un").value = data.un || "";
+                document.getElementById("MomenSoVongQuay").value = data.momenSoVongQuay || "";
 
                 // Gán giá trị mới cho form Thiết kế đĩa xích
                 document.getElementById("z1").value = data.z1 || "";
