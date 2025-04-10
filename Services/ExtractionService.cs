@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ public class ExtractionService : IExtractionService
 {
     private readonly HttpClient _httpClient;
     private const string HuggingFaceApiUrl = "https://api-inference.huggingface.co/models/letran1110/vit5_trash_classifier";
-    private const string ApiToken = "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"; // Thay bằng token của bạn
+    private const string ApiToken = "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";
 
     public ExtractionService(HttpClient httpClient)
     {
@@ -28,8 +29,45 @@ public class ExtractionService : IExtractionService
             throw new Exception("Không lấy được nội dung trang web.");
         }
 
-        return await ExtractDataFromTextAsync(url, pageContent);
+        var result = await TryExtractData(url, pageContent);
+        Console.WriteLine(result != null ? "Trích xuất dữ liệu thành công!" : "Trích xuất dữ liệu thất bại!");
+        if (result == null) result = new MotorCatalog
+        {
+            Id = ObjectId.GenerateNewId().ToString(),
+            URL = url,
+            Power = "N/A",
+            Model = "N/A",
+            Voltage = "N/A",
+            Speed = "N/A",
+            Standard = "N/A",
+            Technology = "N/A",
+            Material = "N/A",
+            Protection = "N/A",
+            FrameSize = "N/A",
+            MountingType = "N/A",
+            ShaftDiameter = "N/A",
+            Footprint = "N/A"
+        };
+        return result;
     }
+
+    private async Task<MotorCatalog?> TryExtractData(string url, string pageContent, int retries = 3)
+    {
+        int attempt = 0;
+        MotorCatalog? result = null;
+        while (attempt < retries && result == null)
+        {
+            result = await ExtractDataFromTextAsync(url, pageContent);
+            if (result == null)
+            {
+                attempt++;
+                Console.WriteLine($"Thử lại lần {attempt}...");
+                await Task.Delay(2000); // Đợi 2 giây trước khi thử lại
+            }
+        }
+        return result;
+    }
+
 
     private async Task<string> CrawlWebContent(string url)
     {
@@ -53,108 +91,136 @@ public class ExtractionService : IExtractionService
         }
     }
 
-    private async Task<MotorCatalog> ExtractDataFromTextAsync(string url, string inputText)
+    private async Task<MotorCatalog?> ExtractDataFromTextAsync(string url, string inputText)
     {
-        var prompt = $"Hãy trích xuất thông tin động cơ từ văn bản sau và trả về JSON hợp lệ:\n\n{inputText}\n\n" +
-                     "Định dạng JSON: { \"Power\": \"\", \"Model\": \"\", \"Voltage\": \"\", \"Poles\": \"\", \"Standard\": \"\", \"Material\": \"\" }";
-
-        var requestBody = new
-        {
-            inputs = prompt,
-            parameters = new { max_length = 512 }
-        };
-
-        var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-
-        using var response = await _httpClient.PostAsync(HuggingFaceApiUrl, jsonContent);
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new Exception($"Lỗi khi gọi API Hugging Face: {response.StatusCode}");
-        }
-
-        var responseString = await response.Content.ReadAsStringAsync();
-        if (string.IsNullOrWhiteSpace(responseString))
-        {
-            throw new Exception("API trả về dữ liệu rỗng.");
-        }
-
         try
         {
+            var prompt = $"Hãy trích xuất thông tin động cơ từ văn bản sau và trả về JSON hợp lệ:\n\n{inputText}\n\n" +
+                         "Định dạng JSON: { \"Power\": \"\", \"Model\": \"\", \"Voltage\": \"\", \"Speed\": \"\", \"Standard\": \"\", \"Material\": \"\", \"Protection\": \"\" }";
+
+            var requestBody = new
+            {
+                inputs = prompt,
+                parameters = new { max_length = 512 }
+            };
+
+            var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+
+            // Gọi API HuggingFace và nhận kết quả
+            var responseString = await CallHuggingFaceApi(jsonContent);
+            if (responseString == null)
+            {
+                Console.WriteLine("Không nhận được dữ liệu từ HuggingFace API.");
+                return null;
+            }
+
             Console.WriteLine($"Output từ model: {responseString}");
 
             var extractedData = ParseOutput(responseString);
 
-            // Kiểm tra 3 thông tin quan trọng, nếu thiếu thì báo lỗi
             if (!extractedData.ContainsKey("Power") || !extractedData.ContainsKey("Model") || !extractedData.ContainsKey("Voltage"))
             {
-                throw new Exception("API không trả về đủ thông tin cần thiết (Power, Model, Voltage).");
+                Console.WriteLine("API không trả đủ thông tin Power, Model, Voltage.");
+                return null;
             }
 
             return new MotorCatalog
             {
                 Id = ObjectId.GenerateNewId().ToString(),
                 URL = url,
-                Power = extractedData["Power"],
-                Model = extractedData["Model"],
-                Voltage = extractedData["Voltage"],
-                Poles = extractedData.GetValueOrDefault("Poles", "N/A"),
+                Power = extractedData.GetValueOrDefault("Power", "N/A"),
+                Model = extractedData.GetValueOrDefault("Model", "N/A"),
+                Voltage = extractedData.GetValueOrDefault("Voltage", "N/A"),
+                Speed = extractedData.GetValueOrDefault("Speed", "N/A"),
                 Standard = extractedData.GetValueOrDefault("Standard", "N/A"),
                 Material = extractedData.GetValueOrDefault("Material", "N/A"),
                 Protection = extractedData.GetValueOrDefault("Protection", "N/A"),
-                ShaftDiameter = extractedData.GetValueOrDefault("ShaftDiameter", "N/A"),
+                Technology = extractedData.GetValueOrDefault("Technology", "N/A"),
                 FrameSize = extractedData.GetValueOrDefault("FrameSize", "N/A"),
                 MountingType = extractedData.GetValueOrDefault("MountingType", "N/A"),
-                Footprint = extractedData.GetValueOrDefault("Footprint", "N/A"),
-                Technology = extractedData.GetValueOrDefault("Technology", "N/A")
+                ShaftDiameter = extractedData.GetValueOrDefault("ShaftDiameter", "N/A"),
+                Footprint = extractedData.GetValueOrDefault("Footprint", "N/A")
             };
         }
         catch (Exception ex)
         {
-            throw new Exception($"Lỗi khi parse JSON từ model: {ex.Message}");
+            Console.WriteLine($"Lỗi ExtractDataFromTextAsync: {ex.Message}");
+            return null;
         }
     }
-
     private Dictionary<string, string> ParseOutput(string text)
     {
+        var result = new Dictionary<string, string>();
+
         try
         {
-            // 🛠 Bước 1: Lấy chuỗi JSON từ mảng trả về của model
             var jsonData = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(text);
             if (jsonData == null || jsonData.Count == 0 || !jsonData[0].ContainsKey("generated_text"))
             {
-                throw new Exception("❌ API không trả về dữ liệu hợp lệ.");
+                Console.WriteLine("API không trả về dữ liệu hợp lệ.");
+                return result;
             }
 
-            // 🔍 Bước 2: Lấy nội dung trong `generated_text`
             string rawGeneratedText = jsonData[0]["generated_text"];
 
-            // 🔍 Bước 3: Dùng regex để trích xuất từng thông tin
             string ExtractValue(string key)
             {
                 var match = Regex.Match(rawGeneratedText, $@"\""{key}\"":\s*\""(.*?)\""");
                 return match.Success ? match.Groups[1].Value.Trim() : "N/A";
             }
 
-            // 📌 Trích xuất các trường dữ liệu
-            return new Dictionary<string, string>
-        {
-            { "Power", ExtractValue("Power") },
-            { "Model", ExtractValue("Model") },
-            { "Voltage", ExtractValue("Voltage") },
-            { "Poles", ExtractValue("Poles") },
-            { "Standard", ExtractValue("Standard") },
-            { "Material", ExtractValue("Material") },
-            { "Protection", ExtractValue("Protection") },
-            { "ShaftDiameter", ExtractValue("Shaft Diameter") }, // Chú ý key có khoảng trắng
-            { "FrameSize", ExtractValue("Frame Size") },
-            { "MountingType", ExtractValue("Mounting Type") },
-            { "Footprint", ExtractValue("Footprint") },
-            { "Technology", ExtractValue("Technology") }
+            var keys = new[]
+            {
+            "Power", "Model", "Voltage", "Speed", "Standard", "Material",
+            "Protection", "Shaft Diameter", "FrameSize", "MountingType",
+            "Footprint", "Technology"
         };
+
+            foreach (var key in keys)
+            {
+                result[key.Replace(" ", "")] = ExtractValue(key);
+            }
         }
         catch (Exception ex)
         {
-            throw new Exception($"❌ Lỗi khi parse output từ model: {ex.Message}");
+            Console.WriteLine($"Lỗi khi parse output từ model: {ex.Message}");
+        }
+
+        return result;
+    }
+
+
+    private async Task<string?> CallHuggingFaceApi(StringContent jsonContent)
+    {
+        try
+        {
+            using var response = await _httpClient.PostAsync(HuggingFaceApiUrl, jsonContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == HttpStatusCode.ServiceUnavailable)
+                {
+                    Console.WriteLine($"HuggingFace API trả về lỗi {response.StatusCode} - Service Unavailable.");
+                }
+                else
+                {
+                    Console.WriteLine($"Lỗi gọi API HuggingFace: {response.StatusCode} - {response.ReasonPhrase}");
+                }
+                return null;
+            }
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(responseString))
+            {
+                Console.WriteLine("API trả về dữ liệu rỗng.");
+                return null;
+            }
+
+            return responseString;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi gọi HuggingFace API: {ex.Message}");
+            return null;
         }
     }
 }

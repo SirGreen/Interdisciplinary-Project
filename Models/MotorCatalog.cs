@@ -11,7 +11,7 @@ public class MotorCatalog
     public required string Power { get; set; }
     public required string Model { get; set; }
     public required string FrameSize { get; set; }
-    public required string Poles { get; set; }
+    public required string Speed { get; set; }
     public required string Standard { get; set; }
     public required string Voltage { get; set; }
     public required string MountingType { get; set; }
@@ -19,5 +19,5 @@ public class MotorCatalog
     public required string Protection { get; set; }
     public required string ShaftDiameter { get; set; }
     public required string Footprint { get; set; }
-    public List<string> ImageUrls { get; set; } = new List<string>();
+    public List<string> Image { get; set; } = new List<string>();
 }

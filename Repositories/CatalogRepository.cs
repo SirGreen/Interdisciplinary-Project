@@ -9,7 +9,7 @@ public class CatalogRepository : ICatalogRepository
     public CatalogRepository(IMongoClient mongoClient)
     {
         var database = mongoClient.GetDatabase("MotorDB");
-        _catalogCollection = database.GetCollection<MotorCatalog>("MotorCatalogs");
+        _catalogCollection = database.GetCollection<MotorCatalog>("Motor");
     }
 
     public async Task<List<MotorCatalog>> GetAllAsync() =>
