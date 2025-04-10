@@ -95,7 +95,7 @@
                                 <th>Model</th>
                                 <th>Công suất</th>
                                 <th>Điện áp</th>
-                                <th>Cực</th>
+                                <th>Tốc độ quay</th>
                                 <th>Kích thước khung</th>
                                 <th>Chất liệu</th>
                                 <th>Bảo vệ</th>
@@ -270,17 +270,17 @@
 
     </div><!-- end card -->
 </div>
-</div>
-</div>
-
-
 <!-- /////////////////////////////////////////// -->
 
-<div class="w-100 text-center my-3">
-    <button class="btn btn-primary" onclick="ExportPDF()">Export</button>
+<div class="row justify-content-center">
+    <div class="w-50 text-center my-3">
+        <button class="btn btn-primary" onclick="ExportPDF()">Export</button>
+    </div>
 </div>
 <!-- //////////////////////////////////////////////// -->
 
+
+</div>
 
 <script>
     ///////////////////////////////////////////////////////////////
@@ -392,7 +392,7 @@
     });
 
 
-
+    let catalogs = null;
     function getFilteredCatalogs(requiredMotorEfficiency, NsbSpeed) {
         // Gọi API với 2 tham số
         fetch(`/api/filter-catalogs?requiredMotorEfficiency=${requiredMotorEfficiency}&NsbSpeed=${NsbSpeed}`)
@@ -402,6 +402,7 @@
             })
             .then(data => {
                 console.log("Danh sách catalog phù hợp:", data);
+                catalogs = data;
                 renderCatalogTable(data);
             })
             .catch(error => console.error("Lỗi:", error));
@@ -458,18 +459,73 @@
         });
     }
 
-    // Ẩn các dòng không được chọn
-    function selectMotor(index) {
-        let tableBody = document.getElementById("catalogTableBody");
-        let rows = tableBody.getElementsByTagName("tr");
+    const fs = require('fs');
+    const axios = require('axios');
+    const path = require('path');
 
-        for (let i = 0; i < rows.length; i++) {
-            if (i === index) {
-                rows[i].style.display = ""; // Hiển thị dòng được chọn
-            } else {
-                rows[i].style.display = "none"; // Ẩn các dòng khác
+    // Tạo thư mục images nếu chưa có
+    const imagesDir = path.join(__dirname, 'images');
+    if (!fs.existsSync(imagesDir)) {
+        fs.mkdirSync(imagesDir);
+    }
+
+    // Hàm tải ảnh và lưu vào thư mục
+    async function downloadAndSaveImage(imageUrl) {
+        try {
+            // Tải ảnh từ URL
+            const response = await fetch(imageUrl);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch image from ${imageUrl}`);
             }
+
+            // Tạo một tên file từ URL
+            const imageName = path.basename(imageUrl);
+            const imagePath = path.join(__dirname, 'images', imageName);
+
+            // Lưu ảnh vào thư mục images
+            const buffer = await response.buffer();
+            await fs.promises.writeFile(imagePath, buffer);
+            console.log(`Image saved to ${imagePath}`);
+
+            // Trả về đường dẫn ảnh đã lưu
+            return imagePath;
+        } catch (error) {
+            console.error('Error downloading image:', error);
+            throw error;
         }
+    }
+
+    async function selectMotor(index) {
+        const selectedMotor = catalogs[index];
+
+        // Kiểm tra và tải ảnh nếu cần
+        if (selectedMotor.image && selectedMotor.image.length > 0) {
+            const imagePaths = [];
+
+            // Tải và lưu tất cả các ảnh
+            for (const imageUrl of selectedMotor.image) {
+                try {
+                    const savedImagePath = await downloadAndSaveImage(imageUrl);
+                    if (savedImagePath) {
+                        imagePaths.push(savedImagePath);  // Lưu đường dẫn file đã lưu cho mục đích in PDF
+                    }
+                } catch (error) {
+                    console.error('Error downloading image:', error);
+                }
+            }
+
+            // Cập nhật pdfContent.Motor với đường dẫn ảnh đã tải về (chỉ dùng cho PDF)
+            pdfContent.Motor = {
+                ...selectedMotor,
+                image: imagePaths  // Chỉ cập nhật image cho pdfContent, không thay đổi dữ liệu gốc
+            };
+        } else {
+            // Nếu không có ảnh, giữ nguyên dữ liệu cũ
+            pdfContent.Motor = selectedMotor;
+        }
+
+        // Render lại bảng chỉ với 1 motor (dữ liệu gốc)
+        renderCatalogTable([selectedMotor]);
     }
 
     function ExportPDF() {

@@ -53,7 +53,7 @@ namespace DADN.Controllers
 
     [ApiController]
     [Route("Input")]
-    
+
     public class GearBoxController : Controller
     {
         private readonly PdfExportService _pdfExportService;
@@ -216,5 +216,6 @@ namespace DADN.Controllers
         public double NsbSpeed { get; set; }
         public double Un { get; set; }
         public string MomenSoVongQuay { get; set; }
+        public MotorCatalog Motor { get; set; }
     }
 }

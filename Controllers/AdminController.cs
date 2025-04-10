@@ -106,10 +106,6 @@ public class AdminController : Controller
     public async Task<IActionResult> CatalogList()
     {
         var catalogs = await _catalogService.GetAllAsync();
-        foreach (var item in catalogs)
-        {
-            Console.WriteLine($"Id: {item.Id}, Technology: {item.Technology}");
-        }
         return View(catalogs);
     }
 
@@ -147,14 +143,13 @@ public class AdminController : Controller
     public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
-        Console.WriteLine("Hello");
         // Khoảng tốc độ quay hợp lệ
         double minSpeed = NsbSpeed * 0.96;
         double maxSpeed = NsbSpeed * 1.04;
 
         // In thông số ra console
-        Console.WriteLine($"Min Speed (RPS): {minSpeed}");
-        Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
+        // Console.WriteLine($"Min Speed (RPS): {minSpeed}");
+        // Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
         // Lọc danh sách động cơ phù hợp
         var filteredCatalogs = catalogs
             .Where(m =>
@@ -166,14 +161,12 @@ public class AdminController : Controller
             })
             .ToList();
 
-        Console.WriteLine($"Số động cơ phù hợp: {filteredCatalogs.Count}");
         return Ok(filteredCatalogs);
     }
 
     // Hàm trích xuất số KW từ chuỗi dạng "0.75kw/1HP" hoặc "22KW/30HP"
     private double ExtractKW(string powerString)
     {
-        Console.WriteLine(powerString);
         if (string.IsNullOrEmpty(powerString) || powerString == "Unknown" || powerString == "N/A") return 0;
 
         var match = Regex.Match(powerString, @"(\d+(\.\d+)?)\s*(KW|kw|kW)");
