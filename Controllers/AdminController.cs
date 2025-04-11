@@ -143,6 +143,7 @@ public class AdminController : Controller
     public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
+        Console.WriteLine("FilterCatalogs: "+requiredMotorEfficiency+" " + NsbSpeed);
         // Khoảng tốc độ quay hợp lệ
         double minSpeed = NsbSpeed * 0.96;
         double maxSpeed = NsbSpeed * 1.04;
@@ -155,12 +156,13 @@ public class AdminController : Controller
             .Where(m =>
             {
                 double motorPower = ExtractKW(m.Power);
+                bool a = motorPower >= requiredMotorEfficiency;
+                // Console.WriteLine($"Motor Power: {motorPower} - {a} - {m.Power}");
                 int motorSpeed = ExtractPoles(m.Speed);
                 double baseSpeed = motorSpeed;
                 return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
             })
             .ToList();
-
         return Ok(filteredCatalogs);
     }
 
@@ -170,7 +172,9 @@ public class AdminController : Controller
         if (string.IsNullOrEmpty(powerString) || powerString == "Unknown" || powerString == "N/A") return 0;
 
         var match = Regex.Match(powerString, @"(\d+(\.\d+)?)\s*(KW|kw|kW)");
-        return match.Success ? double.Parse(match.Groups[1].Value) : 0;
+        var culture = System.Globalization.CultureInfo.InvariantCulture; // Uses dot as decimal separator
+        // Console.WriteLine($"ExtractKW: {powerString} - {match.Success} - {match.Groups[1].Value} - {double.Parse(match.Groups[1].Value)}");
+        return match.Success ? double.Parse(match.Groups[1].Value,culture) : 0;
     }
 
     private int ExtractPoles(string polesString)

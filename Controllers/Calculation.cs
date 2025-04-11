@@ -72,7 +72,7 @@ public class GearboxDesign
     private double ChonDongCo(double Nsb, double Pct)
     {
         // Giả lập việc chọn động cơ từ catalog
-        Console.WriteLine($"Selected Motor: CongSuat >= {Pct} kW, VanToc khoang [{Nsb * 0.96}, {Nsb * 1.04} ] vg/gi");
+        Console.WriteLine($"Selected Motor: CongSuat >= {Pct} kW, VanToc khoang [{Nsb * 0.96}, {Nsb * 1.04} ] vg/ph");
 
         return Nsb * 1.04;
     }
