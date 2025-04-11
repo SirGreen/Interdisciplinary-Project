@@ -381,7 +381,10 @@
                     ${item.loadData.map(load => `T${load.id}: ${load.torch}, t${load.id}: ${load.time}`).join(', ')}
                 </td>
                 <td>${item.transType}</td>
-                <td><button class="btn btn-primary btn-sm select-btn" data-index="${index}">Chọn</button></td>
+                <td>
+                    <button class="btn btn-primary btn-sm select-btn" data-index="${index}">Chọn</button>
+                    <button class="btn btn-danger btn-sm delete-btn" data-index="${index}">Xóa</button>
+                </td>
             `;
 
             savedDataTable.appendChild(row);
@@ -396,6 +399,18 @@
                 populateForm(selectedItem);
             });
         });
+
+        // Gán sự kiện cho nút xóa
+        const deleteButtons = document.querySelectorAll(".delete-btn");
+        deleteButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const index = this.getAttribute("data-index");
+                savedData.splice(index, 1);
+                localStorage.setItem("inputData", JSON.stringify(savedData));
+                displayStoredData();
+            });
+        });
+
     }
 
 /*
@@ -444,7 +459,7 @@
 
 
 
-
+/*
 
     function postPartialInput(field, value) {
         if (isNaN(value)) return; // Ngăn gửi nếu không phải số
@@ -559,7 +574,96 @@
                 postPartialInput('t', value, existingData);
             }
         });
+    });*/
+
+    // Hàm lấy giá trị từ các input
+    function gatherExistingData() {
+        const getVal = id => parseFloat(document.getElementById(id)?.value) || undefined;
+
+        return {
+            force: getVal('forceInput'),
+            speed: getVal('speedInput'),
+            diameter: getVal('diameterInput'),
+            serviceTime: getVal('serviceTimeInput'),
+            workDays: getVal('workDaysInput'),
+            workHours: getVal('workHoursInput'),
+            startupMoment: getVal('startupMoment'),
+            loadMoment: getVal('loadMoment'),
+        };
+    }
+
+    // Công thức tính toán theo ảnh
+    const calc_nlv = (v, D) => {
+        if (!v || !D) return null;
+        return Math.round((60000 * v) / (Math.PI * D));
+    };
+
+    const calc_nsb = (n_lv) => {
+        if (!n_lv) return null;
+        return Math.round(n_lv * 46.08);
+    };
+
+    const calc_Pn = (F, v) => {
+        if (!F || !v) return null;
+        return Math.round((F * v) / 1000 * 100) / 100;
+    };
+
+    // Gợi ý nội bộ không dùng API
+    function postPartialInput(field, value) {
+        if (isNaN(value)) return;
+
+        const partialData = {
+            field,
+            value,
+            existingData: gatherExistingData()
+        };
+
+        showSuggestion(partialData);
+    }
+
+    // Hiển thị gợi ý
+    function showSuggestion(data) {
+        const suggestId = data.field + 'Suggestion';
+        const suggestEl = document.getElementById(suggestId);
+        if (!suggestEl) return;
+
+        const val = parseFloat(data.value);
+        const fullData = gatherExistingData();
+        let suggestionText = '';
+
+        if (data.field === 'force' || data.field === 'speed') {
+            const Pn = calc_Pn(fullData.force, fullData.speed);
+            if (Pn) suggestionText = `Công suất yêu cầu Pₙ ≈ ${Pn} kW`;
+        }
+
+        if (data.field === 'speed' || data.field === 'diameter') {
+            const nlv = calc_nlv(fullData.speed, fullData.diameter);
+            const nsb = calc_nsb(nlv);
+
+            if (nlv && nsb) {
+                suggestionText = `nₗᵥ ≈ ${nlv} vòng/phút, nₛᵦ ≈ ${nsb} vòng/phút`;
+            } else if (nlv) {
+                suggestionText = `nₗᵥ ≈ ${nlv} vòng/phút`;
+            }
+        }
+
+        suggestEl.innerText = suggestionText || 'Không có gợi ý';
+    }
+
+    // Gán sự kiện cho các input
+    ['forceInput', 'speedInput', 'diameterInput', 'serviceTimeInput',
+     'workDaysInput', 'workHoursInput', 'startupMoment', 'loadMoment'
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('blur', function () {
+                const value = parseFloat(this.value);
+                postPartialInput(id.replace('Input', ''), value);
+            });
+        }
     });
+
+
 
 
 
