@@ -431,8 +431,6 @@
         }
 
         catalogs.forEach((item, index) => {
-            console.log("Dữ liệu từng item:", item);
-
             // Kiểm tra nếu ImageUrls tồn tại và có ảnh
             let imagesHtml = "";
             if (item.image && Array.isArray(item.image) && item.image.length > 0) {
@@ -480,7 +478,16 @@
         fs.mkdirSync(imagesDir);
     }
 
-    // Hàm tải ảnh và lưu vào thư mục
+    // chuyển image thành base64
+    function blobToBase64(blob) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    // Hàm tải ảnh thành data base64
     async function downloadAndSaveImage(imageUrl) {
         try {
             // Tải ảnh từ URL
@@ -490,16 +497,18 @@
             }
 
             // Tạo một tên file từ URL
-            const imageName = path.basename(imageUrl);
-            const imagePath = path.join(__dirname, 'images', imageName);
+            @* const imageName = path.basename(imageUrl);
+            const imagePath = path.join(__dirname, 'images', imageName); *@
 
-            // Lưu ảnh vào thư mục images
+            @* // Lưu ảnh vào thư mục images
             const buffer = await response.buffer();
             await fs.promises.writeFile(imagePath, buffer);
-            console.log(`Image saved to ${imagePath}`);
+            console.log(`Image saved to ${imagePath}`); *@
+            const blob = await response.blob();
+            const base64Image = await blobToBase64(blob);
 
-            // Trả về đường dẫn ảnh đã lưu
-            return imagePath;
+            // Trả về stringDataBase64
+            return base64Image;
         } catch (error) {
             console.error('Error downloading image:', error);
             throw error;
@@ -511,24 +520,24 @@
 
         // Kiểm tra và tải ảnh nếu cần
         if (selectedMotor.image && selectedMotor.image.length > 0) {
-            const imagePaths = [];
+            const imageBase64s = [];
 
             // Tải và lưu tất cả các ảnh
             for (const imageUrl of selectedMotor.image) {
                 try {
-                    const savedImagePath = await downloadAndSaveImage(imageUrl);
-                    if (savedImagePath) {
-                        imagePaths.push(savedImagePath);  // Lưu đường dẫn file đã lưu cho mục đích in PDF
+                    const imageData = await downloadAndSaveImage(imageUrl);
+                    if (imageData) {
+                        imageBase64s.push(imageData);  // lưu image thành base64 string
                     }
                 } catch (error) {
                     console.error('Error downloading image:', error);
                 }
             }
 
-            // Cập nhật pdfContent.Motor với đường dẫn ảnh đã tải về (chỉ dùng cho PDF)
+            // Cập nhật pdfContent.Motor với data ảnh đã tải về (chỉ dùng cho PDF)
             pdfContent.Motor = {
                 ...selectedMotor,
-                image: imagePaths  // Chỉ cập nhật image cho pdfContent, không thay đổi dữ liệu gốc
+                image: imageBase64s
             };
         } else {
             // Nếu không có ảnh, giữ nguyên dữ liệu cũ

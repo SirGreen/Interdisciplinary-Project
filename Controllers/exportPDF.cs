@@ -103,19 +103,23 @@ public class PdfExportService
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(shaft);
 
                                     // Power column
+                                    var pow = double.Parse(values[0].Split('=')[1].Trim().Split(" ")[0]);
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                        .Text(values[0].Split('=')[1].Trim());
+                                        .Text((Math.Ceiling(pow*100)/100).ToString());
 
                                     // Speed column
+                                    var spd = double.Parse(values[1].Split('=')[1].Trim().Split(" ")[0]);
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                        .Text(values[1].Split('=')[1].Trim());
+                                        .Text((Math.Ceiling(spd*100)/100).ToString());
 
                                     // Torque column
+                                    var tor = double.Parse(values[2].Split('=')[1].Trim().Split(" ")[0]);
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                        .Text(values[2].Split('=')[1].Trim());
+                                        .Text((Math.Ceiling(tor*100)/100).ToString());
                                 }
                             });
                         }
+                        column.Item().PaddingTop(30);
                         column.Item().Text("Motor").Bold().AlignLeft();
                         if (content.Motor != null)
                         {
@@ -126,63 +130,64 @@ public class PdfExportService
                                 table
                                     .ColumnsDefinition(columns =>
                                     {
-                                        columns.ConstantColumn(100);
-                                        columns.RelativeColumn();
+                                        columns.RelativeColumn(2);
+                                        columns.RelativeColumn(3);
                                     });
                                 table
                                     .Header(header =>
                                     {
-                                        header.Cell().Text("Attribute").Bold();
-                                        header.Cell().Text("Value").Bold();
+                                        header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Attribute").Bold();
+                                        header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Value").Bold();
                                     });
 
-                                table.Cell().Text("Technology");
-                                table.Cell().Text(motorCatalog.Technology);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Technology");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Technology);
 
-                                table.Cell().Text("Power");
-                                table.Cell().Text(motorCatalog.Power);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Power");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Power);
 
-                                table.Cell().Text("Model");
-                                table.Cell().Text(motorCatalog.Model);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Model");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Model);
 
-                                table.Cell().Text("Frame Size");
-                                table.Cell().Text(motorCatalog.FrameSize);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Frame Size");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.FrameSize);
 
-                                table.Cell().Text("Speed");
-                                table.Cell().Text(motorCatalog.Speed);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Speed");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Speed);
 
-                                table.Cell().Text("Standard");
-                                table.Cell().Text(motorCatalog.Standard);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Standard");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Standard);
 
-                                table.Cell().Text("Voltage");
-                                table.Cell().Text(motorCatalog.Voltage);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Voltage");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Voltage);
 
-                                table.Cell().Text("Mounting Type");
-                                table.Cell().Text(motorCatalog.MountingType);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Mounting Type");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.MountingType);
 
-                                table.Cell().Text("Material");
-                                table.Cell().Text(motorCatalog.Material);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Material");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Material);
 
-                                table.Cell().Text("Protection");
-                                table.Cell().Text(motorCatalog.Protection);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Protection");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Protection);
 
-                                table.Cell().Text("Shaft Diameter");
-                                table.Cell().Text(motorCatalog.ShaftDiameter);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Shaft Diameter");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.ShaftDiameter);
 
-                                table.Cell().Text("URL");
-                                table.Cell().Hyperlink(motorCatalog.URL).Text("Xem").FontColor(Colors.Blue.Lighten2);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("URL");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Hyperlink(motorCatalog.URL).Text("Xem").FontColor(Colors.Blue.Lighten2);
                             });
 
                             // In danh sách hình ảnh
-                            column.Item().Text("Images:");
+                            column.Item().Text("Engine Images:");
 
                             if (content.Motor.Image != null && content.Motor.Image.Any())
                             {
-                                foreach (var imagePath in content.Motor.Image)
+                                foreach (var imageData in content.Motor.Image)
                                 {
                                     try
                                     {
-                                        column.Item().Image(imagePath);
+                                        byte[] imageBytes = Convert.FromBase64String(imageData);
+                                        column.Item().Width(2,Unit.Inch).Image(imageBytes);
                                     }
                                     catch
                                     {
@@ -195,6 +200,7 @@ public class PdfExportService
                                 column.Item().Text("Không có ảnh");
                             }
                         }
+                        column.Item().PaddingTop(30);
                         column.Item().Text($"Generated on {DateTime.Now}");
                     });
             });
