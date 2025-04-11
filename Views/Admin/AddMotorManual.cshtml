@@ -30,7 +30,7 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Speed</label>
+        <label class="form-label">Speed <span class="text-danger">*</span></label>
         <input type="text" class="form-control" asp-for="Speed" />
     </div>
 
@@ -83,3 +83,29 @@
 
     <button type="submit" class="btn btn-primary">Thêm</button>
 </form>
+
+<script>
+    function validateForm(event) {
+        const requiredFields = ['Power', 'Model', 'Voltage', 'Speed'];
+        let isValid = true;
+
+        requiredFields.forEach(fieldName => {
+            const input = document.querySelector(`[name="${fieldName}"]`);
+            const value = input.value.trim().toLowerCase();
+
+            if (value === '' || value === 'unknown' || value === 'n/a') {
+                isValid = false;
+                input.classList.add('is-invalid');
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault();
+            alert('Vui lòng nhập đầy đủ và không được ghi "unknown" hoặc "N/A" cho các trường Power, Model, Voltage, Speed.');
+        }
+    }
+
+    document.querySelector('form').addEventListener('submit', validateForm);
+</script>

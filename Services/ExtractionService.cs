@@ -12,8 +12,8 @@ using System.Text.RegularExpressions;
 public class ExtractionService : IExtractionService
 {
     private readonly HttpClient _httpClient;
-    private const string HuggingFaceApiUrl = "https://api-inference.huggingface.co/models/letran1110/vit5_trash_classifier";
-    private const string ApiToken = "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";
+    private const string HuggingFaceApiUrl = "https://api-inference.huggingface.co/models/letran1110/vit5_motor_extractor";
+    private const string ApiToken = "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";
 
     public ExtractionService(HttpClient httpClient)
     {
