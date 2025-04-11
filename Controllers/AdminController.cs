@@ -157,7 +157,7 @@ public class AdminController : Controller
             {
                 double motorPower = ExtractKW(m.Power);
                 bool a = motorPower >= requiredMotorEfficiency;
-                Console.WriteLine($"Motor Power: {motorPower} - {a} - {m.Power}");
+                // Console.WriteLine($"Motor Power: {motorPower} - {a} - {m.Power}");
                 int motorSpeed = ExtractPoles(m.Speed);
                 double baseSpeed = motorSpeed;
                 return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
