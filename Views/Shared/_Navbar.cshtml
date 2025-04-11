@@ -65,9 +65,12 @@
                     <ul class="navbar-nav" id="navbar-nav">
                         <li class="menu-title"><span data-key="t-menu">Menu</span></li>
                         <li class="nav-item">
-                            <a class="nav-link menu-link" href="#sidebarDashboards" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarDashboards">
+                            <li class="nav-item"></li>
+                                <a href="/" class="nav-link" data-key="t-analytics"> <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Trang chủ</span> </a>
+                            </li>
+                            @* <a class="nav-link menu-link" href="#sidebarDashboards" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarDashboards">
                                 <i class="ri-dashboard-2-line"></i> <span data-key="t-dashboards">Tổng hợp</span>
-                            </a>
+                            </a> *@
                             <div class="collapse menu-dropdown" id="sidebarDashboards">
                                 <ul class="nav nav-sm flex-column">
                                     <li class="nav-item">
@@ -95,9 +98,12 @@
                             </div>
                         </li> <!-- end Dashboard Menu -->
                             <li class="nav-item">
-                                <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApps">
+                                <li class="nav-item"></li>
+                                    <a href="/admin/cataloglist" class="nav-link" data-key="t-analytics"> <i class="ri-apps-2-line"></i> <span data-key="t-dashboards">Xem catalogue</span> </a>
+                                </li>
+                                @* <a class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApps">
                                     <i class="ri-apps-2-line"></i> <span data-key="t-apps">MQTT</span>
-                                </a>
+                                </a> *@
                                 <div class="collapse menu-dropdown" id="sidebarApps">
                                     <ul class="nav nav-sm flex-column">
                                         @* <li class="nav-item">
@@ -124,9 +130,12 @@
                         
                         
                         <li class="nav-item">
-                            <a class="nav-link menu-link" href="#sidebarLayouts" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarLayouts">
+                            <li class="nav-item"></li>
+                                <a href="/input" class="nav-link" data-key="t-analytics"> <i class="ri-layout-3-line"></i> <span data-key="t-dashboards">Nhập dữ liệu</span> </a>
+                            </li>
+                            @* <a class="nav-link menu-link" href="#sidebarLayouts" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarLayouts">
                                 <i class="ri-layout-3-line"></i> <span data-key="t-layouts">Dữ liệu</span>
-                            </a>
+                            </a> *@
                             <div class="collapse menu-dropdown" id="sidebarLayouts">
                                 <ul class="nav nav-sm flex-column">
                                     <li class="nav-item">
@@ -161,9 +170,9 @@
                         @* <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">Pages</span></li> *@
                         
                         <li class="nav-item">
-                            <a class="nav-link menu-link" href="#sidebarAuth" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAuth">
+                            @* <a class="nav-link menu-link" href="#sidebarAuth" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAuth">
                                 <i class="ri-account-circle-line"></i> <span data-key="t-authentication">Quản lý</span>
-                            </a>
+                            </a> *@
                             <div class="collapse menu-dropdown" id="sidebarAuth">
                                 <ul class="nav nav-sm flex-column">
                                     
