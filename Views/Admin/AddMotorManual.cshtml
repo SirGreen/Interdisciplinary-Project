@@ -6,7 +6,7 @@
 
 <h2>Thêm thông tin động cơ</h2>
 
-<form asp-action="AddMotorManual" method="post" enctype="multipart/form-data">
+<form asp-action="AddMotorManual" method="post" enctype="multipart/form-data" onsubmit="validateForm(event)">
     <input type="hidden" asp-for="Id" />
 
     <div class="mb-3">
@@ -30,8 +30,8 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Speed</label>
-        <input type="text" class="form-control" asp-for="Speed" />
+        <label class="form-label">Speed <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="Speed" required />
     </div>
 
     <div class="mb-3">
@@ -83,3 +83,38 @@
 
     <button type="submit" class="btn btn-primary">Thêm</button>
 </form>
+
+<script>
+    function validateForm(event) {
+        const requiredFields = ['Power', 'Model', 'Voltage', 'Speed'];
+        let isValid = true;
+
+        requiredFields.forEach(fieldName => {
+            const input = document.querySelector(`[name="${fieldName}"]`);
+            if (!input) return; // Nếu không có input thì bỏ qua
+
+            const value = input.value.trim().toLowerCase();
+
+            // Kiểm tra giá trị có phải là số hợp lệ và không phải "unknown" hay "n/a"
+            if (value === '' || value === 'unknown' || value === 'n/a' || isNaN(value)) {
+                isValid = false;
+                input.classList.add('is-invalid'); // Bootstrap có sẵn viền đỏ
+            } else {
+                input.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault(); // Chặn submit
+            alert('Vui lòng nhập đầy đủ Power, Model, Voltage, Speed và không được ghi "unknown", "N/A" hoặc giá trị không hợp lệ.');
+        }
+    }
+
+    // Gắn sự kiện submit vào form
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function (event) {
+            validateForm(event);
+        });
+    }
+</script>
