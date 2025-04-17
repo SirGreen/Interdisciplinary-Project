@@ -82,18 +82,18 @@
                         </div><!--end col-->
 
                         <div class="col-6">
-
                             <label class="form-label">Danh sách tải (T, t)</label>
-
                             <div class="d-flex mb-2">
-                                <input type="number" class="form-control me-2" id="loadTInput" data-index="0" placeholder="Nhập tải T">
+                                <input type="number" class="form-control me-2" id="loadTInput" data-index="0"
+                                    placeholder="Nhập tải T">
                                 <input type="number" class="form-control me-2" id="loadtInput"
                                     placeholder="Nhập thời gian t" data-index="0">
                                 <button type="button" class="btn btn-success me-2" onclick="addBadge()">+</button>
                             </div>
-
-
+                            <!-- Thêm phần tử để hiển thị gợi ý -->
+                            <div id="loadSuggestions" class="mt-2"></div>
                         </div>
+
 
                         <div class="col-6">
                             <div class="mb-3">
@@ -202,55 +202,146 @@
     let loads = [];
     let pdfContent = {};
 
+    // Hàm thêm badge vào danh sách
     function addBadge() {
         const Torch = document.getElementById('loadTInput').value;
         const time = document.getElementById('loadtInput').value;
 
+        // Kiểm tra xem giá trị nhập có hợp lệ không
         if (Torch && time) {
             loads.push({ Torch, time }); // thêm mới chứ không ghi đè
             updateBadges();
         }
     }
 
-
+    // Hàm xóa badge
     function removeBadge(index) {
         loads.splice(index, 1);
         updateBadges();
     }
 
-    /*function updateBadges() {
-        const badgesDiv = document.getElementById("loadBadges");
-        const loadTypesInput = document.getElementById("loadTypesInput");
-        badgesDiv.innerHTML = "";
-
-        loads.forEach((load, index) => {
-            const badge = document.createElement("span");
-            badge.className = "badge border border-info text-info mt-3 fs-5 rounded";
-            badge.innerHTML = `T${index + 1}: ${load.Torch}, t${index + 1}: ${load.time} <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>`;
-            badgesDiv.appendChild(badge);
-        });
-
-        loadTypesInput.value = loads.length; // Cập nhật số loại tải
-    }*/
-
+    // Hàm cập nhật badges và gợi ý
     function updateBadges() {
         const badgesDiv = document.getElementById("loadBadges");
-        const loadTypesInput = document.getElementById("loadTypesInput");
+        const forceInput = document.getElementById("forceInput");
+        const speedInput = document.getElementById("speedInput");
+        const forceSuggestion = document.getElementById("forceSuggestion");
+        const speedSuggestion = document.getElementById("speedSuggestion");
 
         badgesDiv.innerHTML = ""; // reset
 
+        // Cập nhật danh sách các tải (loads)
         loads.forEach((load, index) => {
             const badge = document.createElement("span");
             badge.className = "badge border border-info text-info mt-3 fs-5 rounded px-2 py-1";
-            badge.innerHTML = `
-                T${index + 1}: ${load.Torch}, t${index + 1}: ${load.time}
-                <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>
-            `;
+            badge.innerHTML = `T${index + 1}: ${load.Torch}, t${index + 1}: ${load.time}
+            <span class="text-danger ms-1" style="cursor: pointer;" onclick="removeBadge(${index})">x</span>
+        `;
             badgesDiv.appendChild(badge);
+
+            // Thêm gợi ý cho từng tải
+            if (parseFloat(load.Torch) <= 0 || parseFloat(load.time) <= 0) {
+                badge.style.backgroundColor = "orange"; // Màu sắc cảnh báo
+                badge.innerHTML += `<span style="color: red;"> (Thông số không hợp lệ, vui lòng điều chỉnh)</span>`;
+            }
         });
 
-        loadTypesInput.value = loads.length;
+        // Lấy các giá trị từ input
+        const F = parseFloat(forceInput.value);
+        const v = parseFloat(speedInput.value);
+        const N = 0.85676; // Định nghĩa hằng số N
+        const maxPct = 160; // công suất động cơ tối đa (kW)
+
+        const tlist = [];
+        const Tlist = [];
+
+        // Lấy thông tin từ các badge tải
+        loads.forEach(load => {
+            const T = parseFloat(load.Torch);
+            const t = parseFloat(load.time);
+            if (!isNaN(T) && !isNaN(t)) {
+                Tlist.push(T);
+                tlist.push(t);
+            }
+        });
+
+        // Tính toán công suất yêu cầu Pct
+        if (Tlist.length > 0 && !isNaN(F) && !isNaN(v)) {
+            const Plv = F * v / 1000;
+
+            let sum1 = 0, sum2 = 0;
+            for (let i = 0; i < Math.min(Tlist.length, tlist.length); i++) {
+                sum1 += tlist[i] * Tlist[i] * Tlist[i];
+                sum2 += tlist[i];
+            }
+
+            const Ptd = Plv * (sum1 / sum2);
+            const Pct = Ptd / N;
+
+            // Cập nhật gợi ý cho lực vòng (F) và vận tốc (v)
+            if (Pct > maxPct) {
+                // Tính giá trị F và v tối đa để không vượt quá Pct
+                const maxForce = maxPct * N / (v * sum1 / sum2);
+                const maxSpeed = maxPct * N / (F * sum1 / sum2);
+
+                forceSuggestion.innerHTML = `
+                <div style="color: #d9534f; font-weight: bold">
+                    Pct = ${Pct.toFixed(2)} kW vượt quá công suất động cơ tối đa (${maxPct} kW)
+                </div>
+                <div style="color: #d9534f">
+                    Giảm lực vòng (F) xuống tối đa: ${maxForce.toFixed(2)} hoặc giảm vận tốc (v).
+                </div>
+            `;
+                speedSuggestion.innerHTML = `
+                <div style="color: #d9534f; font-weight: bold">
+                    Pct = ${Pct.toFixed(2)} kW vượt quá công suất động cơ tối đa (${maxPct} kW)
+                </div>
+                <div style="color: #d9534f">
+                    Giảm vận tốc (v) xuống tối đa: ${maxSpeed.toFixed(2)} hoặc giảm lực vòng (F).
+                </div>
+            `;
+            } else {
+                forceSuggestion.innerHTML = `
+                <div style="color: #5bc0de; font-weight: bold">
+                    Pct = ${Pct.toFixed(2)} kW. Thông số phù hợp!
+                </div>
+            `;
+                speedSuggestion.innerHTML = `
+                <div style="color: #5bc0de; font-weight: bold">
+                    Pct = ${Pct.toFixed(2)} kW. Thông số phù hợp!
+                </div>
+            `;
+            }
+
+            // Cập nhật gợi ý cho từng chế độ tải (Torch, time)
+            if (Pct > maxPct) {
+                loads.forEach((load, index) => {
+                    const T = parseFloat(load.Torch);
+                    const t = parseFloat(load.time);
+                    if (!isNaN(T) && !isNaN(t)) {
+                        const loadPct = T * t * T / (tlist.reduce((sum, tItem) => sum + tItem, 0)); // tính Pct cho tải
+
+                        if (loadPct > maxPct) {
+                            const maxT = maxPct * N * t / (tlist.reduce((sum, tItem) => sum + tItem, 0)); // Giảm tải T
+                            const maxTime = maxPct * N * T / (tlist.reduce((sum, tItem) => sum + tItem, 0)); // Giảm thời gian t
+
+                            const badge = document.querySelectorAll("#loadBadges span")[index]; // tìm badge tương ứng
+                            badge.innerHTML += `
+                            <div style="color: #d9534f; font-size: 0.9em;"> 
+                                Tải T${index + 1} vượt quá công suất tối đa, giảm T${index + 1} xuống ${maxT.toFixed(2)} hoặc t${index + 1} xuống ${maxTime.toFixed(2)}.
+                            </div>
+                        `;
+                        }
+                    }
+                });
+            }
+        }
     }
+
+    // Lắng nghe sự kiện thay đổi cho các input
+    document.getElementById("forceInput").addEventListener("input", updateBadges);
+    document.getElementById("speedInput").addEventListener("input", updateBadges);
+
 
 
     document.getElementById('submitButton').addEventListener('click', function (e) {
@@ -270,6 +361,12 @@
         const startupMoment = parseFloat(document.getElementById('startupMoment').value) || 0;
         const loadMoment = parseFloat(document.getElementById('loadMoment').value) || 0;
         const transType = document.getElementById('transSelection').value; // Lấy bộ truyền
+
+        // Validation: check if any field has invalid input
+        if (force <= 0 || speed <= 0 || diameter <= 0 || serviceTime <= 0 || workDays <= 0 || workHours <= 0 || startupMoment <= 0 || loadMoment <= 0) {
+            alert("Các giá trị phải lớn hơn 0.");
+            return;
+        }
 
         // Kiểm tra danh sách tải có tồn tại không
         if (!Array.isArray(loads) || loads.length === 0) {
@@ -318,11 +415,11 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         }).then(response => {
-                if (!response.ok) {
-                    throw new Error(`Lỗi HTTP ${response.status}: ${response.statusText}`);
-                }
-                return response.json();
-            })
+            if (!response.ok) {
+                throw new Error(`Lỗi HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
             .then(data => {
                 // Lưu vào localStorage
                 let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
@@ -413,29 +510,6 @@
 
     }
 
-/*
-    function populateForm(item) {
-        document.getElementById("forceInput").value = item.force || '';
-        document.getElementById("speedInput").value = item.speed || '';
-        document.getElementById("shaftSelection").value = item.shaftType || '';
-        document.getElementById("diameterInput").value = item.diameter || '';
-        document.getElementById("serviceTimeInput").value = item.serviceTime || '';
-        document.getElementById("workDaysInput").value = item.workDays || '';
-        document.getElementById("workHoursInput").value = item.workHours || '';
-        document.getElementById("startupMoment").value = item.startupMoment || '';
-        document.getElementById("loadMoment").value = item.loadMoment || '';
-        document.getElementById("transSelection").value = item.transType || '';
-
-        // Cập nhật mảng loads toàn cục
-        loads = item.loadData.map((load, idx) => ({
-            Torch: load.torch || load.Torch,  // tùy theo key trong localStorage
-            time: load.time
-        }));
-
-        // Cập nhật hiển thị badge
-        updateBadges();
-    } */
-
     function populateForm(item) {
         document.getElementById("forceInput").value = item.force || '';
         document.getElementById("speedInput").value = item.speed || '';
@@ -457,219 +531,72 @@
         updateBadges(); // cập nhật lại UI
     }
 
+    document.addEventListener("DOMContentLoaded", () => {
+        const diameterInput = document.getElementById("diameterInput");
+        const speedInput = document.getElementById("speedInput");
 
+        const diameterSuggestion = document.getElementById("diameterSuggestion");
+        const speedSuggestion = document.getElementById("speedSuggestion");
 
-/*
+        const MOTOR_MIN = 1425;
+        const MOTOR_MAX = 1485;
+        const ratio = 46.08;
 
-    function postPartialInput(field, value) {
-        if (isNaN(value)) return; // Ngăn gửi nếu không phải số
+        function updateSuggestions() {
+            const D = parseFloat(diameterInput.value);
+            const v = parseFloat(speedInput.value);
 
-        const partialData = {
-            field,
-            value,
-            existingData: gatherExistingData() // nếu có
-        };
-
-        fetch('/Input/SuggestNext', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(partialData)
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Bad response');
-            return res.json();
-        })
-        .then(suggestion => {
-            console.log("Gợi ý từ server:", suggestion);
-            showSuggestion(suggestion); // lỗi số 2 nếu hàm này chưa tồn tại
-        })
-        .catch(err => {
-            console.error("Lỗi khi gửi dữ liệu gợi ý:", err);
-        });
-    }
-
-
-    function gatherExistingData() {
-        const data = {};
-
-        const getVal = id => parseFloat(document.getElementById(id)?.value) || undefined;
-
-        data.force = getVal('forceInput');
-        data.speed = getVal('speedInput');
-        data.diameter = getVal('diameterInput');
-        data.serviceTime = getVal('serviceTimeInput');
-        data.workDays = getVal('workDaysInput');
-        data.workHours = getVal('workHoursInput');
-        data.startupMoment = getVal('startupMoment');
-        data.loadMoment = getVal('loadMoment');
-
-        return data;
-    }
-
-    function showSuggestion(data) {
-        const suggestId = data.field + 'Suggestion';
-        const suggestEl = document.getElementById(suggestId);
-        if (suggestEl) {
-            suggestEl.innerText = data.suggestion;
-        }
-    }
-
-    document.getElementById('forceInput').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('force', value);
-    });
-
-    document.getElementById('speedInput').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('speed', value);
-    });
-
-    document.getElementById('diameterInput').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('diameter', value);
-    });
-
-    document.getElementById('serviceTimeInput').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('serviceTime', value);
-    });
-
-    document.getElementById('workDaysInput').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('workDays', value);
-    });
-
-    document.getElementById('workHoursInput').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('workHours', value);
-    });
-
-    document.getElementById('startupMoment').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('startupMoment', value);
-    });
-
-    document.getElementById('loadMoment').addEventListener('blur', function () {
-        const value = parseFloat(this.value);
-        postPartialInput('loadMoment', value);
-    });
-
-    document.querySelectorAll('.torch-input').forEach((el, idx) => {
-        el.addEventListener('blur', function () {
-            const value = parseFloat(this.value);
-            const existingData = gatherExistingData(); // Lấy toàn bộ dữ liệu hệ thống
-            if (!isNaN(value)) {
-                postPartialInput('torch', value, existingData);
+            if (!D || !v || D <= 0 || v <= 0) {
+                diameterSuggestion.innerHTML = `
+        <div style="color: #d9534f; font-weight: bold">
+            Vui lòng nhập đầy đủ và hợp lệ cả <strong>D</strong> và <strong>v</strong> để tính toán.
+        </div>`;
+                speedSuggestion.innerHTML = `
+        <div style="color: #d9534f; font-weight: bold">
+            Vui lòng nhập đầy đủ và hợp lệ cả <strong>D</strong> và <strong>v</strong> để tính toán.
+        </div>`;
+                return; // Dừng không tính tiếp
             }
-        });
-    });
+            if (!isNaN(D) && !isNaN(v) && D > 0) {
+                const n_lv = (60000 * v) / (Math.PI * D);
+                const n_sb = n_lv * ratio;
 
-    document.querySelectorAll('.t-input').forEach((el, idx) => {
-        el.addEventListener('blur', function () {
-            const value = parseFloat(this.value);
-            const existingData = gatherExistingData();
-            if (!isNaN(value)) {
-                postPartialInput('t', value, existingData);
-            }
-        });
-    });*/
+                if (n_sb < MOTOR_MIN || n_sb > MOTOR_MAX) {
+                    // Gợi ý D và v
+                    const suggestedDMin = (60000 * v) / (Math.PI * (MOTOR_MAX / ratio));
+                    const suggestedDMax = (60000 * v) / (Math.PI * (MOTOR_MIN / ratio));
 
-    // Hàm lấy giá trị từ các input
-    function gatherExistingData() {
-        const getVal = id => parseFloat(document.getElementById(id)?.value) || undefined;
+                    const suggestedVMin = (Math.PI * D * (MOTOR_MIN / ratio)) / 60000;
+                    const suggestedVMax = (Math.PI * D * (MOTOR_MAX / ratio)) / 60000;
 
-        return {
-            force: getVal('forceInput'),
-            speed: getVal('speedInput'),
-            diameter: getVal('diameterInput'),
-            serviceTime: getVal('serviceTimeInput'),
-            workDays: getVal('workDaysInput'),
-            workHours: getVal('workHoursInput'),
-            startupMoment: getVal('startupMoment'),
-            loadMoment: getVal('loadMoment'),
-        };
-    }
+                    diameterSuggestion.innerHTML = `
+    <div style="color: #d9534f; font-weight: bold">
+        n_sb = ${n_sb.toFixed(2)} vòng/phút không nằm trong khoảng [1425, 1485]
+    </div>
+    <div style="color: #d9534f">
+        Gợi ý D nằm trong khoảng <strong>${suggestedDMin.toFixed(1)} mm</strong> - <strong>${suggestedDMax.toFixed(1)} mm</strong>
+    </div>`;
 
-    // Công thức tính toán theo ảnh
-    const calc_nlv = (v, D) => {
-        if (!v || !D) return null;
-        return Math.round((60000 * v) / (Math.PI * D));
-    };
 
-    const calc_nsb = (n_lv) => {
-        if (!n_lv) return null;
-        return Math.round(n_lv * 46.08);
-    };
-
-    const calc_Pn = (F, v) => {
-        if (!F || !v) return null;
-        return Math.round((F * v) / 1000 * 100) / 100;
-    };
-
-    // Gợi ý nội bộ không dùng API
-    function postPartialInput(field, value) {
-        if (isNaN(value)) return;
-
-        const partialData = {
-            field,
-            value,
-            existingData: gatherExistingData()
-        };
-
-        showSuggestion(partialData);
-    }
-
-    // Hiển thị gợi ý
-    function showSuggestion(data) {
-        const suggestId = data.field + 'Suggestion';
-        const suggestEl = document.getElementById(suggestId);
-        if (!suggestEl) return;
-
-        const val = parseFloat(data.value);
-        const fullData = gatherExistingData();
-        let suggestionText = '';
-
-        if (data.field === 'force' || data.field === 'speed') {
-            const Pn = calc_Pn(fullData.force, fullData.speed);
-            if (Pn) suggestionText = `Công suất yêu cầu Pₙ ≈ ${Pn} kW`;
-        }
-
-        if (data.field === 'speed' || data.field === 'diameter') {
-            const nlv = calc_nlv(fullData.speed, fullData.diameter);
-            const nsb = calc_nsb(nlv);
-
-            if (nlv && nsb) {
-                suggestionText = `nₗᵥ ≈ ${nlv} vòng/phút, nₛᵦ ≈ ${nsb} vòng/phút`;
-            } else if (nlv) {
-                suggestionText = `nₗᵥ ≈ ${nlv} vòng/phút`;
+                    speedSuggestion.innerHTML = `
+    <div style="color: #f0ad4e">
+        Hoặc điều chỉnh v nằm trong khoảng <strong>${suggestedVMin.toFixed(2)} m/s</strong> - <strong>${suggestedVMax.toFixed(2)} m/s</strong>
+    </div>`;
+                } else {
+                    diameterSuggestion.innerHTML = `
+    <div style="color: #5cb85c; font-weight: bold">
+        D và v hợp lý (n_sb = ${n_sb.toFixed(2)} vòng/phút)
+    </div>`;
+                    speedSuggestion.innerHTML = "";
+                }
+            } else {
+                diameterSuggestion.textContent = "";
+                speedSuggestion.textContent = "";
             }
         }
 
-        suggestEl.innerText = suggestionText || 'Không có gợi ý';
-    }
-
-    // Gán sự kiện cho các input
-    ['forceInput', 'speedInput', 'diameterInput', 'serviceTimeInput',
-     'workDaysInput', 'workHoursInput', 'startupMoment', 'loadMoment'
-    ].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('blur', function () {
-                const value = parseFloat(this.value);
-                postPartialInput(id.replace('Input', ''), value);
-            });
-        }
+        diameterInput.addEventListener("input", updateSuggestions);
+        speedInput.addEventListener("input", updateSuggestions);
     });
-
-
-
-
-
-    //<!-- Gắn sự kiện blur (hoặc change) cho -->
-
-
-
-
-
 
 </script>
