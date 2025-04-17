@@ -65,30 +65,10 @@ namespace DADN.Controllers
         [HttpPost("ExportPdf")]
         public IActionResult ExportToPdf([FromBody] TechnicalData content)
         {
-            // if (request == null)
-            // {
-            //     return BadRequest("Invalid input data!");
-            // }
-
-            // // Perform calculation
-            // var gearbox = new GearboxDesign(
-            //     request.force,
-            //     request.speed,
-            //     request.diameter,
-            //     request.serviceTime,
-            //     request.loadN,
-            //     request.Torchlist,
-            //     request.tlist
-            // );
-
-            // var results = gearbox.Calculate();
-
             // Generate PDF
             Console.WriteLine(content);
             var pdfBytes = _pdfExportService.GenerateGearboxPdf(content);
 
-            // // Return as file download
-            // return Ok(pdfBytes);
             return File(pdfBytes, "application/pdf", $"GearboxDesign_{DateTime.Now:yyyyMMddHHmmss}.pdf");
         }
 
@@ -190,32 +170,5 @@ namespace DADN.Controllers
 
             });
         } 
-
-
-    }
-
-    // Model nhận dữ liệu từ request
-    public class CalGearRequestModel
-    {
-        public string transType { get; set; }
-        public double force { get; set; }
-        public double speed { get; set; }
-        public double diameter { get; set; }
-        public double serviceTime { get; set; }
-        public double loadN { get; set; }
-        public double[] Torchlist { get; set; }
-        public double[] tlist { get; set; }
-    }
-
-    public class TechnicalData
-    {
-        public double OverloadFactor { get; set; }
-        public double OverallEfficiency { get; set; }
-        public double RequiredMotorEfficiency { get; set; }
-        public double RequiredMotorSpeed { get; set; }
-        public double NsbSpeed { get; set; }
-        public double Un { get; set; }
-        public string MomenSoVongQuay { get; set; }
-        public MotorCatalog Motor { get; set; }
     }
 }

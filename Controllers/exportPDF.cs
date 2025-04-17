@@ -3,6 +3,7 @@ using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using DADN.Controllers;
+using DADN.Models;
 
 public class PdfExportService
 {
