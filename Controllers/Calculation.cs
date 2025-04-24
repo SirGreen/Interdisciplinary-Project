@@ -197,10 +197,9 @@ public class GearboxDesign
     }
 
     // B17
-    private Dictionary<string,double> DauVaoUngSuat(double HB) {
+    private Dictionary<string,double> DauVaoUngSuat(double HB1, double HB2) {
         double Sh = 1.1;
         double Sf = 1.75;
-        double HB1 = 265; double HB2 = 250;
 
         double Ohlim1 = 2*HB1 + 70;
         double Oflim1 = 1.8*HB1;
@@ -255,9 +254,7 @@ public class GearboxDesign
     }
 
     // B19
-    // thieu nfo1,2 va nfe2?
-    private double TinhUngXuatUonChoPhep(double Lh, double n1, Dictionary<string,double> dauvao) {
-        double u1 = 5.66;
+    private double TinhUngXuatUonChoPhep(double Lh,double n1, double u1, Dictionary<string,double> dauvao) {
         double sum1 = 0; double sumti = 0;
         int length = Math.Min(tlist.Length, Torchlist.Length);
         for (int i = 0; i < length; i++) {
@@ -269,11 +266,11 @@ public class GearboxDesign
         double Nfe2 = 60*1*(n1/u1)*Lh*sum1;
         double Nfe1 = Nfe2*u1;
         double Kfl1 = 1;double Kfl2 = 1;
-        if(Nfe1 <= dauvao["Nfo1"]) {
+        if(Nfe1 <= dauvao["Nfo"]) {
             double mF = 6;
             Kfl1 = Math.Pow(dauvao["Nho1"]/Nfe1,1/mF);
         }
-        if(Nfe2 <= dauvao["Nfo2"]) {
+        if(Nfe2 <= dauvao["Nfo"]) {
             double mF = 6;
             Kfl2 = Math.Pow(dauvao["Nfo2"]/Nfe2,1/mF);
         }
@@ -281,17 +278,201 @@ public class GearboxDesign
         double allowOf1 = dauvao["Oflim1"]*Kfl1/dauvao["Sf"];
         double allowOf2 = dauvao["Oflim2"]*Kfl2/dauvao["Sf"];
         return (allowOf1 + allowOf2)/2;
+        // hình như ko cần tính TB? còn oh max và of max tính nhờ Och bước 16
+    }
+    // B20
+    // helper func
+    private double Deg2Rad(double Deg) {
+        return Deg*Math.PI/180;
+    }
+    private double Rad2Deg(double Rad) {
+        return Rad*180/Math.PI;
     }
 
-    public void CalcBoTruyen() {
+    private Dictionary<string, double> TinhBanhRangCapNhanh(double n1, double u1, double T1,double allowOh,int sodo) {
+        // 20.1
+        double Wba = 0.315; double Ka = 43;
+        double Wbd = 0.53*Wba*(u1+1);
+        double[] comp = [0.2,0.4,0.6,0.8,1,1.2,1.4,1.6];
+        double[][] matching = [[],[],[1.02,1.05,1.07,1.12,1.15,1.2,1.24,1.28],[],[1.01,1.02,1.03,1.05,1.07,1.1,1.13,1.28]];
+        int closest = Array.IndexOf(comp,comp.MinBy(x => Math.Abs((double) x - Wbd)));
+        double Khb = matching[sodo-1][closest];
+
+        double aW1 = Ka*(u1+1)*Math.Pow(T1*Khb/(allowOh*allowOh*u1*Wba),1/3);
+        double[] day1 = [40,50,63,80,100,125,160,200,250,315,400];
+        aW1 = day1.Where(x => x > aW1).Min();
+        // 20.2
+        double[] possibleM1 = [1.25,1.5,2,2.5,3,4,5,6,8,10,12];
+        double m1 = possibleM1.Where(x => x > 0.01*aW1 && x < 0.02*aW1).Min();
+        double B = 10;
+        double Z1 = Math.Floor(2*aW1*Math.Cos(Deg2Rad(B))/(m1*(u1+1)));
+        double Z2 = Math.Floor(u1*Z1);
+        double Um1 = Z2/Z1;
+        B = Rad2Deg(Math.Acos(m1*(Z1+Z2)/(2*aW1)));
+        // 20.3
+        double ZM = 274;
+        double at = Rad2Deg(Math.Atan(Math.Tan(Deg2Rad(20)) / Math.Cos(Deg2Rad(B))));
+        double Bb = Rad2Deg(Math.Cos(Deg2Rad(at))*Math.Tan(Deg2Rad(B)));
+        double ZH = Math.Sqrt(2*Math.Cos(Deg2Rad(Bb))/Math.Sin(Deg2Rad(2*at)));
+        double bW1 = Wba*aW1;
+        double eB = bW1*Math.Sin(Deg2Rad(B))/(m1*Math.PI);
+        double eA = (1.88 - 3.2*(1/Z1 + 1/Z2))*Math.Cos(Deg2Rad(B));
+        double Ze = Math.Sqrt(1/eA);
+        double dW1 = 2*aW1/(Um1+1);
+        double v = Math.PI*dW1*n1/60000;
+
+        double[] vlim = [4,10,15,30];
+        int[] capChinhXac = [9,8,7,6];
+        int vlimidx = Array.IndexOf(vlim,vlim.Where(x => v <= x).Min());
+        int level = capChinhXac[vlimidx];
+        double[] VelocityRanges = { 2.5, 5, 10, 15, 20, 25 };
+        // 3D array [velocityIndex, levelIndex, KHα/KFα]
+        int[] AccuracyLevels = { 6, 7, 8, 9 };
+        double[,,] CoefficientTable = new double[,,]
+        {
+            // ≤ 2.5 m/s
+            { {1.01, 1.05}, {1.03, 1.12}, {1.05, 1.22}, {1.13, 1.37} },
+            // 5 m/s
+            { {1.02, 1.07}, {1.05, 1.16}, {1.09, 1.27}, {1.16, 1.40} },
+            // 10 m/s
+            { {1.03, 1.10}, {1.07, 1.22}, {1.13, 1.37}, {double.NaN, double.NaN} },
+            // 15 m/s
+            { {1.04, 1.13}, {1.09, 1.25}, {1.17, 1.45}, {double.NaN, double.NaN} },
+            // 20 m/s
+            { {1.05, 1.17}, {1.12, 1.35}, {double.NaN, double.NaN}, {double.NaN, double.NaN} },
+            // 25 m/s
+            { {1.06, 1.20}, {double.NaN, double.NaN}, {double.NaN, double.NaN}, {double.NaN, double.NaN} }
+        };
+        // Find velocity index
+        int velocityIndex = -1;
+        for (int i = 0; i < VelocityRanges.Length; i++)
+        {
+            if (v <= VelocityRanges[i])
+            {
+                velocityIndex = i;
+                break;
+            }
+        }
+        // Handle velocities above maximum
+        if (velocityIndex == -1)
+        {
+            velocityIndex = VelocityRanges.Length - 1;
+        }
+        // Find accuracy level index
+        int levelIndex = Array.IndexOf(AccuracyLevels, level);
+        // Get coefficients
+        double KHa = CoefficientTable[velocityIndex, levelIndex, 0];
+        double KFa = CoefficientTable[velocityIndex, levelIndex, 1];
+        
+        double OmegaH = 0.002;
+        double g0 = 73;
+        if(m1>3.55 && m1<10) { // chưa có kiểm tra level ở đây thì phải, hi vọng ko sao :v
+            g0 = 82;
+        } else if(m1>10) {
+            g0 = 100;
+        }
+        double vH = OmegaH*g0*v*Math.Sqrt(aW1/Um1);
+        double Khv = 1 + vH*bW1*dW1/(2*T1*Khb*KHa);
+        double KH = Khb*KHa*Khv;
+        double thisOH = ZM*ZH*Ze*Math.Sqrt(2*T1*KH*(Um1+1)/(bW1*Um1*dW1*dW1));
+
+        // còn 1 lần tính và so với điều kiện Oh' nữa, mà thôi khỏi :v
+        // 20.4
+        double Ye = 1/eA;
+        double Yb = 1-B/140;
+        double Zv1 = Z1/Math.Pow(Math.Cos(Deg2Rad(B)),3);
+        double Zv2 = Z2/Math.Pow(Math.Cos(Deg2Rad(B)),3);
+        double[] Zvlim = [17,20,22,25,30,40,50,60,80,100,150];
+        double[] YFval = [4.26,4.08,4,3.9,3.8,3.7,3.65,3.62,3.61,3.6,3.6];
+        int Yf1idx = Array.IndexOf(Zvlim,Zvlim.MinBy(x => Math.Abs((double) x - Zv1)));
+        double YF1 = YFval[Yf1idx];
+        int Yf2idx = Array.IndexOf(Zvlim,Zvlim.MinBy(x => Math.Abs((double) x - Zv2)));
+        double YF2 = YFval[Yf2idx];
+        double[][] KFbval = [[],[],[1.05,1.11,1.17,1.24,1.32,1.41,1.5,1.6],[],[1.02,1.05,1.08,1.12,1.16,1.22,1.28,1.37]];
+        double KFb = KFbval[sodo-1][closest];
+        double omegaF = 0.006;
+        double vF = omegaF*g0*v*Math.Sqrt(aW1*Um1);
+        double KFv = 1 + vF*bW1*dW1/(2*T1*KFb*KFa);
+        double KF = KFb*KFa*KFv;
+        double thisOF1 = 2*T1*KF*Ye*Yb*YF1/(bW1*dW1*m1);
+        double thisOF2 = thisOF1*YF2/YF1;
+
+        // còn kiểm tra hai cái Of kia với điều kiện OF' mà thôi khỏi :v
+        // 20.5
+        // 20.5 là so sánh điều kiện với câu trước mà đang không rõ đk nào lắm :v
+        // double Kqt = 2.2;
+        // double OHmax = thisOH*Math.Sqrt(Kqt);
+
+        // 20.6
+        return new Dictionary<string,double>
+        {
+            { "aw", aW1},               // Khoảng cách trục (mm)
+            { "m", m1 },                   // Modul pháp (mm)
+            { "bw", bW1 },                // Chiều rộng vành răng (mm)
+            { "um", Um1 },               // Tỷ số truyền
+            { "gocNghieng", B },            // Góc nghiêng răng (độ)
+            
+            // Số răng bánh răng
+            { "z1", Z1 },                 // Bánh răng 1
+            { "z2", Z2 },                // Bánh răng 2
+            
+            // Hệ số dịch chỉnh
+            { "x1", 0 },                  // Bánh răng 1
+            { "x2", 0 },                  // Bánh răng 2
+            
+            // không chắc mấy cái này đâu ra :v
+            // Đường kính vòng chia (mm)
+            // { "d1", 48.1037 },              // Bánh răng 1
+            // { "d2", 271.8965 },             // Bánh răng 2
+            
+            // // Đường kính đỉnh răng (mm)
+            // { "da1", 52.1037 },             // Bánh răng 1
+            // { "da2", 275.8965 },            // Bánh răng 2
+            
+            // // Đường kính đáy răng (mm)
+            // { "df1", 43.1037 },             // Bánh răng 1
+            // { "df2", 266.8965 },            // Bánh răng 2
+            
+            // // Đường kính vòng lăn (mm)
+            // { "dw1", dW1 },             // Bánh răng 1
+            // { "dw2", 271.8965 }             // Bánh răng 2
+        }; 
+    }
+    // B21
+    private Dictionary<string,double> TinhBoTruyenCapCham(double Lh,double u2,double n2, double T2) {
+        // B21.1
+        chonVatLieuBoTruyen();
+        // B21.2
+        var inp = DauVaoUngSuat(280,260);
+        double allowOh = TinhUngSuatChoPhep(Lh,n2,inp);
+        double allowOf = TinhUngXuatUonChoPhep(Lh,n2,u2,inp);
+        // B21 con lai
+        return TinhBanhRangCapNhanh(n2,u2,T2,allowOh,5);
+    }
+    // B22
+    private bool kiemTraBoiTron(Dictionary<string, double> res1, Dictionary<string, double> res2) {
+        double h2 = (res1["da2"]-res1["df2"])/2;
+        double H = res1["da2"]/2 - 10 - 10;
+        double secondCond = res2["da2"];
+        return h2<10 && H>secondCond;
+    }
+                                    // n1,u1,... lấy từ tập kết quả ở bước 9
+    public void CalcBoTruyen(double Lh, double n1,double u1,double T1, double n2,double u2,double T2) {
         // B16
         chonVatLieuBoTruyen();
         // B17
-        var inp = DauVaoUngSuat(260);
+        var inp = DauVaoUngSuat(265,250);
         // B18
-        double allowOh = TinhUngSuatChoPhep(43200,1450,inp);
+        double allowOh = TinhUngSuatChoPhep(Lh,n1,inp);
         // B19
-        TinhUngXuatUonChoPhep(43200,1450,inp);
+        double allowOf = TinhUngXuatUonChoPhep(Lh,n1,u1,inp);
+        // B20
+        var res1 = TinhBanhRangCapNhanh(n1,u1,T1,allowOh,3);
+        // B21
+        var res2 = TinhBoTruyenCapCham(Lh,u2,n2,T2);
+        // B22
+        // do chưa rõ dữ liệu trên 2 bước kia nên chưa dùng đc nha
+        // bool duBoiTron = kiemTraBoiTron(res1,res2);
     }
 
     public Dictionary<string, object> CalcTruyen()
@@ -300,7 +481,7 @@ public class GearboxDesign
         var vatlieu = chonVatLieuBoTruyen();
 
         // B17: Tính đầu vào ứng suất
-        var input = DauVaoUngSuat(260);
+        var input = DauVaoUngSuat(265,250);
 
         // B18: Tính ứng suất tiếp xúc cho phép
         double oh = TinhUngSuatChoPhep(43200, 1450, input);
