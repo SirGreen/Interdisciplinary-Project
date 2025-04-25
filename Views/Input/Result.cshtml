@@ -458,9 +458,9 @@
         <td>${item.shaftDiameter || "Không có dữ liệu"}</td>
         <td>${item.footprint || "Không có dữ liệu"}</td>
         <td>${item.technology || "Không có dữ liệu"}</td>
-        <td>
-            <a href="${item.url || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
-            <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
+        <td class="d-flex">
+            <a href="${item.url || "#"}" target="_blank" class="btn btn-sm view-button"></a>
+            <button class="btn btn-sm check-button" onclick="selectMotor(${index})"></button>
         </td>
     </tr>`;
 

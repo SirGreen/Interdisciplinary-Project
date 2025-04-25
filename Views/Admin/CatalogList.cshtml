@@ -65,9 +65,9 @@
                 <td>@item.ShaftDiameter</td>
                 <td>@item.Footprint</td>
                 <td>@item.Technology</td>
-                <td><a href="@item.URL" target="_blank" class="btn btn-primary btn-sm">Xem</a></td>
+                <td><a href="@item.URL" target="_blank" class="btn btn-sm view-button"></a></td>
                 <td>
-                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">Xóa</button>
+                    <button class="btn btn-sm delete-button" onclick="confirmDelete('@item.Id')"></button>
                 </td>
             </tr>
         }
