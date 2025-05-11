@@ -229,33 +229,60 @@ public class PdfExportService
 
                             // In danh sách hình ảnh
                             column.Item().Text("Engine Images:");
+                            Console.WriteLine("[DEBUG] ===== Engine Image Processing =====");
+                            Console.WriteLine($"[DEBUG] motorCatalog.Image is null? {motorCatalog.Image == null}");
+                            Console.WriteLine($"[DEBUG] motorCatalog.Image length: {(motorCatalog.Image?.Length ?? 0)}");
+                            Console.WriteLine($"[DEBUG] motorCatalog.Image first 100 chars: {(motorCatalog.Image?.Substring(0, Math.Min(100, motorCatalog.Image.Length)) ?? "null")}...");
 
                             if (!string.IsNullOrEmpty(motorCatalog.Image))
                             {
                                 try
                                 {
+                                    Console.WriteLine("[DEBUG] Found image in motor catalog");
                                     byte[] imageBytes = Convert.FromBase64String(motorCatalog.Image);
-                                    column.Item().Width(2, Unit.Inch).Image(imageBytes);
+                                    Console.WriteLine($"[DEBUG] Successfully converted base64 to image bytes, length: {imageBytes.Length}");
+                                    column.Item().Width(5, Unit.Inch).Image(imageBytes);
+                                    Console.WriteLine("[DEBUG] Added engine image to PDF");
                                 }
-                                catch
+                                catch (Exception ex)
                                 {
+                                    Console.WriteLine($"[DEBUG] Error processing engine image: {ex.Message}");
+                                    Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
                                     column.Item().Text("Không tải được ảnh");
                                 }
                             }
                             else
                             {
+                                Console.WriteLine("[DEBUG] No engine image found in motor catalog");
                                 column.Item().Text("Không có ảnh");
                             }
 
                             column.Item().Text("Sectional Images:");
+                            Console.WriteLine("[DEBUG] Processing sectional images section");
 
                             var imagePath = FindMatchingImage(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets/images/CatalogImg"), motorCatalog.product_name, motorCatalog.frame_size);
+                            Console.WriteLine($"[DEBUG] Looking for sectional image with:");
+                            Console.WriteLine($"[DEBUG] - Product name: {motorCatalog.product_name}");
+                            Console.WriteLine($"[DEBUG] - Frame size: {motorCatalog.frame_size}");
+
                             if (imagePath != null)
                             {
-                                column.Item().Width(2, Unit.Inch).Image(imagePath);
+                                Console.WriteLine($"[DEBUG] Found matching sectional image at: {imagePath}");
+                                try
+                                {
+                                    column.Item().Width(5, Unit.Inch).Image(imagePath);
+                                    Console.WriteLine("[DEBUG] Successfully added sectional image to PDF");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine($"[DEBUG] Error adding sectional image to PDF: {ex.Message}");
+                                    Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
+                                    column.Item().Text("Không tải được ảnh");
+                                }
                             }
                             else
                             {
+                                Console.WriteLine("[DEBUG] No matching sectional image found");
                                 column.Item().Text("Không tìm thấy ảnh");
                             }
 
@@ -444,33 +471,82 @@ public class PdfExportService
     {
         try
         {
+            Console.WriteLine($"[DEBUG] Starting FindMatchingImage with:");
+            Console.WriteLine($"[DEBUG] - imagesDirectory: {imagesDirectory}");
+            Console.WriteLine($"[DEBUG] - productCode: {productCode}");
+            Console.WriteLine($"[DEBUG] - frameSize: {frameSize}");
+
+            // Tách lấy tên sản phẩm từ product code (bỏ phần pole)
+            string productName = productCode.Split(' ')[0];
+            Console.WriteLine($"[DEBUG] Extracted product name: {productName}");
+
             var files = Directory.GetFiles(imagesDirectory, "*.png");
+            Console.WriteLine($"[DEBUG] Found {files.Length} PNG files in directory");
+
             int userFrame = ExtractFrameNumber(frameSize);
+            Console.WriteLine($"[DEBUG] Extracted user frame number: {userFrame}");
 
             foreach (var file in files)
             {
                 string fileName = Path.GetFileNameWithoutExtension(file);
+                Console.WriteLine($"[DEBUG] Processing file: {fileName}");
+
                 string[] parts = fileName.Split('-');
+                Console.WriteLine($"[DEBUG] Split parts count: {parts.Length}");
 
-                if (parts.Length < 5) continue;
-
-                string fileProductCode = parts[2];
-                string startFrame = parts[3];
-                string endFrame = parts[4];
-
-                if (!string.Equals(fileProductCode, productCode, StringComparison.OrdinalIgnoreCase))
+                // Kiểm tra đúng format: <chân đế>-<tên 1>-<tên 2>-<tên 3>-<start_frame>-<end_frame>
+                if (parts.Length != 6)
+                {
+                    Console.WriteLine($"[DEBUG] Skipping file - incorrect format (need 6 parts)");
                     continue;
+                }
+
+                // Lấy 3 tên từ file
+                string name1 = parts[1];
+                string name2 = parts[2];
+                string name3 = parts[3];
+                string startFrame = parts[4];
+                string endFrame = parts[5];
+
+                Console.WriteLine($"[DEBUG] File details:");
+                Console.WriteLine($"[DEBUG] - Name 1: {name1}");
+                Console.WriteLine($"[DEBUG] - Name 2: {name2}");
+                Console.WriteLine($"[DEBUG] - Name 3: {name3}");
+                Console.WriteLine($"[DEBUG] - Start frame: {startFrame}");
+                Console.WriteLine($"[DEBUG] - End frame: {endFrame}");
+
+                // Kiểm tra xem tên sản phẩm có khớp với một trong ba tên không
+                bool nameMatches = string.Equals(name1, productName, StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(name2, productName, StringComparison.OrdinalIgnoreCase) ||
+                                 string.Equals(name3, productName, StringComparison.OrdinalIgnoreCase);
+
+                if (!nameMatches)
+                {
+                    Console.WriteLine($"[DEBUG] Skipping file - product name doesn't match any of the three names");
+                    continue;
+                }
 
                 int start = ExtractFrameNumber(startFrame);
                 int end = ExtractFrameNumber(endFrame);
+                Console.WriteLine($"[DEBUG] Frame range: {start} to {end}");
 
                 if (userFrame >= start && userFrame <= end)
+                {
+                    Console.WriteLine($"[DEBUG] Found matching file: {file}");
                     return file;
+                }
+                else
+                {
+                    Console.WriteLine($"[DEBUG] Frame {userFrame} not in range {start}-{end}");
+                }
             }
+
+            Console.WriteLine("[DEBUG] No matching file found");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error finding matching image: {ex.Message}");
+            Console.WriteLine($"[DEBUG] Error finding matching image: {ex.Message}");
+            Console.WriteLine($"[DEBUG] Stack trace: {ex.StackTrace}");
         }
 
         return null;
@@ -478,7 +554,10 @@ public class PdfExportService
 
     private static int ExtractFrameNumber(string frame)
     {
+        Console.WriteLine($"[DEBUG] Extracting frame number from: {frame}");
         var match = Regex.Match(frame, @"\d+");
-        return match.Success ? int.Parse(match.Value) : -1;
+        int result = match.Success ? int.Parse(match.Value) : -1;
+        Console.WriteLine($"[DEBUG] Extracted frame number: {result}");
+        return result;
     }
 }
