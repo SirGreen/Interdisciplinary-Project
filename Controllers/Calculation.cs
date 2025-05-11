@@ -491,6 +491,24 @@ public class GearboxDesign
         double secondCond = res2["da2"];
         return h2 < 10 && H > secondCond;
     }
+    // n1,u1,... lấy từ tập kết quả ở bước 9
+    public void CalcBoTruyen(double Lh, double n1, double u1, double T1, double n2, double u2, double T2)
+    {
+        // B16
+        chonVatLieuBoTruyen();
+        // B17
+        var inp = DauVaoUngSuat(265, 250);
+        // B18
+        double allowOh = TinhUngSuatChoPhep(Lh, n1, inp);
+        // B19
+        double allowOf = TinhUngXuatUonChoPhep(Lh, n1, u1, inp);
+        // B20
+        var res1 = TinhBanhRangCapNhanh(n1, u1, T1, allowOh, allowOf, 3);
+        // B21
+        var res2 = TinhBoTruyenCapCham(Lh, u2, n2, T2);
+        // B22
+        bool duBoiTron = kiemTraBoiTron(res1, res2);
+    }
 
     // Gọi tính toán
     // n1,u1,... lấy từ tập kết quả ở bước 9

@@ -69,15 +69,25 @@ namespace DADN.Models
         public string MomenSoVongQuay { get; set; }
         public MotorCatalog Motor { get; set; }
 
-        public class GearInputModel
-        {
-            public double Lh { get; set; }
-            public double n1 { get; set; }
-            public double u1 { get; set; }
-            public double T1 { get; set; }
-            public double n2 { get; set; }
-            public double u2 { get; set; }
-            public double T2 { get; set; }
-        }
-
+        public Dictionary<string, Dictionary<string, object>> vatLieuBoTruyen { get; set; }
+        public Dictionary<string, object> dauVaoUngSuat { get; set; }
+        public double ungSuatTiepXucChoPhep { get; set; }
+        public double pitch { get; set; }
+        public double shaftDistance { get; set; }
+        public bool chainSafe { get; set; }
+        public int contactStrength { get; set; }
+        public double shaftForce { get; set; }
+        public string diskDiameterCalc { get; set; }
     }
+    public class GearInputModel
+    {
+        public double Lh { get; set; }
+        public double n1 { get; set; }
+        public double u1 { get; set; }
+        public double T1 { get; set; }
+        public double n2 { get; set; }
+        public double u2 { get; set; }
+        public double T2 { get; set; }
+    }
+
+}
