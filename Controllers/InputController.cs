@@ -155,17 +155,19 @@ namespace DADN.Controllers
             var dauVaoUngSuat = truyenResult.GetValueOrDefault("DauVaoUngSuat");
             var ungSuatTiepXuc = truyenResult.GetValueOrDefault("UngSuatTiepXucChoPhep");
             var ungSuatUon = truyenResult.GetValueOrDefault("UngSuatUonChoPhep");
+            var boiTron = truyenResult.GetValueOrDefault("KiemTraBoiTron");
             
             // Xử lý ép kiểu an toàn sang Dictionary<string, object>
             object tinhBanhRangCapNhanh = null;
             object tinhBanhRangCapCham = null;
 
-            if (truyenResult.TryGetValue("TinhBangRangCapNhanh", out var capNhanhRaw) && capNhanhRaw is Dictionary<string, double> capNhanhDict)
+
+            if (truyenResult.TryGetValue("TinhBanhRangCapNhanh", out var capNhanhRaw) && capNhanhRaw is Dictionary<string, double> capNhanhDict)
             {
                 tinhBanhRangCapNhanh = capNhanhDict.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value);
             }
 
-            if (truyenResult.TryGetValue("TinhBangRangCapCham", out var capChamRaw) && capChamRaw is Dictionary<string, double> capChamDict)
+            if (truyenResult.TryGetValue("TinhBanhRangCapCham", out var capChamRaw) && capChamRaw is Dictionary<string, double> capChamDict)
             {
                 tinhBanhRangCapCham = capChamDict.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value);
             }
@@ -190,6 +192,7 @@ namespace DADN.Controllers
                 UngSuatUonChoPhep = ungSuatUon,
                 TinhBanhRangCapNhanh = tinhBanhRangCapNhanh,
                 TinhBanhRangCapCham = tinhBanhRangCapCham,
+                KiemTraBoiTron = boiTron,
 
                 // Bộ truyền xích - chuẩn key cho renderChainTable
                 soRangDan = transmissionResult.GetValueOrDefault("soRangDan"),

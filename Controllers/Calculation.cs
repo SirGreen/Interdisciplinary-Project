@@ -510,90 +510,43 @@ public class GearboxDesign
         bool duBoiTron = kiemTraBoiTron(res1, res2);
     }
 
-    // Gọi tính toán
-    // n1,u1,... lấy từ tập kết quả ở bước 9
-    // public void CalcBoTruyen(double Lh, double n1,double u1,double T1, double n2,double u2,double T2) {
-    //     // B16
-    //     chonVatLieuBoTruyen();
-    //     // B17
-    //     var inp = DauVaoUngSuat(265,250);
-    //     // B18
-    //     double allowOh = TinhUngSuatChoPhep(Lh,n1,inp);
-    //     // B19
-    //     double allowOf = TinhUngXuatUonChoPhep(Lh,n1,u1,inp);
-    //     // B20
-    //     var res1 = TinhBanhRangCapNhanh(n1,u1,T1,allowOh,3);
-    //     // B21
-    //     var res2 = TinhBoTruyenCapCham(Lh,u2,n2,T2);
-    //     // B22
-    //     // do chưa rõ dữ liệu trên 2 bước kia nên chưa dùng đc nha
-    //     // bool duBoiTron = kiemTraBoiTron(res1,res2);
-    // }
 
-    // public Dictionary<string, object> CalcTruyen()
-    // {
-    //     // B16: Chọn vật liệu
-    //     var vatlieu = chonVatLieuBoTruyen();
-
-    //     // B17: Tính đầu vào ứng suất
-    //     var input = DauVaoUngSuat(265, 250);
-
-    //     // B18: Tính ứng suất tiếp xúc cho phép
-    //     double oh = TinhUngSuatChoPhep(43200, 1450, input);
-
-    //     // B19: Tính ứng suất uốn cho phép
-    //     double of = TinhUngXuatUonChoPhep(43200, 1450, 5.3, input);
-
-    //     // B20: Tính bánh răng cấp nhanh
-    //     var res1 = TinhBanhRangCapNhanh(1450, 5.3, 285, oh, 3);
-
-    //     // B21: Tính bánh răng cấp chậm
-    //     var res2 = TinhBoTruyenCapCham(43200, 3.4, 273.58, 4390.5);
-
-    //     // Trả kết quả
-    //     return new Dictionary<string, object>
-    //     {
-    //         { "VatLieuBoTruyen", vatlieu },
-    //         { "DauVaoUngSuat", input },
-    //         { "UngSuatTiepXucChoPhep", oh },
-    //         { "UngSuatUonChoPhep", of },
-    //         { "CapNhanh", res1 },
-    //         { "CapCham", res2 }
-    //     };
-    // }
 
     public Dictionary<string, object> CalcBoTruyen(Dictionary<string, double> dict, double Lh)
     {
         var result = new Dictionary<string, object>();
 
-        // B16
+        // B16: Chọn vật liệu
         var vatlieu = chonVatLieuBoTruyen();
-
-        // B17
-        var inp = DauVaoUngSuat(265, 250);
-
-        // B18
-        double allowOh = TinhUngSuatChoPhep(Lh, dict["n1"], inp);
-
-        // B19
-        double allowOf = TinhUngXuatUonChoPhep(Lh, dict["n1"], dict["u1"], inp);
-
-        // B20
-        var res1 = TinhBanhRangCapNhanh(dict["n1"], dict["u1"], dict["T1"], allowOh, 3);
-
-        // B21
-        var res2 = TinhBoTruyenCapCham(Lh, dict["u2"], dict["n2"], dict["T2"]);
-
-        // Add kết quả vào result dictionary
         result["VatLieuBoTruyen"] = vatlieu;
-        result["DauVaoUngSuat"] = inp;
+
+        // B17: Nhập đầu vào tính ứng suất
+        var inputUngSuat = DauVaoUngSuat(265, 250);
+        result["DauVaoUngSuat"] = inputUngSuat;
+
+        // B18: Tính ứng suất tiếp xúc cho phép
+        double allowOh = TinhUngSuatChoPhep(Lh, dict["n1"], inputUngSuat);
         result["UngSuatTiepXucChoPhep"] = allowOh;
+
+        // B19: Tính ứng suất uốn cho phép
+        double allowOf = TinhUngXuatUonChoPhep(Lh, dict["n1"], dict["u1"], inputUngSuat);
         result["UngSuatUonChoPhep"] = allowOf;
-        result["TinhBangRangCapNhanh"] = res1;
-        result["TinhBangRangCapCham"] = res2;
+
+        // B20: Tính bộ truyền cấp nhanh
+        var resNhanh = TinhBanhRangCapNhanh(dict["n1"], dict["u1"], dict["T1"], allowOh, allowOf, 3);
+        result["TinhBanhRangCapNhanh"] = resNhanh;
+
+        // B21: Tính bộ truyền cấp chậm
+        var resCham = TinhBoTruyenCapCham(Lh, dict["u2"], dict["n2"], dict["T2"]);
+        result["TinhBanhRangCapCham"] = resCham;
+
+        // B22: Kiểm tra bôi trơn
+        bool duBoiTron = kiemTraBoiTron(resNhanh, resCham);
+        result["KiemTraBoiTron"] = duBoiTron;
 
         return result;
     }
+
 
 
 
