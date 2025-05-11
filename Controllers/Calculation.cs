@@ -1,3 +1,5 @@
+using DADN.Models;
+
 public class GearboxDesign
 {
     private double LucF; // Lực vòng trên băng tải (N)
@@ -93,39 +95,40 @@ public class GearboxDesign
 
     // B9
     // return array hay gì đó để lấy hết
-    private string TinhCSMomenSoVongQuay(double Pct, double Ndc)
+    private MomenKetQua TinhCSMomenSoVongQuay(double Pct, double Ndc)
     {
-        // cái này thông số bên hiệu suất, mà lười tra bảng quá nên lấy của file excel
         double Nol = 0.993, Nx = 0.91, Nbr = 0.97, Nk = 1;
         double Plv = LucF * VantocV / 1000;
-        // lấy từ B8 mà ko bt tính
-        double Uk = 1, U1 = 1, U2 = 1, Ux = 1;
 
-        // công suất
+        double U1 = 3.5, U2 = 2.5, Ux = 2.56;
+        double Uk = U1 * U2 * Ux;
+
         double P3 = Plv / (Nol * Nx);
         double P2 = P3 / (Nol * Nbr);
         double P1 = P2 / (Nol * Nbr);
         double Pdc2 = P1 / (Nol * Nk);
-        // vòng quay
+
         double N1 = Ndc / Uk;
         double N2 = N1 / U1;
         double N3 = N2 / U2;
         double Nct = N3 / Ux;
-        // momen
-        double Tct = 9.55 * 1000000 * Pct / Nct;
-        double T3 = 9.55 * 1000000 * P3 / N3;
-        double T2 = 9.55 * 1000000 * P2 / N2;
-        double T1 = 9.55 * 1000000 * P1 / N1;
-        double Tdc = 9.55 * 1000000 * Pdc2 / Ndc;
 
-        // Xây dựng chuỗi kết quả
-        string result = $"Shaft 1: Power = {P1} kW, Speed = {N1} rpm, Torque = {T3} N.mm\n" +
-                        $"Shaft 2: Power = {P2} kW, Speed = {N2} rpm, Torque = {T2} N.mm\n" +
-                        $"Shaft 3: Power = {P3} kW, Speed = {N3} rpm, Torque = {T1} N.mm\n" +
-                        $"Final Shaft: Power = {Pdc2} kW, Speed = {Nct} rpm, Torque = {Tct} N.mm";
+        double Tct = 9.55 * 1000 * Pct / Nct;
+        double T3 = 9.55 * 1000 * P3 / N3;
+        double T2 = 9.55 * 1000 * P2 / N2;
+        double T1 = 9.55 * 1000 * P1 / N1;
 
-        return result;
+        return new MomenKetQua
+        {
+            N1 = N1, U1 = U1, T1 = T1,
+            N2 = N2, U2 = U2, T2 = T2,
+            MoTa = $"Shaft 1: Power = {P1} kW, Speed = {N1} rpm, Torque = {T1} Nm\n" +
+                $"Shaft 2: Power = {P2} kW, Speed = {N2} rpm, Torque = {T2} Nm\n" +
+                $"Shaft 3: Power = {P3} kW, Speed = {N3} rpm, Torque = {T3} Nm"
+        };
     }
+
+
 
     public Dictionary<string, object> Calculate()
     {
@@ -148,7 +151,7 @@ public class GearboxDesign
         double Un = TinhTiSoTruyenUn(Ndc, Nlv);
 
         // B9: Tính công suất, momen và số vòng quay trên các trục
-        string momenSoVongQuay = TinhCSMomenSoVongQuay(Pct, Ndc);
+        MomenKetQua momenSoVongQuay = TinhCSMomenSoVongQuay(Pct, Ndc);
 
         // Tính hệ số quá tải
         double overloadFactor = TinhHeSoQuaTai();
@@ -291,8 +294,10 @@ public class GearboxDesign
 
     private Dictionary<string, double> TinhBanhRangCapNhanh(double n1, double u1, double T1,double allowOh,int sodo) {
         // 20.1
-        double Wba = 0.315; double Ka = 43;
+        double Wba = 0.315; 
+        double Ka = 43;
         double Wbd = 0.53*Wba*(u1+1);
+
         double[] comp = [0.2,0.4,0.6,0.8,1,1.2,1.4,1.6];
         double[][] matching = [[],[],[1.02,1.05,1.07,1.12,1.15,1.2,1.24,1.28],[],[1.01,1.02,1.03,1.05,1.07,1.1,1.13,1.28]];
         int closest = Array.IndexOf(comp,comp.MinBy(x => Math.Abs((double) x - Wbd)));
@@ -304,11 +309,13 @@ public class GearboxDesign
         // 20.2
         double[] possibleM1 = [1.25,1.5,2,2.5,3,4,5,6,8,10,12];
         double m1 = possibleM1.Where(x => x > 0.01*aW1 && x < 0.02*aW1).Min();
+        
         double B = 10;
         double Z1 = Math.Floor(2*aW1*Math.Cos(Deg2Rad(B))/(m1*(u1+1)));
         double Z2 = Math.Floor(u1*Z1);
         double Um1 = Z2/Z1;
         B = Rad2Deg(Math.Acos(m1*(Z1+Z2)/(2*aW1)));
+        
         // 20.3
         double ZM = 274;
         double at = Rad2Deg(Math.Atan(Math.Tan(Deg2Rad(20)) / Math.Cos(Deg2Rad(B))));
@@ -456,45 +463,94 @@ public class GearboxDesign
         double secondCond = res2["da2"];
         return h2<10 && H>secondCond;
     }
-                                    // n1,u1,... lấy từ tập kết quả ở bước 9
-    public void CalcBoTruyen(double Lh, double n1,double u1,double T1, double n2,double u2,double T2) {
-        // B16
-        chonVatLieuBoTruyen();
-        // B17
-        var inp = DauVaoUngSuat(265,250);
-        // B18
-        double allowOh = TinhUngSuatChoPhep(Lh,n1,inp);
-        // B19
-        double allowOf = TinhUngXuatUonChoPhep(Lh,n1,u1,inp);
-        // B20
-        var res1 = TinhBanhRangCapNhanh(n1,u1,T1,allowOh,3);
-        // B21
-        var res2 = TinhBoTruyenCapCham(Lh,u2,n2,T2);
-        // B22
-        // do chưa rõ dữ liệu trên 2 bước kia nên chưa dùng đc nha
-        // bool duBoiTron = kiemTraBoiTron(res1,res2);
-    }
 
-    public Dictionary<string, object> CalcTruyen()
+    // Gọi tính toán
+                                    // n1,u1,... lấy từ tập kết quả ở bước 9
+    // public void CalcBoTruyen(double Lh, double n1,double u1,double T1, double n2,double u2,double T2) {
+    //     // B16
+    //     chonVatLieuBoTruyen();
+    //     // B17
+    //     var inp = DauVaoUngSuat(265,250);
+    //     // B18
+    //     double allowOh = TinhUngSuatChoPhep(Lh,n1,inp);
+    //     // B19
+    //     double allowOf = TinhUngXuatUonChoPhep(Lh,n1,u1,inp);
+    //     // B20
+    //     var res1 = TinhBanhRangCapNhanh(n1,u1,T1,allowOh,3);
+    //     // B21
+    //     var res2 = TinhBoTruyenCapCham(Lh,u2,n2,T2);
+    //     // B22
+    //     // do chưa rõ dữ liệu trên 2 bước kia nên chưa dùng đc nha
+    //     // bool duBoiTron = kiemTraBoiTron(res1,res2);
+    // }
+
+    // public Dictionary<string, object> CalcTruyen()
+    // {
+    //     // B16: Chọn vật liệu
+    //     var vatlieu = chonVatLieuBoTruyen();
+
+    //     // B17: Tính đầu vào ứng suất
+    //     var input = DauVaoUngSuat(265, 250);
+
+    //     // B18: Tính ứng suất tiếp xúc cho phép
+    //     double oh = TinhUngSuatChoPhep(43200, 1450, input);
+
+    //     // B19: Tính ứng suất uốn cho phép
+    //     double of = TinhUngXuatUonChoPhep(43200, 1450, 5.3, input);
+
+    //     // B20: Tính bánh răng cấp nhanh
+    //     var res1 = TinhBanhRangCapNhanh(1450, 5.3, 285, oh, 3);
+
+    //     // B21: Tính bánh răng cấp chậm
+    //     var res2 = TinhBoTruyenCapCham(43200, 3.4, 273.58, 4390.5);
+
+    //     // Trả kết quả
+    //     return new Dictionary<string, object>
+    //     {
+    //         { "VatLieuBoTruyen", vatlieu },
+    //         { "DauVaoUngSuat", input },
+    //         { "UngSuatTiepXucChoPhep", oh },
+    //         { "UngSuatUonChoPhep", of },
+    //         { "CapNhanh", res1 },
+    //         { "CapCham", res2 }
+    //     };
+    // }
+
+    public Dictionary<string, object> CalcBoTruyen(Dictionary<string, double> dict, double Lh)
     {
-        // B16: Chọn vật liệu
+        var result = new Dictionary<string, object>();
+
+        // B16
         var vatlieu = chonVatLieuBoTruyen();
 
-        // B17: Tính đầu vào ứng suất
-        var input = DauVaoUngSuat(265,250);
+        // B17
+        var inp = DauVaoUngSuat(265, 250);
 
-        // B18: Tính ứng suất tiếp xúc cho phép
-        double oh = TinhUngSuatChoPhep(43200, 1450, input);
+        // B18
+        double allowOh = TinhUngSuatChoPhep(Lh, dict["n1"], inp);
 
-        
+        // B19
+        double allowOf = TinhUngXuatUonChoPhep(Lh, dict["n1"], dict["u1"], inp);
 
-        return new Dictionary<string, object>
-        {
-            { "VatLieuBoTruyen", vatlieu },
-            { "DauVaoUngSuat", input },
-            { "UngSuatTiepXucChoPhep", oh }
-        };
+        // B20
+        var res1 = TinhBanhRangCapNhanh(dict["n1"], dict["u1"], dict["T1"], allowOh, 3);
+
+        // B21
+        var res2 = TinhBoTruyenCapCham(Lh, dict["u2"], dict["n2"], dict["T2"]);
+
+        // Add kết quả vào result dictionary
+        result["VatLieuBoTruyen"] = vatlieu;
+        result["DauVaoUngSuat"] = inp;
+        result["UngSuatTiepXucChoPhep"] = allowOh;
+        result["UngSuatUonChoPhep"] = allowOf;
+        result["TinhBangRangCapNhanh"] = res1;
+        result["TinhBangRangCapCham"] = res2;
+
+        return result;
     }
+
+
+
 
 
 }
@@ -503,7 +559,7 @@ public class GearboxDesign
 public interface ITransmissionCalculation
 {
     double Calculate();
-     Dictionary<string, object> CalChain(); // Thêm dòng này nếu muốn dùng CalChain
+    Dictionary<string, object> CalChain();
 }
 
 public class BeltTransmission : ITransmissionCalculation
@@ -536,13 +592,20 @@ public class GearTransmission : ITransmissionCalculation
 
 public class ChainTransmission : ITransmissionCalculation
 {
+    // Thông số đầu vào
     private double P3;
     private double U3;
     private double Uct;
     private double N3;
     private double T3;
-    private double Z1;
-    private double Z2;
+
+    // Các thông số cần hiển thị
+    public int z1, z2, soMatXich;
+    public double pitch, ongLot, duongKinhChot, shaftDistance;
+    public double diaDan, diaBiDan, shaftForce;
+    public double diskDiameterCalc, contactStrength;
+    public bool chainSafe;
+    public string vatLieuDia1 = "Thép C45", vatLieuDia2 = "Thép C45";
 
     public ChainTransmission(double Power3, double UTruc3, double Speed3, double UCongTac, double Torque3)
     {
@@ -557,147 +620,125 @@ public class ChainTransmission : ITransmissionCalculation
     private void TinhSoRangDiaXich(double limit = 29)
     {
         double Ux = 2.578;
-        Z1 = Math.Floor(limit - 2 * Ux);
-        Z2 = Math.Floor(Z1 * Ux);
+        z1 = (int)Math.Floor(limit - 2 * Ux);
+        z2 = (int)Math.Floor(z1 * Ux);
     }
-    // B10.2
-    private double TinhBuocXichP(double limit = 29)
-    {
-        double K = 1.95;
-        double Kz = 25 / Z1;
 
-        // cần 1 array các giá trị bảng 5.5 để lọc tìm số gần nhất thay vì =50
+    // B10.2
+    private double TinhBuocXichP()
+    {
         double N01 = 50;
         double Kn = N01 / N3;
+        double K = 1.95;
+        double Kz = 25.0 / z1;
         double Pt = P3 * K * Kz * Kn;
-        // cần array object bảng 5.5 ở trên để lọc tìm thông số
-        double Psquare = 10.5;
-        double p = 38.1;
-        double Dc = 11.12;
-        double B = 35.46;
-        // cần array bảng 5.8 để xác định n1 thỏa mãn >N3
-        return p;
+        pitch = 38.1;
+        ongLot = 35.46;
+        duongKinhChot = 11.12;
+        return pitch;
     }
+    
 
     // B11
-    private double TinhKhoangCachTruc(double p, bool Above, double a, int controlType, int Shift, int envi, int LubeType)
+    private double TinhKhoangCachTruc(double p)
     {
-        double K0 = Above ? 1.25 : 1;
-        double Ka;
-        if (a > 30 * p && a < 50 * p)
-        {
-            Ka = 1;
-        }
-        else if (a <= 25 * p)
-        {
-            Ka = 1.25;
-        }
-        else if (a >= 80 * p)
-        {
-            Ka = 0.8;
-        }
-        double Kdc = controlType == 1 ? 1 : controlType == 2 ? 1.1 : 1.25;
-        // Kd
-        double Kc = Shift == 1 ? 1 : Shift == 2 ? 1.25 : 1.45;
-        double Kbt;
-        if (envi == 0 && LubeType == 1)
-        {
-            Kbt = 0.8;
-        }
-        else if (envi == 0 && LubeType == 2)
-        {
-            Kbt = 1;
-        }
-        else if (envi == 1 && LubeType == 2)
-        {
-            Kbt = 1.3;
-        }
-        else if (envi == 1 && LubeType == 3)
-        {
-            Kbt = 1.8;
-        }
-        else if (envi == 2 && LubeType == 3)
-        {
-            Kbt = 3;
-        }
-        else if (envi == 2 && LubeType == 4)
-        {
-            Kbt = 6;
-        }
-
-        double x = Math.Floor(2 * a / p + (Z1 + Z2) / 2 + (Z2 - Z1) * (Z2 - Z1) * p / (4 * a * Math.PI * Math.PI));
+        double a = 40 * p;
+        double x = Math.Floor(2 * a / p + (z1 + z2) / 2 + (z2 - z1) * (z2 - z1) * p / (4 * a * Math.PI * Math.PI));
         if (x % 2 == 1) x -= 1;
+        soMatXich = (int)x;
 
-        double aNew = 0.25 * p * (x - 0.5 * (Z2 + Z1) + Math.Sqrt(Math.Pow(x - 0.5 * (Z2 + Z1), 2) - 2 * Math.Pow((Z2 - Z1) / Math.PI, 2)));
-        double aStan = aNew - 0.002 * aNew;
-        double i = Z1 * N3 / (15 * x);
-
-        return aStan;
+        double aNew = 0.25 * p * (x - 0.5 * (z2 + z1) + Math.Sqrt(Math.Pow(x - 0.5 * (z2 + z1), 2) - 2 * Math.Pow((z2 - z1) / Math.PI, 2)));
+        shaftDistance = aNew;
+        return aNew;
     }
 
     // B12
-    private bool KiemNghiemXich(double p, int LoadType, double aStan)
+    private bool KiemNghiemXich(double p)
     {
-        // cần array bảng 5.2 để dò từ p
         double Q = 127;
         double q = 5.5;
-        double Kd = LoadType == 1 ? 1.2 : LoadType == 2 ? 1.7 : 2.0;
-
-        double v = Z1 * p * N3 / 60000;
+        double Kd = 1.2;
+        double v = z1 * p * N3 / 60000;
         double Ft = 1000 * P3 / v;
         double Fv = q * v * v;
-        double F0 = 9.81 * 6 * q * aStan;
+        double F0 = 9.81 * 6 * q * shaftDistance;
         double s = Q / (Kd * Ft + F0 + Fv);
-
-        // array bảng 5.10 để tìm sLimit
         double sLimit = 8.5;
-        return s > sLimit;
+
+        chainSafe = s > sLimit;
+        return chainSafe;
     }
 
     // B13
     private void TinhDuongKinhDiaXich(double p)
     {
-        double d1 = p / Math.Sin(Math.PI / Z1);
-        double d2 = p / Math.Sin(Math.PI / Z2);
-        double da1 = p * (0.5 + 1 / Math.Tan(Math.PI / Z1));
-        double da2 = p * (0.5 + 1 / Math.Tan(Math.PI / Z2));
-        // cần array bảng 5.2 để dò từ p
-        double dl = 22.23;
-        double r = 0.5025 * dl + 0.05;
-        double df1 = d1 - 2 * r;
-        double df2 = d2 - 2 * r;
+        diaDan = p / Math.Sin(Math.PI / z1);
+        diaBiDan = p / Math.Sin(Math.PI / z2);
+        diskDiameterCalc = (diaDan + diaBiDan) / 2;
     }
 
     // B14
-    private double KiemNghiemDoBen(double p, int LoadType)
+    private double KiemNghiemDoBen(double p)
     {
-        // hình như cần tra bảng tr87 dựa trên z1
-        double Kr = 0.44;
-
-        double v = Z1 * p * N3 / 60000;
+        double v = z1 * p * N3 / 60000;
         double Ft = 1000 * P3 / v;
-        double Kd = LoadType == 1 ? 1.2 : LoadType == 2 ? 1.2 : 1.8;
-        double Fvd = 13 * Math.Pow(10, -7) * N3 * p * p * p;
-        double E = 1.6 * 100000;
-        // tra bảng 5.12
+        double Kd = 1.2;
+        double Fvd = 13e-7 * N3 * p * p * p;
+        double E = 1.6e5;
         double A = 395;
         double Kde = 1;
-        double Oh1 = 0.47 * Math.Sqrt(Kr * (Ft * Kd + Fvd) * E / (A * Kde));
-        // tra bảng 5.11 và tìm số/vật liệu lớn hơn Oh1
-        double Oh = 550;
+        double Kr = 0.44;
 
-        return Oh;
+        contactStrength = 0.47 * Math.Sqrt(Kr * (Ft * Kd + Fvd) * E / (A * Kde));
+        return contactStrength;
     }
 
     // B15
-    private double TinhLucTrenTruc(double p, bool Below)
+    private double TinhLucTrenTruc(double p)
     {
-        double Kx = Below ? 1.15 : 1.05;
-        double v = Z1 * p * N3 / 60000;
+        double v = z1 * p * N3 / 60000;
         double Ft = 1000 * P3 / v;
-        double Frk = Kx * Ft;
+        double Kx = 1.15;
+        shaftForce = Kx * Ft;
+        return shaftForce;
+    }
 
-        return Frk;
+    // Tổng hợp tính toán và trả kết quả
+    public Dictionary<string, object> CalChain()
+    {
+        var result = new Dictionary<string, object>();
+
+        TinhSoRangDiaXich();
+        result["soRangDan"] = z1;
+        result["soRangBiDan"] = z2;
+
+        double p = TinhBuocXichP();
+        result["pitch"] = p;
+        result["ongLot"] = ongLot;
+        result["duongKinhChot"] = duongKinhChot;
+
+        double aStan = TinhKhoangCachTruc(p);
+        result["soMatXich"] = soMatXich;
+        result["shaftDistance"] = shaftDistance;
+
+        bool safe = KiemNghiemXich(p);
+        result["chainSafe"] = chainSafe;
+
+        TinhDuongKinhDiaXich(p);
+        result["diaDan"] = diaDan;
+        result["diaBiDan"] = diaBiDan;
+        result["diskDiameterCalc"] = diskDiameterCalc;
+
+        double contact = KiemNghiemDoBen(p);
+        result["contactStrength"] = contactStrength;
+
+        double Frk = TinhLucTrenTruc(p);
+        result["shaftForce"] = shaftForce;
+
+        result["vatLieuDia1"] = vatLieuDia1;
+        result["vatLieuDia2"] = vatLieuDia2;
+
+        return result;
     }
 
     public double Calculate()
@@ -707,53 +748,21 @@ public class ChainTransmission : ITransmissionCalculation
         double p = TinhBuocXichP();
 
         // B11: Khoảng cách trục và số mắt xích
-        double aStan = TinhKhoangCachTruc(p, false, 40 * p, 1, 1, 0, 1);
+        double aStan = TinhKhoangCachTruc(p);
 
         // B12: Tính kiểm nghiệm xích về độ bền (true nếu an toàn)
-        bool safe = KiemNghiemXich(p, 1, aStan);
+        bool safe = KiemNghiemXich(p);
 
         // B13: Tính đường kính đĩa xích
         TinhDuongKinhDiaXich(p);
 
         // B14: Kiểm nghiệm độ bền tiếp xúc và chọn vật liệu cho bộ truyền xích
-        double materialOh = KiemNghiemDoBen(p, 1);
+        double materialOh = KiemNghiemDoBen(p);
 
         // B15: Tính lực tác dụng lên trục
-        double Frk = TinhLucTrenTruc(p, true);
+        double Frk = TinhLucTrenTruc(p);
 
         return Frk;
-    }
-
-    public Dictionary<string, object> CalChain()
-    {
-        var result = new Dictionary<string, object>();
-
-        // B10: Xác định thông số xích
-        TinhSoRangDiaXich();
-        double p = TinhBuocXichP();
-        result["BuocXich_p"] = p;
-
-        // B11: Khoảng cách trục và số mắt xích
-        double aStan = TinhKhoangCachTruc(p, false, 40 * p, 1, 1, 0, 1);
-        result["KhoangCachTruc_aStan"] = aStan;
-
-        // B12: Kiểm nghiệm xích về độ bền
-        bool safe = KiemNghiemXich(p, 1, aStan);
-        result["XichAnToan"] = safe;
-
-        // B13: Tính đường kính đĩa xích
-        TinhDuongKinhDiaXich(p); // Không có giá trị trả về, giả sử cập nhật bên trong
-        result["DuongKinhDiaXich_TinhToan"] = "Đã tính";
-
-        // B14: Kiểm nghiệm độ bền tiếp xúc & vật liệu
-        double materialOh = KiemNghiemDoBen(p, 1);
-        result["DoBenTiepXuc_Oh"] = materialOh;
-
-        // B15: Lực tác dụng lên trục
-        double Frk = TinhLucTrenTruc(p, true);
-        result["LucTacDungTrenTruc_Frk"] = Frk;
-
-        return result;
     }
 
 }
@@ -775,6 +784,7 @@ public class TransmissionFactory
         }
     }
 }
+
 
 // code chạy mẫu
 // class Program
