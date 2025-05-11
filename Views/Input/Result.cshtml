@@ -301,7 +301,7 @@
                         <div class="col-4 mt-3">
                             <label>Kiểm tra bôi trơn</label>
                             <input id="boitron" type="text" class="form-control" readonly>
-                        </div> 
+                        </div>
 
 
                     </div>
@@ -312,7 +312,7 @@
 </div>
 
 
-<!-- TODO b20 cấp nhanh --> 
+<!-- TODO b20 cấp nhanh -->
 <!--Hiển thị kq bánh răng -->
 <div class="row">
     <div class="col-12">
@@ -338,7 +338,7 @@
     </div>
 </div>
 
-<!-- TODO b21 cấp chậm --> 
+<!-- TODO b21 cấp chậm -->
 <!--Hiển thị kq bánh răng -->
 <div class="row">
     <div class="col-12">
@@ -567,7 +567,7 @@
             }
         }
 
-        const getValue = (key, unit = "", suffix = "") => 
+        const getValue = (key, unit = "", suffix = "") =>
             normalizedData[key] !== undefined ? `${normalizedData[key]}${unit}` : `chưa tính${suffix}`;
 
         const rows = [
@@ -615,7 +615,7 @@
             }
         }
 
-        const getValue = (key, unit = "", suffix = "") => 
+        const getValue = (key, unit = "", suffix = "") =>
             normalizedData[key] != null ? `${normalizedData[key]}${unit}` : `Chưa có${suffix}`;
 
         const rows = [
@@ -717,6 +717,7 @@
                 </td>
             </tr>`;
 
+
             tableBody.innerHTML += row;
         });
     }
@@ -769,55 +770,136 @@
     }
 
     async function selectMotor(index) {
+        console.log("===== Starting selectMotor =====");
         const selectedMotor = catalogs[index];
+        console.log("Selected motor:", selectedMotor);
 
         // Kiểm tra và tải ảnh nếu cần
-        if (selectedMotor.image && selectedMotor.image.length > 0) {
-            const imageBase64s = [];
+        if (selectedMotor.image_url) {
+            console.log("Found image URL:", selectedMotor.image_url);
+            try {
+                console.log("Attempting to download image...");
+                const imageData = await downloadAndSaveImage(selectedMotor.image_url);
+                console.log("Image downloaded successfully, base64 length:", imageData?.length);
 
-            // Tải và lưu tất cả các ảnh
-            for (const imageUrl of selectedMotor.image) {
-                try {
-                    const imageData = await downloadAndSaveImage(imageUrl);
-                    if (imageData) {
-                        imageBase64s.push(imageData);  // lưu image thành base64 string
-                    }
-                } catch (error) {
-                    console.error('Error downloading image:', error);
+                if (imageData) {
+                    console.log("Creating pdfContent.Motor with image data");
+                    // Cập nhật pdfContent.Motor với data ảnh đã tải về (chỉ dùng cho PDF)
+                    pdfContent.Motor = {
+                        ...selectedMotor,
+                        Image: imageData // Lưu ảnh vào Image (viết hoa)
+                    };
+                    console.log("pdfContent.Motor updated with image data");
                 }
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                console.log("Falling back to original motor data without image");
+                // Nếu có lỗi khi tải ảnh, vẫn giữ nguyên dữ liệu motor
+                pdfContent.Motor = selectedMotor;
             }
-
-            // Cập nhật pdfContent.Motor với data ảnh đã tải về (chỉ dùng cho PDF)
-            pdfContent.Motor = {
-                ...selectedMotor,
-                image: imageBase64s
-            };
         } else {
+            console.log("No image found in selected motor");
             // Nếu không có ảnh, giữ nguyên dữ liệu cũ
             pdfContent.Motor = selectedMotor;
         }
 
+        console.log("Final pdfContent.Motor:", pdfContent.Motor);
         // Render lại bảng chỉ với 1 motor (dữ liệu gốc)
         renderCatalogTable([selectedMotor]);
+        console.log("===== Finished selectMotor =====");
     }
 
     function ExportPDF() {
-        console.log(pdfContent);
+        console.log("Starting PDF export process...");
+        console.log("PDF Content:", pdfContent);
+
+        // Kiểm tra dữ liệu trước khi gửi
+        if (!pdfContent) {
+            alert("Không có dữ liệu để xuất PDF!");
+            return;
+        }
+
+        // Kiểm tra các dữ liệu bắt buộc
+        const missingData = [];
+
+        // Kiểm tra thông số motor
+        if (!pdfContent.Motor) {
+            missingData.push("Thông tin động cơ");
+        } else {
+            if (!pdfContent.Motor.product_name) missingData.push("Tên sản phẩm động cơ");
+            if (!pdfContent.Motor.frame_size) missingData.push("Kích thước khung động cơ");
+            if (!pdfContent.Motor.Image) missingData.push("Hình ảnh động cơ");
+        }
+
+        // Nếu có dữ liệu thiếu, hiển thị thông báo
+        if (missingData.length > 0) {
+            const message = "Thiếu các thông tin sau:\n" + missingData.join("\n");
+            alert(message);
+            console.error("Missing data:", missingData);
+            return;
+        }
+
+        // Chuẩn bị và validate dữ liệu
+        const exportData = {
+            ...pdfContent,
+            // Đảm bảo các trường số là số
+            contactStrength: parseInt(pdfContent.contactStrength) || 0,
+            pitch: parseFloat(pdfContent.pitch) || 0,
+            shaftDistance: parseFloat(pdfContent.shaftDistance) || 0,
+            shaftForce: parseFloat(pdfContent.shaftForce) || 0,
+            // Chuyển chainSafe thành boolean
+            chainSafe: pdfContent.chainSafe === "Đạt" || pdfContent.chainSafe === true,
+            // Đảm bảo các trường string là string
+            diskDiameterCalc: String(pdfContent.diskDiameterCalc || ""),
+            // Thêm các trường bắt buộc nếu thiếu
+            content: "Design Report", // Luôn set giá trị mặc định
+            // Đảm bảo các trường object có giá trị mặc định
+            vatLieuBoTruyen: pdfContent.vatLieuBoTruyen || {},
+            dauVaoUngSuat: pdfContent.dauVaoUngSuat || {},
+            // Đảm bảo Motor là object
+            Motor: pdfContent.Motor || {}
+        };
+
+        console.log("Validated export data:", exportData);
 
         // Chuẩn bị dữ liệu gửi lên server
-
         fetch("/Input/ExportPdf", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(pdfContent)
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(exportData)
         })
-            .then(response => {
+            .then(async response => {
+                console.log("Server response status:", response.status);
+                console.log("Server response headers:", response.headers);
+
                 if (!response.ok) {
-                    throw new Error("Lỗi mạng hoặc backend không phản hồi!");
+                    // Đọc thông báo lỗi từ server
+                    const errorText = await response.text();
+                    console.error("Server error response:", errorText);
+
+                    let errorMessage = `Server error (${response.status}): `;
+                    try {
+                        // Thử parse JSON error message
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage += errorJson.message || errorJson.error || errorText;
+                    } catch {
+                        // Nếu không phải JSON thì dùng text trực tiếp
+                        errorMessage += errorText || response.statusText;
+                    }
+                    throw new Error(errorMessage);
                 }
                 return response.blob();
             })
             .then(blob => {
+                console.log("Received PDF blob:", blob.size, "bytes");
+
+                if (blob.size === 0) {
+                    throw new Error("Received empty PDF file");
+                }
+
                 // Gán dữ liệu vào các input field
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -827,8 +909,26 @@
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
+                console.log("PDF download completed successfully");
             })
-            .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+            .catch(error => {
+                console.error("Error during PDF export:", error);
+
+                // Hiển thị thông báo lỗi chi tiết cho người dùng
+                let errorMessage = "Có lỗi xảy ra khi xuất PDF:\n";
+                errorMessage += error.message || "Không xác định được nguyên nhân lỗi";
+
+                // Hiển thị thông báo lỗi
+                alert(errorMessage);
+
+                // Log thêm thông tin debug
+                console.error("Error details:", {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name,
+                    timestamp: new Date().toISOString()
+                });
+            });
     }
 
     //////////////////////////////////

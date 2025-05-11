@@ -37,12 +37,13 @@
                         <div class="col-6">
                             <div class="mb-3">
                                 <label for="shaftSelection" class="form-label">Chọn loại trục</label>
-                                <select class="form-select" id="shaftSelection">
-                                    <option selected>Chọn loại trục</option>
-                                    <option value="1">Trục tang quay</option>
+                                <select class="form-select" id="shaftSelection" disabled>
+                                    <option value="1" selected>Trục tang quay</option>
                                 </select>
+                                <input type="hidden" id="shaftSelectionHidden" value="1">
                             </div>
-                        </div><!--end col-->
+                        </div>
+
 
                         <div class="col-6">
                             <div class="mb-3">
@@ -135,14 +136,13 @@
                         <div class="col-6">
                             <div class="mb-3">
                                 <label for="transSelection" class="form-label">Chọn bộ truyền</label>
-                                <select class="form-select" id="transSelection">
-                                    <option selected disabled>Chọn bộ truyền</option>
-                                    <!-- <option value="belt">Belt</option> -->
-                                    <option value="chain">Chain</option>
-                                    <!-- <option value="gear">Gear</option> -->
+                                <select class="form-select" id="transSelection" disabled>
+                                    <option value="chain" selected>Chain</option>
                                 </select>
+                                <input type="hidden" id="transSelectionHidden" value="chain">
                             </div>
                         </div>
+
 
 
                         <div class="col-12">
@@ -351,16 +351,25 @@
 
     function submitFormData() {
         // Lấy giá trị từ các input
+        const transSelect = document.getElementById('transSelection');
+        const transHidden = document.getElementById('transSelectionHidden');
+        if (transSelect && transHidden) {
+            transHidden.value = transSelect.value;
+        }
         const force = parseFloat(document.getElementById('forceInput').value) || 0;
         const speed = parseFloat(document.getElementById('speedInput').value) || 0;
-        const shaftType = document.getElementById('shaftSelection').value;
+        const shaftType = document.getElementById('shaftSelectionHidden').value;
         const diameter = parseFloat(document.getElementById('diameterInput').value) || 0;
         const serviceTime = parseFloat(document.getElementById('serviceTimeInput').value) || 0;
         const workDays = parseFloat(document.getElementById('workDaysInput').value) || 0;
         const workHours = parseFloat(document.getElementById('workHoursInput').value) || 0;
         const startupMoment = parseFloat(document.getElementById('startupMoment').value) || 0;
         const loadMoment = parseFloat(document.getElementById('loadMoment').value) || 0;
-        const transType = document.getElementById('transSelection').value; // Lấy bộ truyền
+        const transType = (transHidden && transHidden.value) 
+                        ? transHidden.value 
+                        : (transSelect ? transSelect.value : '');
+    
+
 
         // Validation: check if any field has invalid input
         if (force <= 0 || speed <= 0 || diameter <= 0 || serviceTime <= 0 || workDays <= 0 || workHours <= 0 || startupMoment <= 0 || loadMoment <= 0) {
@@ -394,6 +403,7 @@
         const formData = {
             force,
             speed,
+            transType,
             shaftType,
             diameter,
             serviceTime,
@@ -403,8 +413,7 @@
             loadMoment,
             loadData,
             Torchlist,
-            tlist,
-            transType
+            tlist
         };
 
         console.log('Dữ liệu nhập vào:', formData);
@@ -423,7 +432,11 @@
             .then(data => {
                 // Lưu vào localStorage
                 let storedData = JSON.parse(localStorage.getItem("inputData")) || [];
-                storedData.push(data);
+                storedData.push({
+                    ...formData,
+                    ...data
+                });
+
                 localStorage.setItem("inputData", JSON.stringify(storedData));
 
                 alert("Dữ liệu đã được lưu vào Local Storage!");
@@ -460,11 +473,13 @@
 
         savedData.forEach((item, index) => {
             const row = document.createElement("tr");
+            const shaftTypeText = item.shaftType === "1" ? "Trục tang quay" : item.shaftType;
+            const transTypeText = item.transType === "chain" ? "Xích" : item.transType;
 
             row.innerHTML = `
                 <td>${item.force}</td>
                 <td>${item.speed}</td>
-                <td>${item.shaftType}</td>
+                <td>${shaftTypeText}</td> 
                 <td>${item.diameter}</td>
                 <td>${item.serviceTime}</td>
                 <td>${item.workDays}</td>
@@ -472,15 +487,21 @@
                 <td>${item.startupMoment}</td>
                 <td>${item.loadMoment}</td>
                 <td>${item.overloadFactor}</td>
-                <td>${item.overallEfficiency}</td>
+                <td>${item.overallEfficiency}</td> 
                 <td>${item.requiredMotorEfficiency}</td>
                 <td>
                     ${item.loadData.map(load => `T${load.id}: ${load.torch}, t${load.id}: ${load.time}`).join(', ')}
                 </td>
-                <td>${item.transType}</td>
-                <td>
-                    <button class="btn btn-primary btn-sm select-btn" data-index="${index}">Chọn</button>
-                    <button class="btn btn-danger btn-sm delete-btn" data-index="${index}">Xóa</button>
+                <td>${transTypeText}</td>
+                <td class="d-flex">
+                    <button
+                        class="btn btn-sm select-btn choose-button"
+                        data-index="${index}">
+                    </button>
+                    <button 
+                    class="btn btn-sm delete-btn delete-button" 
+                        data-index="${index}">
+                    </button>
                 </td>
             `;
 
@@ -513,14 +534,14 @@
     function populateForm(item) {
         document.getElementById("forceInput").value = item.force || '';
         document.getElementById("speedInput").value = item.speed || '';
-        document.getElementById("shaftSelection").value = item.shaftType || '';
+        document.getElementById("shaftSelectionHidden").value = item.shaftType || '';
         document.getElementById("diameterInput").value = item.diameter || '';
         document.getElementById("serviceTimeInput").value = item.serviceTime || '';
         document.getElementById("workDaysInput").value = item.workDays || '';
         document.getElementById("workHoursInput").value = item.workHours || '';
         document.getElementById("startupMoment").value = item.startupMoment || '';
         document.getElementById("loadMoment").value = item.loadMoment || '';
-        document.getElementById("transSelection").value = item.transType || '';
+        document.getElementById("transSelectionHidden").value = item.transType || '';
 
         // Gán lại mảng loads từ dữ liệu LocalStorage
         loads = item.loadData.map((load) => ({
