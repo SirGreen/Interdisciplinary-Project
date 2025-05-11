@@ -201,9 +201,116 @@ public class PdfExportService
                                 column.Item().Text("Không có ảnh");
                             }
                         }
+
+                        column.Item().PaddingTop(30);
+                        column.Item().PaddingTop(20).Text("Thông số bộ truyền xích").FontSize(16).Bold();
+                        column.Item().PaddingTop(10);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); // Property column
+                                columns.RelativeColumn(3); // Value column
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().BorderBottom(2).Padding(8).Text("Thông số").Bold();
+                                header.Cell().BorderBottom(2).Padding(8).Text("Giá trị").Bold();
+                            });
+
+                            // Simple properties
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Bước Xích ");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.pitch.ToString("F2"));
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Khoảng cách trục");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.shaftDistance.ToString("F2"));
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Kết luận an toàn xích");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.chainSafe.ToString());
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Đường kính đĩa xích");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.diskDiameterCalc.ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Độ bền tiếp xúc");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.contactStrength.ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Lực tác dụng lên trục");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.shaftForce.ToString("F2"));
+                        });
+
+                        column.Item().PaddingTop(30);
+                        column.Item().PaddingTop(20).Text("Thông số bánh răng truyền nhỏ").FontSize(16).Bold();
+                        column.Item().PaddingTop(10);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); // Property column
+                                columns.RelativeColumn(3); // Value column
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().BorderBottom(2).Padding(8).Text("Thông số").Bold();
+                                header.Cell().BorderBottom(2).Padding(8).Text("Giá trị").Bold();
+                            });
+
+                            // Simple properties
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Vật liệu");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Vật liệu"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Ob");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Ob"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Och");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Och"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("HB");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["HB"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Kích thước");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Kích thước S"].ToString());
+                        });
+
+                        column.Item().PaddingTop(20).Text("Thông số bánh răng truyền lớn").FontSize(16).Bold();
+                        column.Item().PaddingTop(10);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); // Property column
+                                columns.RelativeColumn(3); // Value column
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().BorderBottom(2).Padding(8).Text("Thông số").Bold();
+                                header.Cell().BorderBottom(2).Padding(8).Text("Giá trị").Bold();
+                            });
+
+                            // Simple properties
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Vật liệu");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh lớn"]["Vật liệu"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Ob");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh lớn"]["Ob"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Och");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh lớn"]["Och"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("HB");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh lớn"]["HB"].ToString());
+
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Kích thước");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh lớn"]["Kích thước"].ToString());
+                        });
                         
                         column.Item().PaddingTop(30);
-                        column.Item().PaddingTop(20).Text("Thông số bộ truyền").FontSize(16).Bold();
+                        column.Item().PaddingTop(20).Text("Thông số ứng xuất").FontSize(16).Bold();
                         column.Item().PaddingTop(10);
 
                         column.Item().Table(table =>
@@ -221,63 +328,39 @@ public class PdfExportService
                             });
 
                             // Simple properties
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overload Factor");
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Vật liệu"].ToString());
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Ohlim1");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Ohlim1"].ToString());
 
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overall Efficiency");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.OverallEfficiency.ToString("P2"));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Ohlim2");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Ohlim2"].ToString());
 
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Efficiency");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorEfficiency.ToString("F2"));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Sh");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Sh"].ToString());
 
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Speed");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorSpeed.ToString("F2"));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Oflim1");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Oflim1"].ToString());
 
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("NSB Speed");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.NsbSpeed.ToString("F2"));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Oflim2");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Oflim2"].ToString());
+                            
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Sf");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Sf"].ToString());
 
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Un");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.Un.ToString("F2"));
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("HB1");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["HB1"].ToString());
+                            
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("HB2");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["HB2"].ToString());
+                            
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Nho1");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Nho1"].ToString());
+                            
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Nho2");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Nho2"].ToString());
+                            
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Nfo");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Nfo"].ToString());
                         });
-
-                        column.Item().PaddingTop(30);
-                        column.Item().PaddingTop(20).Text("Thông số bộ truyền").FontSize(16).Bold();
-                        column.Item().PaddingTop(10);
-
-                        column.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn(2); // Property column
-                                columns.RelativeColumn(3); // Value column
-                            });
-
-                            table.Header(header =>
-                            {
-                                header.Cell().BorderBottom(2).Padding(8).Text("Thông số").Bold();
-                                header.Cell().BorderBottom(2).Padding(8).Text("Giá trị").Bold();
-                            });
-
-                            // Simple properties
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overload Factor");
-                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Vật liệu"].ToString());
-
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overall Efficiency");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.OverallEfficiency.ToString("P2"));
-
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Efficiency");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorEfficiency.ToString("F2"));
-
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Speed");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorSpeed.ToString("F2"));
-
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("NSB Speed");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.NsbSpeed.ToString("F2"));
-
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Un");
-                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.Un.ToString("F2"));
-                        });
-
 
                         column.Item().PaddingTop(30);
                         column.Item().Text($"Generated on {DateTime.Now}");
