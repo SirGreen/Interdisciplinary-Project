@@ -4,7 +4,7 @@
 <!-- Basic Input -->
 <!-- B1 -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-12 w-100">
         <div class="card">
             <div class="card-header align-items-center d-flex">
                 <h4 class="card-title mb-0 flex-grow-1">Nhập thông số</h4>
@@ -161,13 +161,13 @@
 
 <!-- Khu vực hiển thị dữ liệu đã lưu -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-12 w-100">
         <div class="card">
             <div class="card-header align-items-center d-flex">
                 <h4 class="card-title mb-0 flex-grow-1">Dữ liệu đã lưu từ LocalStorage</h4>
             </div><!-- end card header -->
             <div class="card-body">
-                <table class="table table-bordered">
+                <table class="table-responsive">
                     <thead>
                         <tr>
                             <th>Lực vòng (N)</th>
@@ -180,11 +180,12 @@
                             <th>Mômen mở máy</th>
                             <th>Mômen tải</th>
                             <th>Hệ số quá tải</th>
-                            <th>Hiệu suất chung</th>
+                            <!-- <th>Hiệu suất chung</th>
                             <th>Hiệu suất cần thiết của động cơ</th>
-                            <th>Danh sách tải</th>
+                            <th>Danh sách tải</th> -->
                             <th>Bộ truyền</th>
                             <th>Nút</th>
+                            <!-- <th>Xóa</th> -->
                         </tr>
                     </thead>
                     <tbody id="savedDataTable">
@@ -486,23 +487,25 @@
                 <td>${item.workHours}</td>
                 <td>${item.startupMoment}</td>
                 <td>${item.loadMoment}</td>
-                <td>${item.overloadFactor}</td>
-                <td>${item.overallEfficiency}</td> 
-                <td>${item.requiredMotorEfficiency}</td>
+                
                 <td>
                     ${item.loadData.map(load => `T${load.id}: ${load.torch}, t${load.id}: ${load.time}`).join(', ')}
                 </td>
                 <td>${transTypeText}</td>
-                <td class="d-flex">
-                    <button
-                        class="btn btn-sm select-btn choose-button"
-                        data-index="${index}">
-                    </button>
-                    <button 
-                    class="btn btn-sm delete-btn delete-button" 
-                        data-index="${index}">
-                    </button>
-                </td>
+                <tr>
+                    <td>
+                        <button
+                            class="btn btn-sm select-btn choose-button "
+                            data-index="${index}">
+                        </button>
+                    </td>
+                    <td>
+                        <button 
+                        class="btn btn-sm delete-btn delete-button" 
+                            data-index="${index}">
+                        </button>
+                    </td>
+                </tr>
             `;
 
             savedDataTable.appendChild(row);

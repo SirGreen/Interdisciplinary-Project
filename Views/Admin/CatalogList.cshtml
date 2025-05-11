@@ -9,92 +9,96 @@
 {
     <div class="alert alert-success">@TempData["Success"]</div>
 }
-
-<div class="table-responsive">
-    <table class="table table-bordered table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th style="width: 50px;">STT</th>
-                <th style="width: 150px;">Hình ảnh</th>
-                <th>Brand</th>
-                <th>Category</th>
-                <th>Product Name</th>
-                <th>Motor Type</th>
-                <th>Frame Size</th>
-                <th>Output (kW)</th>
-                <th>Output (HP)</th>
-                <th>Full Load RPM</th>
-                <th>Current (380V)</th>
-                <th>Current (400V)</th>
-                <th>Current (415V)</th>
-                <th>LRC Current</th>
-                <th>Efficiency (1/2)</th>
-                <th>Efficiency (3/4)</th>
-                <th>Efficiency (Full)</th>
-                <th>Power Factor (1/2)</th>
-                <th>Power Factor (3/4)</th>
-                <th>Power Factor (Full)</th>
-                <th>Breakdown Torque</th>
-                <th>Full Load Torque</th>
-                <th>Locked Rotor Torque</th>
-                <th>Pull-up Torque</th>
-                <th>Rotor GD²</th>
-                <th>Weight (kg)</th>
-                <th>Chi tiết</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Count(); i++)
-            {
-                var item = Model.ElementAt(i);
+<div class = "card overflow-x: auto">
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
                 <tr>
-                    <td>@(i + 1)</td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(item.image_url))
-                        {
-                            <img src="@item.image_url" alt="Hình ảnh @item.product_name" class="img-thumbnail" width="70"
-                                height="70" style="margin: 2px; object-fit: cover;">
-                        }
-                        else
-                        {
-                            <span class="text-muted">Không có ảnh</span>
-                        }
-                    </td>
-                    <td>@item.brand</td>
-                    <td>@item.category</td>
-                    <td>@item.product_name</td>
-                    <td>@item.motor_type</td>
-                    <td>@item.frame_size</td>
-                    <td>@item.output_kw</td>
-                    <td>@item.output_hp</td>
-                    <td>@item.full_load_rpm</td>
-                    <td>@item.current_380v</td>
-                    <td>@item.current_400v</td>
-                    <td>@item.current_415v</td>
-                    <td>@item.current_lrc</td>
-                    <td>@item.efficiency_1_2</td>
-                    <td>@item.efficiency_3_4</td>
-                    <td>@item.efficiency_full</td>
-                    <td>@item.power_factor_1_2</td>
-                    <td>@item.power_factor_3_4</td>
-                    <td>@item.power_factor_full</td>
-                    <td>@item.torque_break_down</td>
-                    <td>@item.torque_full</td>
-                    <td>@item.torque_locked_rotor</td>
-                    <td>@item.torque_pull_up</td>
-                    <td>@item.torque_rotor_gd2</td>
-                    <td>@item.weight_kg</td>
-                    <td><a href="@item.url" target="_blank" class="btn btn-primary btn-sm">Xem</a></td>
-                    <td>
-                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">Xóa</button>
-                    </td>
+                    <th style="width: 50px;">STT</th>
+                    <th style="width: 150px;">Hình ảnh</th>
+                    <th>Brand</th>
+                    <th>Category</th>
+                    <th>Product Name</th>
+                    <th>Motor Type</th>
+                    <th>Frame Size</th>
+                    <th>Output (kW)</th>
+                    <th>Output (HP)</th>
+                    <th>Full Load RPM</th>
+                    <th>Current (380V)</th>
+                    <th>Current (400V)</th>
+                    <th>Current (415V)</th>
+                    <th>LRC Current</th>
+                    <th>Efficiency (1/2)</th>
+                    <th>Efficiency (3/4)</th>
+                    <th>Efficiency (Full)</th>
+                    <th>Power Factor (1/2)</th>
+                    <th>Power Factor (3/4)</th>
+                    <th>Power Factor (Full)</th>
+                    <th>Breakdown Torque</th>
+                    <th>Full Load Torque</th>
+                    <th>Locked Rotor Torque</th>
+                    <th>Pull-up Torque</th>
+                    <th>Rotor GD²</th>
+                    <th>Weight (kg)</th>
+                    <th>Chi tiết</th>
+                    <th>Hành động</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count(); i++)
+                {
+                    var item = Model.ElementAt(i);
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(item.image_url))
+                            {
+                                <img src="@item.image_url" alt="Hình ảnh @item.product_name" class="img-thumbnail" width="70"
+                                    height="70" style="margin: 2px; object-fit: cover;">
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có ảnh</span>
+                            }
+                        </td>
+                        <td>@item.brand</td>
+                        <td>@item.category</td>
+                        <td>@item.product_name</td>
+                        <td>@item.motor_type</td>
+                        <td>@item.frame_size</td>
+                        <td>@item.output_kw</td>
+                        <td>@item.output_hp</td>
+                        <td>@item.full_load_rpm</td>
+                        <td>@item.current_380v</td>
+                        <td>@item.current_400v</td>
+                        <td>@item.current_415v</td>
+                        <td>@item.current_lrc</td>
+                        <td>@item.efficiency_1_2</td>
+                        <td>@item.efficiency_3_4</td>
+                        <td>@item.efficiency_full</td>
+                        <td>@item.power_factor_1_2</td>
+                        <td>@item.power_factor_3_4</td>
+                        <td>@item.power_factor_full</td>
+                        <td>@item.torque_break_down</td>
+                        <td>@item.torque_full</td>
+                        <td>@item.torque_locked_rotor</td>
+                        <td>@item.torque_pull_up</td>
+                        <td>@item.torque_rotor_gd2</td>
+                        <td>@item.weight_kg</td>
+                        <td>
+                            <button class="btn btn-sm view-button">
+                                <a href="@item.url" target="_blank"></a>
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm delete-button" onclick="confirmDelete('@item.Id')"></button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
-
 <!-- Popup xác nhận xóa -->
 <div id="deleteModal" class="modal fade" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">

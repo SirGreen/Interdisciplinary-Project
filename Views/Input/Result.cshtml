@@ -86,7 +86,7 @@
             <div class="card-body align-items-center d-flex">
                 <!-- With Controls -->
                 <!-- Input with Placeholder -->
-                <div style="max-height: 500px; overflow-y: auto;">
+                <div style="max-height: 500px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
                     <table class="table table-bordered table-hover">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
@@ -202,7 +202,7 @@
                 <h4 class="card-title mb-0 flex-grow-1">Thông số bộ truyền xích</h4>
             </div>
             <div class="card-body align-items-center d-flex">
-                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                <div style="max-height: 500px; flex-grow: 1;">
                     <table class="table table-bordered table-hover w-100" id="chain-table">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
@@ -321,7 +321,7 @@
                 <h4 class="card-title mb-0 flex-grow-1">Thông số bánh răng cấp nhanh</h4>
             </div>
             <div class="card-body align-items-center d-flex">
-                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                <div style="max-height: 500px; flex-grow: 1;">
                     <table class="table table-bordered table-hover w-100" id="fastgear-table">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
@@ -347,7 +347,7 @@
                 <h4 class="card-title mb-0 flex-grow-1">Thông số bánh răng cấp chậm</h4>
             </div>
             <div class="card-body align-items-center d-flex">
-                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                <div style="max-height: 500px; flex-grow: 1;">
                     <table class="table table-bordered table-hover w-100" id="slowgear-table">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
@@ -711,10 +711,11 @@
                 <td>${item.torque_pull_up || "Không có dữ liệu"}</td>
                 <td>${item.torque_rotor_gd2 || "Không có dữ liệu"}</td>
                 <td>${item.weight_kg || "Không có dữ liệu"}</td>
-                <td>
-                    <a href="${item.url || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
-                    <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
+                <td class="d-flex align-items-center gap-2">
+                    <a  href="${item.url || "#"}" target="_blank"  class="btn btn-sm view-button mt-3"></a>
+                    <button class="btn check-button btn-sm mt-3" onclick="selectMotor(${index})"></button>
                 </td>
+
             </tr>`;
 
 

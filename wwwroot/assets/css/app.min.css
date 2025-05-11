@@ -7411,7 +7411,7 @@ strong {
 .view-button::before {
     content: "";
     position: absolute;
-    left: 8px;
+    left: 0px;
     top: 50%;
     transform: translateY(-50%);
     width: 24px;
@@ -7423,14 +7423,13 @@ strong {
 .check-button {
     /* đủ khoảng trống bên trái cho icon */
     position: relative;
-    padding-left: 28px;
     vertical-align: middle;
 }
 
 .check-button::before {
     content: "";
     position: absolute;
-    left: 8px;
+    left: 0px;
     top: 50%;
     transform: translateY(-50%);
     width: 24px;
