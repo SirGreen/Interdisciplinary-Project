@@ -57,39 +57,49 @@ public class AdminController : Controller
     [HttpPost]
     public async Task<IActionResult> AddMotorManual(MotorCatalog catalog, List<IFormFile>? imageFiles)
     {
-        // Gán giá trị mặc định "Unknown" nếu trường bị bỏ trống
-        catalog.Power = string.IsNullOrWhiteSpace(catalog.Power) ? "Unknown" : catalog.Power;
-        catalog.Voltage = string.IsNullOrWhiteSpace(catalog.Voltage) ? "Unknown" : catalog.Voltage;
-        catalog.Speed = string.IsNullOrWhiteSpace(catalog.Speed) ? "Unknown" : catalog.Speed;
-        catalog.FrameSize = string.IsNullOrWhiteSpace(catalog.FrameSize) ? "Unknown" : catalog.FrameSize;
-        catalog.Protection = string.IsNullOrWhiteSpace(catalog.Protection) ? "Unknown" : catalog.Protection;
-        catalog.Standard = string.IsNullOrWhiteSpace(catalog.Standard) ? "Unknown" : catalog.Standard;
-        catalog.Material = string.IsNullOrWhiteSpace(catalog.Material) ? "Unknown" : catalog.Material;
-        catalog.MountingType = string.IsNullOrWhiteSpace(catalog.MountingType) ? "Unknown" : catalog.MountingType;
-        catalog.ShaftDiameter = string.IsNullOrWhiteSpace(catalog.ShaftDiameter) ? "Unknown" : catalog.ShaftDiameter;
-        catalog.Footprint = string.IsNullOrWhiteSpace(catalog.Footprint) ? "Unknown" : catalog.Footprint;
-        catalog.Technology = string.IsNullOrWhiteSpace(catalog.Technology) ? "Unknown" : catalog.Technology;
-        catalog.URL = string.IsNullOrWhiteSpace(catalog.URL) ? "Unknown" : catalog.URL;
+        // Set default values for required fields if they are empty
+        catalog.motor_id = string.IsNullOrWhiteSpace(catalog.motor_id) ? "Unknown" : catalog.motor_id;
+        catalog.brand = string.IsNullOrWhiteSpace(catalog.brand) ? "Unknown" : catalog.brand;
+        catalog.category = string.IsNullOrWhiteSpace(catalog.category) ? "Motor" : catalog.category;
+        catalog.current_380v = string.IsNullOrWhiteSpace(catalog.current_380v) ? "0" : catalog.current_380v;
+        catalog.current_400v = string.IsNullOrWhiteSpace(catalog.current_400v) ? "0" : catalog.current_400v;
+        catalog.current_415v = string.IsNullOrWhiteSpace(catalog.current_415v) ? "0" : catalog.current_415v;
+        catalog.current_lrc = string.IsNullOrWhiteSpace(catalog.current_lrc) ? "0" : catalog.current_lrc;
+        catalog.efficiency_1_2 = string.IsNullOrWhiteSpace(catalog.efficiency_1_2) ? "0" : catalog.efficiency_1_2;
+        catalog.efficiency_3_4 = string.IsNullOrWhiteSpace(catalog.efficiency_3_4) ? "0" : catalog.efficiency_3_4;
+        catalog.efficiency_full = string.IsNullOrWhiteSpace(catalog.efficiency_full) ? "0" : catalog.efficiency_full;
+        catalog.frame_size = string.IsNullOrWhiteSpace(catalog.frame_size) ? "Unknown" : catalog.frame_size;
+        catalog.full_load_rpm = string.IsNullOrWhiteSpace(catalog.full_load_rpm) ? "0" : catalog.full_load_rpm;
+        catalog.motor_type = string.IsNullOrWhiteSpace(catalog.motor_type) ? "Unknown" : catalog.motor_type;
+        catalog.output_hp = string.IsNullOrWhiteSpace(catalog.output_hp) ? "0" : catalog.output_hp;
+        catalog.output_kw = string.IsNullOrWhiteSpace(catalog.output_kw) ? "0" : catalog.output_kw;
+        catalog.power_factor_1_2 = string.IsNullOrWhiteSpace(catalog.power_factor_1_2) ? "0" : catalog.power_factor_1_2;
+        catalog.power_factor_3_4 = string.IsNullOrWhiteSpace(catalog.power_factor_3_4) ? "0" : catalog.power_factor_3_4;
+        catalog.power_factor_full = string.IsNullOrWhiteSpace(catalog.power_factor_full) ? "0" : catalog.power_factor_full;
+        catalog.product_name = string.IsNullOrWhiteSpace(catalog.product_name) ? "Unknown" : catalog.product_name;
+        catalog.source_page = string.IsNullOrWhiteSpace(catalog.source_page) ? "Unknown" : catalog.source_page;
+        catalog.torque_break_down = string.IsNullOrWhiteSpace(catalog.torque_break_down) ? "0" : catalog.torque_break_down;
+        catalog.torque_full = string.IsNullOrWhiteSpace(catalog.torque_full) ? "0" : catalog.torque_full;
+        catalog.torque_locked_rotor = string.IsNullOrWhiteSpace(catalog.torque_locked_rotor) ? "0" : catalog.torque_locked_rotor;
+        catalog.torque_pull_up = string.IsNullOrWhiteSpace(catalog.torque_pull_up) ? "0" : catalog.torque_pull_up;
+        catalog.torque_rotor_gd2 = string.IsNullOrWhiteSpace(catalog.torque_rotor_gd2) ? "0" : catalog.torque_rotor_gd2;
+        catalog.url = string.IsNullOrWhiteSpace(catalog.url) ? "Unknown" : catalog.url;
+        catalog.weight_kg = string.IsNullOrWhiteSpace(catalog.weight_kg) ? "0" : catalog.weight_kg;
 
-        // Xử lý upload ảnh
+        // Handle image upload
         if (imageFiles != null && imageFiles.Count > 0)
         {
-            catalog.Image = new List<string>(); // Đảm bảo danh sách không null
-
-            foreach (var imageFile in imageFiles)
+            var uploadParams = new ImageUploadParams
             {
-                var uploadParams = new ImageUploadParams
-                {
-                    File = new FileDescription(imageFile.FileName, imageFile.OpenReadStream()),
-                    PublicId = $"motor_catalog/{Guid.NewGuid()}",
-                    Overwrite = true
-                };
+                File = new FileDescription(imageFiles[0].FileName, imageFiles[0].OpenReadStream()),
+                PublicId = $"motor_catalog/{Guid.NewGuid()}",
+                Overwrite = true
+            };
 
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-                {
-                    catalog.Image.Add(uploadResult.SecureUrl.ToString());
-                }
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                catalog.image_url = uploadResult.SecureUrl.ToString();
             }
         }
 
@@ -107,7 +117,7 @@ public class AdminController : Controller
         var catalogs = await _catalogService.GetAllAsync();
         foreach (var item in catalogs)
         {
-            Console.WriteLine($"Id: {item.Id}, Technology: {item.Technology}");
+            Console.WriteLine($"Id: {item.Id}, Motor Type: {item.motor_type}");
         }
         return View(catalogs);
     }
@@ -158,30 +168,13 @@ public class AdminController : Controller
         var filteredCatalogs = catalogs
             .Where(m =>
             {
-                double motorPower = ExtractKW(m.Power);
-                int motorSpeed = ExtractPoles(m.Speed);
-                double baseSpeed = motorSpeed;
-                return motorPower >= requiredMotorEfficiency && baseSpeed >= minSpeed && baseSpeed <= maxSpeed;
+                double motorPower = double.Parse(m.output_kw);
+                double motorSpeed = double.Parse(m.full_load_rpm);
+                return motorPower >= requiredMotorEfficiency && motorSpeed >= minSpeed && motorSpeed <= maxSpeed;
             })
             .ToList();
 
         Console.WriteLine($"Số động cơ phù hợp: {filteredCatalogs.Count}");
         return Ok(filteredCatalogs);
-    }
-
-    // Hàm trích xuất số KW từ chuỗi dạng "0.75kw/1HP" hoặc "22KW/30HP"
-    private double ExtractKW(string powerString)
-    {
-        if (string.IsNullOrEmpty(powerString)) return 0;
-
-        var match = Regex.Match(powerString, @"(\d+(\.\d+)?)\s*(KW|kw|kW)");
-        return match.Success ? double.Parse(match.Groups[1].Value) : 0;
-    }
-
-    private int ExtractPoles(string polesString)
-    {
-        if (string.IsNullOrEmpty(polesString)) return 0;
-
-        return int.Parse(polesString);
     }
 }

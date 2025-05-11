@@ -8,70 +8,136 @@
 
 <form asp-action="AddMotorManual" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="motor_id" />
 
     <div class="mb-3">
-        <label class="form-label">URL</label>
-        <input type="text" class="form-control" asp-for="URL" readonly />
+        <label class="form-label">Brand <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="brand" required />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Power <span class="text-danger">*</span> </label>
-        <input type="text" class="form-control" asp-for="Power" required />
+        <label class="form-label">Category</label>
+        <input type="text" class="form-control" asp-for="category" value="Motor" readonly />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Model <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" asp-for="Model" required />
+        <label class="form-label">Product Name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="product_name" required />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Voltage <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" asp-for="Voltage" required />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Speed</label>
-        <input type="text" class="form-control" asp-for="Speed" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Standard</label>
-        <input type="text" class="form-control" asp-for="Standard" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Material</label>
-        <input type="text" class="form-control" asp-for="Material" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Protection</label>
-        <input type="text" class="form-control" asp-for="Protection" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Shaft Diameter</label>
-        <input type="text" class="form-control" asp-for="ShaftDiameter" />
+        <label class="form-label">Motor Type</label>
+        <input type="text" class="form-control" asp-for="motor_type" />
     </div>
 
     <div class="mb-3">
         <label class="form-label">Frame Size</label>
-        <input type="text" class="form-control" asp-for="FrameSize" />
+        <input type="text" class="form-control" asp-for="frame_size" />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Mounting Type</label>
-        <input type="text" class="form-control" asp-for="MountingType" />
+        <label class="form-label">Output Power (kW) <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="output_kw" required />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Footprint</label>
-        <input type="text" class="form-control" asp-for="Footprint" />
+        <label class="form-label">Output Power (HP)</label>
+        <input type="text" class="form-control" asp-for="output_hp" />
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Technology</label>
-        <input type="text" class="form-control" asp-for="Technology" />
+        <label class="form-label">Full Load RPM</label>
+        <input type="text" class="form-control" asp-for="full_load_rpm" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Current at 380V</label>
+        <input type="text" class="form-control" asp-for="current_380v" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Current at 400V</label>
+        <input type="text" class="form-control" asp-for="current_400v" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Current at 415V</label>
+        <input type="text" class="form-control" asp-for="current_415v" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">LRC Current</label>
+        <input type="text" class="form-control" asp-for="current_lrc" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Efficiency at 1/2 Load</label>
+        <input type="text" class="form-control" asp-for="efficiency_1_2" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Efficiency at 3/4 Load</label>
+        <input type="text" class="form-control" asp-for="efficiency_3_4" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Efficiency at Full Load <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="efficiency_full" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Power Factor at 1/2 Load</label>
+        <input type="text" class="form-control" asp-for="power_factor_1_2" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Power Factor at 3/4 Load</label>
+        <input type="text" class="form-control" asp-for="power_factor_3_4" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Power Factor at Full Load</label>
+        <input type="text" class="form-control" asp-for="power_factor_full" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Breakdown Torque</label>
+        <input type="text" class="form-control" asp-for="torque_break_down" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Full Load Torque</label>
+        <input type="text" class="form-control" asp-for="torque_full" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Locked Rotor Torque</label>
+        <input type="text" class="form-control" asp-for="torque_locked_rotor" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Pull-up Torque</label>
+        <input type="text" class="form-control" asp-for="torque_pull_up" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Rotor GD²</label>
+        <input type="text" class="form-control" asp-for="torque_rotor_gd2" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Weight (kg)</label>
+        <input type="text" class="form-control" asp-for="weight_kg" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Source Page</label>
+        <input type="text" class="form-control" asp-for="source_page" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">URL</label>
+        <input type="text" class="form-control" asp-for="url" />
     </div>
 
     <!-- Upload ảnh -->
@@ -79,7 +145,6 @@
         <label class="form-label">Hình ảnh</label>
         <input type="file" class="form-control" name="imageFiles" multiple />
     </div>
-
 
     <button type="submit" class="btn btn-primary">Thêm</button>
 </form>
