@@ -4,6 +4,8 @@ using QuestPDF.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using DADN.Controllers;
 using DADN.Models;
+using System.Net;
+using System.Text.RegularExpressions;
 
 public class PdfExportService
 {
@@ -106,17 +108,17 @@ public class PdfExportService
                                     // Power column
                                     var pow = double.Parse(values[0].Split('=')[1].Trim().Split(" ")[0]);
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                        .Text((Math.Ceiling(pow*100)/100).ToString());
+                                        .Text((Math.Ceiling(pow * 100) / 100).ToString());
 
                                     // Speed column
                                     var spd = double.Parse(values[1].Split('=')[1].Trim().Split(" ")[0]);
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                        .Text((Math.Ceiling(spd*100)/100).ToString());
+                                        .Text((Math.Ceiling(spd * 100) / 100).ToString());
 
                                     // Torque column
                                     var tor = double.Parse(values[2].Split('=')[1].Trim().Split(" ")[0]);
                                     torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                        .Text((Math.Ceiling(tor*100)/100).ToString());
+                                        .Text((Math.Ceiling(tor * 100) / 100).ToString());
                                 }
                             });
                         }
@@ -141,65 +143,122 @@ public class PdfExportService
                                         header.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Value").Bold();
                                     });
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Technology");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Technology);
+                                // Basic Information
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Brand");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.brand);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Power");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Power);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Category");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.category);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Model");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Model);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Product Name");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.product_name);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Motor Type");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.motor_type);
 
                                 table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Frame Size");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.FrameSize);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.frame_size);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Speed");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Speed);
+                                // Power and Speed
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Output Power (kW)");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.output_kw);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Standard");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Standard);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Output Power (HP)");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.output_hp);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Voltage");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Voltage);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Full Load RPM");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.full_load_rpm);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Mounting Type");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.MountingType);
+                                // Current Ratings
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Current at 380V");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.current_380v);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Material");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Material);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Current at 400V");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.current_400v);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Protection");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.Protection);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Current at 415V");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.current_415v);
 
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Shaft Diameter");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.ShaftDiameter);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("LRC Current");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.current_lrc);
+
+                                // Efficiency
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Efficiency at 1/2 Load");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.efficiency_1_2);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Efficiency at 3/4 Load");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.efficiency_3_4);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Efficiency at Full Load");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.efficiency_full);
+
+                                // Power Factor
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Power Factor at 1/2 Load");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.power_factor_1_2);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Power Factor at 3/4 Load");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.power_factor_3_4);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Power Factor at Full Load");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.power_factor_full);
+
+                                // Torque
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Breakdown Torque");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.torque_break_down);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Full Load Torque");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.torque_full);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Locked Rotor Torque");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.torque_locked_rotor);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Pull-up Torque");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.torque_pull_up);
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Rotor GD²");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.torque_rotor_gd2);
+
+                                // Additional Information
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Weight (kg)");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(motorCatalog.weight_kg);
 
                                 table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("URL");
-                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Hyperlink(motorCatalog.URL).Text("Xem").FontColor(Colors.Blue.Lighten2);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Hyperlink(motorCatalog.url).Text("Xem").FontColor(Colors.Blue.Lighten2);
                             });
+
 
                             // In danh sách hình ảnh
                             column.Item().Text("Engine Images:");
 
-                            if (content.Motor.Image != null && content.Motor.Image.Any())
+                            if (!string.IsNullOrEmpty(motorCatalog.Image))
                             {
-                                foreach (var imageData in content.Motor.Image)
+                                try
                                 {
-                                    try
-                                    {
-                                        byte[] imageBytes = Convert.FromBase64String(imageData);
-                                        column.Item().Width(2,Unit.Inch).Image(imageBytes);
-                                    }
-                                    catch
-                                    {
-                                        column.Item().Text("Không tải được ảnh");
-                                    }
+                                    byte[] imageBytes = Convert.FromBase64String(motorCatalog.Image);
+                                    column.Item().Width(2, Unit.Inch).Image(imageBytes);
+                                }
+                                catch
+                                {
+                                    column.Item().Text("Không tải được ảnh");
                                 }
                             }
                             else
                             {
                                 column.Item().Text("Không có ảnh");
                             }
+
+                            column.Item().Text("Sectional Images:");
+
+                            var imagePath = FindMatchingImage(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "assets/images/CatalogImg"), motorCatalog.product_name, motorCatalog.frame_size);
+                            if (imagePath != null)
+                            {
+                                column.Item().Width(2, Unit.Inch).Image(imagePath);
+                            }
+                            else
+                            {
+                                column.Item().Text("Không tìm thấy ảnh");
+                            }
+
                         }
 
                         column.Item().PaddingTop(30);
@@ -308,7 +367,7 @@ public class PdfExportService
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Kích thước");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh lớn"]["Kích thước"].ToString());
                         });
-                        
+
                         column.Item().PaddingTop(30);
                         column.Item().PaddingTop(20).Text("Thông số ứng xuất").FontSize(16).Bold();
                         column.Item().PaddingTop(10);
@@ -342,22 +401,22 @@ public class PdfExportService
 
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Oflim2");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Oflim2"].ToString());
-                            
+
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Sf");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Sf"].ToString());
 
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("HB1");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["HB1"].ToString());
-                            
+
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("HB2");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["HB2"].ToString());
-                            
+
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Nho1");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Nho1"].ToString());
-                            
+
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Nho2");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Nho2"].ToString());
-                            
+
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Nfo");
                             table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.dauVaoUngSuat["Nfo"].ToString());
                         });
@@ -380,4 +439,46 @@ public class PdfExportService
 
 
     // }
+
+    public static string? FindMatchingImage(string imagesDirectory, string productCode, string frameSize)
+    {
+        try
+        {
+            var files = Directory.GetFiles(imagesDirectory, "*.png");
+            int userFrame = ExtractFrameNumber(frameSize);
+
+            foreach (var file in files)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file);
+                string[] parts = fileName.Split('-');
+
+                if (parts.Length < 5) continue;
+
+                string fileProductCode = parts[2];
+                string startFrame = parts[3];
+                string endFrame = parts[4];
+
+                if (!string.Equals(fileProductCode, productCode, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                int start = ExtractFrameNumber(startFrame);
+                int end = ExtractFrameNumber(endFrame);
+
+                if (userFrame >= start && userFrame <= end)
+                    return file;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error finding matching image: {ex.Message}");
+        }
+
+        return null;
+    }
+
+    private static int ExtractFrameNumber(string frame)
+    {
+        var match = Regex.Match(frame, @"\d+");
+        return match.Success ? int.Parse(match.Value) : -1;
+    }
 }
