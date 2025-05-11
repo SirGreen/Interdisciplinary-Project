@@ -7,7 +7,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Tính thông số</h4>
+                <h4 class="card-title mb-0 flex-grow-1">Tính thông số động cơ</h4>
             </div><!-- end card header -->
             <div class="card-body align-items-center d-flex">
                 <!-- With Controls -->
@@ -90,21 +90,33 @@
                     <table class="table table-bordered table-hover">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
-                                <th>#</th>
-                                <th>Ảnh</th>
-                                <th>Model</th>
-                                <th>Công suất</th>
-                                <th>Điện áp</th>
-                                <th>Tốc độ quay</th>
-                                <th>Kích thước khung</th>
-                                <th>Chất liệu</th>
-                                <th>Bảo vệ</th>
-                                <th>Tiêu chuẩn</th>
-                                <th>Kiểu lắp đặt</th>
-                                <th>Đường kính trục</th>
-                                <th>Footprint</th>
-                                <th>Công nghệ</th>
-                                <th>Chi tiết</th>
+                                <th style="width: 50px;">STT</th>
+                                <th style="width: 150px;">Hình ảnh</th>
+                                <th>Brand</th>
+                                <th>Category</th>
+                                <th>Product Name</th>
+                                <th>Motor Type</th>
+                                <th>Frame Size</th>
+                                <th>Output (kW)</th>
+                                <th>Output (HP)</th>
+                                <th>Full Load RPM</th>
+                                <th>Current (380V)</th>
+                                <th>Current (400V)</th>
+                                <th>Current (415V)</th>
+                                <th>LRC Current</th>
+                                <th>Efficiency (1/2)</th>
+                                <th>Efficiency (3/4)</th>
+                                <th>Efficiency (Full)</th>
+                                <th>Power Factor (1/2)</th>
+                                <th>Power Factor (3/4)</th>
+                                <th>Power Factor (Full)</th>
+                                <th>Breakdown Torque</th>
+                                <th>Full Load Torque</th>
+                                <th>Locked Rotor Torque</th>
+                                <th>Pull-up Torque</th>
+                                <th>Rotor GD²</th>
+                                <th>Weight (kg)</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="catalogTableBody">
@@ -122,7 +134,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Tính thông số</h4>
+                <h4 class="card-title mb-0 flex-grow-1">Tính thông số bộ truyền xích</h4>
             </div><!-- end card header -->
             <div class="card-body align-items-center d-flex">
                 <!-- With Controls -->
@@ -182,12 +194,38 @@
     </div>
 </div>
 
+<!--Hiển thị kq bộ truyền xích -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Thông số bộ truyền xích</h4>
+            </div>
+            <div class="card-body align-items-center d-flex">
+                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                    <table class="table table-bordered table-hover w-100" id="chain-table">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Tính toán bộ truyền</h4>
+                <h4 class="card-title mb-0 flex-grow-1">Tính toán bộ truyền bánh răng</h4>
             </div>
             <div class="card-body">
                 <form action="javascript:void(0);" class="w-100">
@@ -250,10 +288,21 @@
                         </div>
 
                         <!-- Ứng suất cho phép -->
-                        <div class="col-6 mt-3">
+                        <div class="col-4 mt-3">
                             <label>Ứng suất tiếp xúc cho phép [MPa]</label>
                             <input id="ohAllow" type="number" class="form-control" readonly>
                         </div>
+
+                        <div class="col-4 mt-3">
+                            <label>Ứng suất uốn cho phép [MPa]</label>
+                            <input id="oh2Allow" type="number" class="form-control" readonly>
+                        </div>
+
+                        <div class="col-4 mt-3">
+                            <label>Kiểm tra bôi trơn</label>
+                            <input id="boitron" type="text" class="form-control" readonly>
+                        </div>
+
 
                     </div>
                 </form>
@@ -262,6 +311,58 @@
     </div>
 </div>
 
+
+<!-- TODO b20 cấp nhanh -->
+<!--Hiển thị kq bánh răng -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Thông số bánh răng cấp nhanh</h4>
+            </div>
+            <div class="card-body align-items-center d-flex">
+                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                    <table class="table table-bordered table-hover w-100" id="fastgear-table">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gearfast-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TODO b21 cấp chậm -->
+<!--Hiển thị kq bánh răng -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Thông số bánh răng cấp chậm</h4>
+            </div>
+            <div class="card-body align-items-center d-flex">
+                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                    <table class="table table-bordered table-hover w-100" id="slowgear-table">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gearslow-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!-- /////////////////////////////////////////// -->
@@ -314,7 +415,7 @@
                 pdfContent = data;
                 console.log("data: ", data);
 
-                // Gán các giá trị đầu ra
+                // thông số động cơ
                 document.getElementById("overloadFactor").value = data.overloadFactor || "";
                 document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
                 document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
@@ -323,6 +424,7 @@
                 document.getElementById("Un").value = data.un || "";
                 document.getElementById("MomenSoVongQuay").value = data.momenSoVongQuay || "";
 
+                // thông số xích
                 document.getElementById("pitch").value = data.pitch || "";
                 document.getElementById("shaftDistance").value = data.shaftDistance || "";
                 document.getElementById("chainSafe").value = data.chainSafe ? "Đạt" : "Không đạt";
@@ -330,7 +432,8 @@
                 document.getElementById("contactStrength").value = data.contactStrength || "";
                 document.getElementById("shaftForce").value = data.shaftForce || "";
 
-
+                // gọi hàm hiển thị bảng xích
+                renderChainTable(data);
 
                 // Sửa tên đúng: vatLieuBoTruyen (viết thường)
                 const vl = data.vatLieuBoTruyen;
@@ -362,6 +465,17 @@
 
                 // Ứng suất tiếp xúc cho phép
                 document.getElementById("ohAllow").value = data.ungSuatTiepXucChoPhep || "";
+                document.getElementById("oh2Allow").value = data.ungSuatUonChoPhep || "";
+                const capnhanh = data.tinhBanhRangCapNhanh;
+                const capcham = data.tinhBanhRangCapCham;
+                //console.log("CapNhanh1", capnhanh);
+                renderGearFastTable(capnhanh);
+                renderGearSlowTable(capcham);
+
+                const ktraboitron = data.kiemTraBoiTron; // biến bool
+                const trangThaiBoiTron = ktraboitron ? "Đã bôi trơn" : "Chưa bôi trơn";
+                document.getElementById("boitron").value = trangThaiBoiTron;
+
 
                 if (data.requiredMotorEfficiency && data.nsbSpeed) {
                     getFilteredCatalogs(data.requiredMotorEfficiency, data.nsbSpeed)
@@ -403,6 +517,135 @@
     });
 
 
+    function renderChainTable(data) {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = ""; // Clear nội dung cũ
+
+        const rows = [
+            { label: "Số bánh răng dẫn", value: data.soRangDan ?? "chưa tính" },
+            { label: "Số bánh răng bị dẫn", value: data.soRangBiDan ?? "chưa tính" },
+            { label: "Bước xích (mm)", value: data.pitch ?? "chưa tính" },
+            { label: "Chiều dài ống lót (mm)", value: data.ongLot ?? "chưa tính" },
+            { label: "Đường kính chốt (mm)", value: data.duongKinhChot ?? "chưa tính" },
+            { label: "Số mắt xích", value: data.soMatXich ?? "chưa tính" },
+            { label: "Khoảng cách trục (mm)", value: data.shaftDistance ?? "chưa tính" },
+            { label: "Đường kính vòng chia đĩa dẫn (mm)", value: data.diaDan ?? "chưa tính" },
+            { label: "Đường kính vòng chia đĩa bị dẫn (mm)", value: data.diaBiDan ?? "chưa tính" },
+            { label: "Lực tác dụng lên trục (N)", value: data.shaftForce ?? "chưa tính" },
+            { label: "Vật liệu đĩa 1", value: data.vatLieuDia1 ?? "chưa tính" },
+            { label: "Vật liệu đĩa 2", value: data.vatLieuDia2 ?? "chưa tính" },
+        ];
+
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.label}</strong></td>
+                <td>${row.value}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function renderGearFastTable(data) {
+        console.log("CapNhanh", data);
+        const tableBody = document.getElementById("gearfast-body");
+        tableBody.innerHTML = ""; // Xóa bảng cũ
+
+        if (!data || typeof data !== "object" || Object.keys(data).length === 0) {
+            console.warn("Dữ liệu CapNhanh không hợp lệ:", data);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td colspan="2">Không có dữ liệu để hiển thị</td>`;
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        // Chuyển tất cả key về lowercase để tránh lỗi key viết hoa/thường khác nhau
+        const normalizedData = {};
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                normalizedData[key.toLowerCase()] = data[key];
+            }
+        }
+
+        const getValue = (key, unit = "", suffix = "") =>
+            normalizedData[key] !== undefined ? `${normalizedData[key]}${unit}` : `chưa tính${suffix}`;
+
+        const rows = [
+            { label: "Khoảng cách trục (mm)", value: `aw = ${getValue("aw")}` },
+            { label: "Modul pháp (mm)", value: `m = ${getValue("m")}` },
+            { label: "Chiều rộng vành răng (mm)", value: `bw = ${getValue("bw")}` },
+            { label: "Tỷ số truyền", value: `um = ${getValue("um")}` },
+            { label: "Góc nghiêng răng (°)", value: `β = ${getValue("gocnghieng", "°")}` },
+            { label: "Số răng bánh răng", value: `z₁ = ${getValue("z1")}, z₂ = ${getValue("z2")}` },
+            { label: "Hệ số dịch chỉnh", value: `x₁ = ${getValue("x1")}, x₂ = ${getValue("x2")}` },
+            { label: "Đường kính vòng chia (mm)", value: `d₁ = ${getValue("d1")}, d₂ = ${getValue("d2")}` },
+            { label: "Đường kính đỉnh răng (mm)", value: `da₁ = ${getValue("da1")}, da₂ = ${getValue("da2")}` },
+            { label: "Đường kính đáy răng (mm)", value: `df₁ = ${getValue("df1")}, df₂ = ${getValue("df2")}` },
+            { label: "Đường kính vòng lăn (mm)", value: `dw₁ = ${getValue("dw1")}, dw₂ = ${getValue("dw2")}` }
+        ];
+
+        for (const row of rows) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.label}</strong></td>
+                <td>${row.value}</td>
+            `;
+            tableBody.appendChild(tr);
+        }
+    }
+
+
+    function renderGearSlowTable(data) {
+        console.log("CapCham", data);
+        const tableBody = document.getElementById("gearslow-body");
+        tableBody.innerHTML = ""; // Xóa bảng cũ
+
+        if (!data || typeof data !== "object" || Object.keys(data).length === 0) {
+            console.warn("Dữ liệu CapCham không hợp lệ:", data);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td colspan="2">Không có dữ liệu để hiển thị</td>`;
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        const normalizedData = {};
+        for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+                normalizedData[key.toLowerCase()] = data[key];
+            }
+        }
+
+        const getValue = (key, unit = "", suffix = "") =>
+            normalizedData[key] != null ? `${normalizedData[key]}${unit}` : `Chưa có${suffix}`;
+
+        const rows = [
+            { label: "Khoảng cách trục (mm)", value: `aw = ${getValue("aw")}` },
+            { label: "Modul pháp (mm)", value: `m = ${getValue("m")}` },
+            { label: "Chiều rộng vành răng (mm)", value: `bw = ${getValue("bw")}` },
+            { label: "Tỷ số truyền", value: `um = ${getValue("um")}` },
+            { label: "Góc nghiêng răng (°)", value: `β = ${getValue("gocnghieng", "°")}` },
+            { label: "Số răng bánh răng", value: `z₁ = ${getValue("z1")}, z₂ = ${getValue("z2")}` },
+            { label: "Hệ số dịch chỉnh", value: `x₁ = ${getValue("x1")}, x₂ = ${getValue("x2")}` },
+            { label: "Đường kính vòng chia (mm)", value: `d₁ = ${getValue("d1")}, d₂ = ${getValue("d2")}` },
+            { label: "Đường kính đỉnh răng (mm)", value: `da₁ = ${getValue("da1")}, da₂ = ${getValue("da2")}` },
+            { label: "Đường kính đáy răng (mm)", value: `df₁ = ${getValue("df1")}, df₂ = ${getValue("df2")}` },
+            { label: "Đường kính vòng lăn (mm)", value: `dw₁ = ${getValue("dw1")}, dw₂ = ${getValue("dw2")}` }
+        ];
+
+        for (const row of rows) {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.label}</strong></td>
+                <td>${row.value}</td>
+            `;
+            tableBody.appendChild(tr);
+        }
+    }
+
+
+
+
+
     let catalogs = null;
     function getFilteredCatalogs(requiredMotorEfficiency, NsbSpeed) {
         // Gọi API với 2 tham số
@@ -426,49 +669,60 @@
         tableBody.innerHTML = ""; // Xóa dữ liệu cũ
 
         if (!catalogs || catalogs.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="15" class="text-center">Không có động cơ phù hợp!</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="27" class="text-center">Không có động cơ phù hợp!</td></tr>`;
             return;
         }
 
         catalogs.forEach((item, index) => {
-            // Kiểm tra nếu ImageUrls tồn tại và có ảnh
+            // Kiểm tra nếu Image tồn tại
             let imagesHtml = "";
-            if (item.image && Array.isArray(item.image) && item.image.length > 0) {
-                imagesHtml = `<div class="d-flex flex-wrap">` +
-                    item.image.slice(0, 3).map(url =>
-                        `<img src="${url}" alt="Hình ảnh ${item.model}" class="img-thumbnail" width="70" height="70" style="margin: 2px; object-fit: cover;">`
-                    ).join("") +
-                    `</div>`;
+            if (item.image_url) {
+                imagesHtml = `<div class="d-flex flex-wrap">
+                    <img src="${item.image_url}" alt="Hình ảnh ${item.product_name}" class="img-thumbnail" width="70" height="70" style="margin: 2px; object-fit: cover;">
+                </div>`;
             } else {
                 imagesHtml = `<span class="text-muted">Không có ảnh</span>`;
             }
 
             let row = `<tr id="motor-${index}">
-        <td>${index + 1}</td>
-        <td>${imagesHtml}</td>
-        <td>${item.model || "Không có dữ liệu"}</td>
-        <td>${item.power || "Không có dữ liệu"}</td>
-        <td>${item.voltage || "Không có dữ liệu"}</td>
-        <td>${item.speed || "Không có dữ liệu"}</td>
-        <td>${item.frameSize || "Không có dữ liệu"}</td>
-        <td>${item.material || "Không có dữ liệu"}</td>
-        <td>${item.protection || "Không có dữ liệu"}</td>
-        <td>${item.standard || "Không có dữ liệu"}</td>
-        <td>${item.mountingType || "Không có dữ liệu"}</td>
-        <td>${item.shaftDiameter || "Không có dữ liệu"}</td>
-        <td>${item.footprint || "Không có dữ liệu"}</td>
-        <td>${item.technology || "Không có dữ liệu"}</td>
-        <td class="d-flex">
-            <a href="${item.url || "#"}" target="_blank" class="btn btn-sm view-button"></a>
-            <button class="btn btn-sm check-button" onclick="selectMotor(${index})"></button>
-        </td>
-    </tr>`;
+                <td>${index + 1}</td>
+                <td>${imagesHtml}</td>
+                <td>${item.brand || "Không có dữ liệu"}</td>
+                <td>${item.category || "Không có dữ liệu"}</td>
+                <td>${item.product_name || "Không có dữ liệu"}</td>
+                <td>${item.motor_type || "Không có dữ liệu"}</td>
+                <td>${item.frame_size || "Không có dữ liệu"}</td>
+                <td>${item.output_kw || "Không có dữ liệu"}</td>
+                <td>${item.output_hp || "Không có dữ liệu"}</td>
+                <td>${item.full_load_rpm || "Không có dữ liệu"}</td>
+                <td>${item.current_380v || "Không có dữ liệu"}</td>
+                <td>${item.current_400v || "Không có dữ liệu"}</td>
+                <td>${item.current_415v || "Không có dữ liệu"}</td>
+                <td>${item.current_lrc || "Không có dữ liệu"}</td>
+                <td>${item.efficiency_1_2 || "Không có dữ liệu"}</td>
+                <td>${item.efficiency_3_4 || "Không có dữ liệu"}</td>
+                <td>${item.efficiency_full || "Không có dữ liệu"}</td>
+                <td>${item.power_factor_1_2 || "Không có dữ liệu"}</td>
+                <td>${item.power_factor_3_4 || "Không có dữ liệu"}</td>
+                <td>${item.power_factor_full || "Không có dữ liệu"}</td>
+                <td>${item.torque_break_down || "Không có dữ liệu"}</td>
+                <td>${item.torque_full || "Không có dữ liệu"}</td>
+                <td>${item.torque_locked_rotor || "Không có dữ liệu"}</td>
+                <td>${item.torque_pull_up || "Không có dữ liệu"}</td>
+                <td>${item.torque_rotor_gd2 || "Không có dữ liệu"}</td>
+                <td>${item.weight_kg || "Không có dữ liệu"}</td>
+                <td>
+                    <a href="${item.url || "#"}" target="_blank" class="btn btn-primary btn-sm">Xem</a>
+                    <button class="btn btn-success btn-sm" onclick="selectMotor(${index})">Chọn</button>
+                </td>
+            </tr>`;
+
 
             tableBody.innerHTML += row;
         });
     }
 
-    const fs = require('fs');
+    @* const fs = require('fs'); *@
     const axios = require('axios');
     const path = require('path');
 
@@ -500,7 +754,7 @@
             @* const imageName = path.basename(imageUrl);
             const imagePath = path.join(__dirname, 'images', imageName); *@
 
-            @* // Lưu ảnh vào thư mục images
+                @* // Lưu ảnh vào thư mục images
             const buffer = await response.buffer();
             await fs.promises.writeFile(imagePath, buffer);
             console.log(`Image saved to ${imagePath}`); *@
@@ -516,55 +770,136 @@
     }
 
     async function selectMotor(index) {
+        console.log("===== Starting selectMotor =====");
         const selectedMotor = catalogs[index];
+        console.log("Selected motor:", selectedMotor);
 
         // Kiểm tra và tải ảnh nếu cần
-        if (selectedMotor.image && selectedMotor.image.length > 0) {
-            const imageBase64s = [];
+        if (selectedMotor.image_url) {
+            console.log("Found image URL:", selectedMotor.image_url);
+            try {
+                console.log("Attempting to download image...");
+                const imageData = await downloadAndSaveImage(selectedMotor.image_url);
+                console.log("Image downloaded successfully, base64 length:", imageData?.length);
 
-            // Tải và lưu tất cả các ảnh
-            for (const imageUrl of selectedMotor.image) {
-                try {
-                    const imageData = await downloadAndSaveImage(imageUrl);
-                    if (imageData) {
-                        imageBase64s.push(imageData);  // lưu image thành base64 string
-                    }
-                } catch (error) {
-                    console.error('Error downloading image:', error);
+                if (imageData) {
+                    console.log("Creating pdfContent.Motor with image data");
+                    // Cập nhật pdfContent.Motor với data ảnh đã tải về (chỉ dùng cho PDF)
+                    pdfContent.Motor = {
+                        ...selectedMotor,
+                        Image: imageData // Lưu ảnh vào Image (viết hoa)
+                    };
+                    console.log("pdfContent.Motor updated with image data");
                 }
+            } catch (error) {
+                console.error('Error downloading image:', error);
+                console.log("Falling back to original motor data without image");
+                // Nếu có lỗi khi tải ảnh, vẫn giữ nguyên dữ liệu motor
+                pdfContent.Motor = selectedMotor;
             }
-
-            // Cập nhật pdfContent.Motor với data ảnh đã tải về (chỉ dùng cho PDF)
-            pdfContent.Motor = {
-                ...selectedMotor,
-                image: imageBase64s
-            };
         } else {
+            console.log("No image found in selected motor");
             // Nếu không có ảnh, giữ nguyên dữ liệu cũ
             pdfContent.Motor = selectedMotor;
         }
 
+        console.log("Final pdfContent.Motor:", pdfContent.Motor);
         // Render lại bảng chỉ với 1 motor (dữ liệu gốc)
         renderCatalogTable([selectedMotor]);
+        console.log("===== Finished selectMotor =====");
     }
 
     function ExportPDF() {
-        console.log(pdfContent);
+        console.log("Starting PDF export process...");
+        console.log("PDF Content:", pdfContent);
+
+        // Kiểm tra dữ liệu trước khi gửi
+        if (!pdfContent) {
+            alert("Không có dữ liệu để xuất PDF!");
+            return;
+        }
+
+        // Kiểm tra các dữ liệu bắt buộc
+        const missingData = [];
+
+        // Kiểm tra thông số motor
+        if (!pdfContent.Motor) {
+            missingData.push("Thông tin động cơ");
+        } else {
+            if (!pdfContent.Motor.product_name) missingData.push("Tên sản phẩm động cơ");
+            if (!pdfContent.Motor.frame_size) missingData.push("Kích thước khung động cơ");
+            if (!pdfContent.Motor.Image) missingData.push("Hình ảnh động cơ");
+        }
+
+        // Nếu có dữ liệu thiếu, hiển thị thông báo
+        if (missingData.length > 0) {
+            const message = "Thiếu các thông tin sau:\n" + missingData.join("\n");
+            alert(message);
+            console.error("Missing data:", missingData);
+            return;
+        }
+
+        // Chuẩn bị và validate dữ liệu
+        const exportData = {
+            ...pdfContent,
+            // Đảm bảo các trường số là số
+            contactStrength: parseInt(pdfContent.contactStrength) || 0,
+            pitch: parseFloat(pdfContent.pitch) || 0,
+            shaftDistance: parseFloat(pdfContent.shaftDistance) || 0,
+            shaftForce: parseFloat(pdfContent.shaftForce) || 0,
+            // Chuyển chainSafe thành boolean
+            chainSafe: pdfContent.chainSafe === "Đạt" || pdfContent.chainSafe === true,
+            // Đảm bảo các trường string là string
+            diskDiameterCalc: String(pdfContent.diskDiameterCalc || ""),
+            // Thêm các trường bắt buộc nếu thiếu
+            content: "Design Report", // Luôn set giá trị mặc định
+            // Đảm bảo các trường object có giá trị mặc định
+            vatLieuBoTruyen: pdfContent.vatLieuBoTruyen || {},
+            dauVaoUngSuat: pdfContent.dauVaoUngSuat || {},
+            // Đảm bảo Motor là object
+            Motor: pdfContent.Motor || {}
+        };
+
+        console.log("Validated export data:", exportData);
 
         // Chuẩn bị dữ liệu gửi lên server
-
         fetch("/Input/ExportPdf", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(pdfContent)
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(exportData)
         })
-            .then(response => {
+            .then(async response => {
+                console.log("Server response status:", response.status);
+                console.log("Server response headers:", response.headers);
+
                 if (!response.ok) {
-                    throw new Error("Lỗi mạng hoặc backend không phản hồi!");
+                    // Đọc thông báo lỗi từ server
+                    const errorText = await response.text();
+                    console.error("Server error response:", errorText);
+
+                    let errorMessage = `Server error (${response.status}): `;
+                    try {
+                        // Thử parse JSON error message
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage += errorJson.message || errorJson.error || errorText;
+                    } catch {
+                        // Nếu không phải JSON thì dùng text trực tiếp
+                        errorMessage += errorText || response.statusText;
+                    }
+                    throw new Error(errorMessage);
                 }
                 return response.blob();
             })
             .then(blob => {
+                console.log("Received PDF blob:", blob.size, "bytes");
+
+                if (blob.size === 0) {
+                    throw new Error("Received empty PDF file");
+                }
+
                 // Gán dữ liệu vào các input field
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -574,8 +909,26 @@
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
+                console.log("PDF download completed successfully");
             })
-            .catch(error => console.error("Lỗi khi lấy dữ liệu:", error));
+            .catch(error => {
+                console.error("Error during PDF export:", error);
+
+                // Hiển thị thông báo lỗi chi tiết cho người dùng
+                let errorMessage = "Có lỗi xảy ra khi xuất PDF:\n";
+                errorMessage += error.message || "Không xác định được nguyên nhân lỗi";
+
+                // Hiển thị thông báo lỗi
+                alert(errorMessage);
+
+                // Log thêm thông tin debug
+                console.error("Error details:", {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name,
+                    timestamp: new Date().toISOString()
+                });
+            });
     }
 
     //////////////////////////////////

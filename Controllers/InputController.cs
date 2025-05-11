@@ -109,7 +109,6 @@ namespace DADN.Controllers
             });
         }
 
-
         [HttpPost("CalGear")]
         public IActionResult Calculate([FromBody] CalGearRequestModel request)
         {
@@ -129,46 +128,90 @@ namespace DADN.Controllers
                 request.tlist
             );
 
-            // Tạo bộ truyền theo loại được chọn
+            // Tạo bộ truyền theo loại được chọn (ở đây tạm thời dùng 'chain' và các thông số giả định)
             ITransmissionCalculation transmission = TransmissionFactory.CreateTransmission("chain", 7.088, 2.578, 80.561, 2.578, 840232.2606);
 
-            // Tính toán
+            // Tính toán hộp giảm tốc
             var gearboxResult = gearbox.Calculate();
-            var transmissionResult = transmission.CalChain();
-            // Tính toán
-            var truyenResult = gearbox.CalcTruyen();
+            var kq = (MomenKetQua)gearboxResult["MomenSoVongQuay"];
 
-            // Trích xuất 4 giá trị
+            var dict = new Dictionary<string, double>
+            {
+                ["n1"] = kq.N1,
+                ["u1"] = kq.U1,
+                ["T1"] = kq.T1,
+                ["n2"] = kq.N2,
+                ["u2"] = kq.U2,
+                ["T2"] = kq.T2
+            };
+
+            string momencs = kq.MoTa;
+            double Lh = request.serviceTime * 300 * request.loadN * 8;
+
+            // Tính bộ truyền bánh răng
+            var truyenResult = gearbox.CalcBoTruyen(dict, Lh);
+
             var vatlieuBoTruyen = truyenResult.GetValueOrDefault("VatLieuBoTruyen");
             var dauVaoUngSuat = truyenResult.GetValueOrDefault("DauVaoUngSuat");
             var ungSuatTiepXuc = truyenResult.GetValueOrDefault("UngSuatTiepXucChoPhep");
+            var ungSuatUon = truyenResult.GetValueOrDefault("UngSuatUonChoPhep");
+            var boiTron = truyenResult.GetValueOrDefault("KiemTraBoiTron");
             
+            // Xử lý ép kiểu an toàn sang Dictionary<string, object>
+            object tinhBanhRangCapNhanh = null;
+            object tinhBanhRangCapCham = null;
+
+
+            if (truyenResult.TryGetValue("TinhBanhRangCapNhanh", out var capNhanhRaw) && capNhanhRaw is Dictionary<string, double> capNhanhDict)
+            {
+                tinhBanhRangCapNhanh = capNhanhDict.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value);
+            }
+
+            if (truyenResult.TryGetValue("TinhBanhRangCapCham", out var capChamRaw) && capChamRaw is Dictionary<string, double> capChamDict)
+            {
+                tinhBanhRangCapCham = capChamDict.ToDictionary(kvp => kvp.Key, kvp => (object)kvp.Value);
+            }
+            // Tính bộ truyền xích
+            var transmissionResult = transmission.CalChain();
 
             return Ok(new
             {
-                // Gearbox results
+                // Kết quả gearbox - Bảng 1
                 overloadFactor = gearboxResult["overloadFactor"],
                 overallEfficiency = gearboxResult["overallEfficiency"],
                 requiredMotorEfficiency = gearboxResult["requiredMotorEfficiency"],
                 requiredMotorSpeed = gearboxResult["requiredMotorSpeed"],
                 NsbSpeed = gearboxResult["NsbSpeed"],
                 Un = gearboxResult["Un"],
-                MomenSoVongQuay = gearboxResult["MomenSoVongQuay"],
+                MomenSoVongQuay = momencs,
 
-                // Bo truyen B16–B19
+                // Bộ truyền bánh răng
                 VatLieuBoTruyen = vatlieuBoTruyen,
                 DauVaoUngSuat = dauVaoUngSuat,
                 UngSuatTiepXucChoPhep = ungSuatTiepXuc,
+                UngSuatUonChoPhep = ungSuatUon,
+                TinhBanhRangCapNhanh = tinhBanhRangCapNhanh,
+                TinhBanhRangCapCham = tinhBanhRangCapCham,
+                KiemTraBoiTron = boiTron,
 
-                // Gán giá trị mới cho form Thiết kế đĩa xích
-                pitch = transmissionResult.ContainsKey("BuocXich_p") ? transmissionResult["BuocXich_p"] : null,
-                shaftDistance = transmissionResult.ContainsKey("KhoangCachTruc_aStan") ? transmissionResult["KhoangCachTruc_aStan"] : null,
-                chainSafe = transmissionResult.ContainsKey("XichAnToan") ? transmissionResult["XichAnToan"] : null,
-                contactStrength = transmissionResult.ContainsKey("DoBenTiepXuc_Oh") ? transmissionResult["DoBenTiepXuc_Oh"] : null,
-                shaftForce = transmissionResult.ContainsKey("LucTacDungTrenTruc_Frk") ? transmissionResult["LucTacDungTrenTruc_Frk"] : null,
-                diskDiameterCalc = transmissionResult.ContainsKey("DuongKinhDiaXich_TinhToan") ? transmissionResult["DuongKinhDiaXich_TinhToan"] : null
-
+                // Bộ truyền xích - chuẩn key cho renderChainTable
+                soRangDan = transmissionResult.GetValueOrDefault("soRangDan"),
+                soRangBiDan = transmissionResult.GetValueOrDefault("soRangBiDan"),
+                pitch = transmissionResult.GetValueOrDefault("pitch"),
+                shaftDistance = transmissionResult.GetValueOrDefault("shaftDistance"),
+                chainSafe = transmissionResult.GetValueOrDefault("chainSafe"),
+                contactStrength = transmissionResult.GetValueOrDefault("contactStrength"),
+                shaftForce = transmissionResult.GetValueOrDefault("shaftForce"),
+                diskDiameterCalc = transmissionResult.GetValueOrDefault("diskDiameterCalc"),
+                ongLot = transmissionResult.GetValueOrDefault("ongLot"),
+                duongKinhChot = transmissionResult.GetValueOrDefault("duongKinhChot"),
+                soMatXich = transmissionResult.GetValueOrDefault("soMatXich"),
+                diaDan = transmissionResult.GetValueOrDefault("diaDan"),
+                diaBiDan = transmissionResult.GetValueOrDefault("diaBiDan"),
+                vatLieuDia1 = transmissionResult.GetValueOrDefault("vatLieuDia1"),
+                vatLieuDia2 = transmissionResult.GetValueOrDefault("vatLieuDia2")
             });
-        } 
+        }
+
     }
 }

@@ -10,69 +10,90 @@
     <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<table class="table table-bordered table-hover table-responsive">
-    <thead class="table-dark">
-        <tr>
-            <th style="width: 50px;">STT</th> <!-- Cột số thứ tự -->
-            <th style="width: 150px;">Hình ảnh</th>
-            <th>Model</th>
-            <th>Công suất</th>
-            <th>Điện áp</th>
-            <th>Tốc độ quay</th>
-            <th>Kích thước khung</th>
-            <th>Chất liệu</th>
-            <th>Bảo vệ</th>
-            <th>Tiêu chuẩn</th>
-            <th>Kiểu lắp đặt</th>
-            <th>Đường kính trục</th>
-            <th>Footprint</th>
-            <th>Công nghệ</th>
-            <th>Chi tiết</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (int i = 0; i < Model.Count(); i++)
-        {
-            var item = Model.ElementAt(i);
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
             <tr>
-                <td>@(i + 1)</td> <!-- Hiển thị số thứ tự -->
-                <td>
-                    @if (item.Image != null && item.Image.Any())
-                    {
-                        <div class="d-flex flex-wrap">
-                            @foreach (var imageUrl in item.Image.Take(3))
-                            {
-                                <img src="@imageUrl" alt="Hình ảnh @item.Model" class="img-thumbnail" width="70" height="70"
-                                    style="margin: 2px; object-fit: cover;">
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <span class="text-muted">Không có ảnh</span>
-                    }
-                </td>
-                <td>@item.Model</td>
-                <td>@item.Power</td>
-                <td>@item.Voltage</td>
-                <td>@item.Speed</td>
-                <td>@item.FrameSize</td>
-                <td>@item.Material</td>
-                <td>@item.Protection</td>
-                <td>@item.Standard</td>
-                <td>@item.MountingType</td>
-                <td>@item.ShaftDiameter</td>
-                <td>@item.Footprint</td>
-                <td>@item.Technology</td>
-                <td><a href="@item.URL" target="_blank" class="btn btn-sm view-button"></a></td>
-                <td>
-                    <button class="btn btn-sm delete-button" onclick="confirmDelete('@item.Id')"></button>
-                </td>
+                <th style="width: 50px;">STT</th>
+                <th style="width: 150px;">Hình ảnh</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Product Name</th>
+                <th>Motor Type</th>
+                <th>Frame Size</th>
+                <th>Output (kW)</th>
+                <th>Output (HP)</th>
+                <th>Full Load RPM</th>
+                <th>Current (380V)</th>
+                <th>Current (400V)</th>
+                <th>Current (415V)</th>
+                <th>LRC Current</th>
+                <th>Efficiency (1/2)</th>
+                <th>Efficiency (3/4)</th>
+                <th>Efficiency (Full)</th>
+                <th>Power Factor (1/2)</th>
+                <th>Power Factor (3/4)</th>
+                <th>Power Factor (Full)</th>
+                <th>Breakdown Torque</th>
+                <th>Full Load Torque</th>
+                <th>Locked Rotor Torque</th>
+                <th>Pull-up Torque</th>
+                <th>Rotor GD²</th>
+                <th>Weight (kg)</th>
+                <th>Chi tiết</th>
+                <th>Hành động</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                var item = Model.ElementAt(i);
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.image_url))
+                        {
+                            <img src="@item.image_url" alt="Hình ảnh @item.product_name" class="img-thumbnail" width="70"
+                                height="70" style="margin: 2px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <span class="text-muted">Không có ảnh</span>
+                        }
+                    </td>
+                    <td>@item.brand</td>
+                    <td>@item.category</td>
+                    <td>@item.product_name</td>
+                    <td>@item.motor_type</td>
+                    <td>@item.frame_size</td>
+                    <td>@item.output_kw</td>
+                    <td>@item.output_hp</td>
+                    <td>@item.full_load_rpm</td>
+                    <td>@item.current_380v</td>
+                    <td>@item.current_400v</td>
+                    <td>@item.current_415v</td>
+                    <td>@item.current_lrc</td>
+                    <td>@item.efficiency_1_2</td>
+                    <td>@item.efficiency_3_4</td>
+                    <td>@item.efficiency_full</td>
+                    <td>@item.power_factor_1_2</td>
+                    <td>@item.power_factor_3_4</td>
+                    <td>@item.power_factor_full</td>
+                    <td>@item.torque_break_down</td>
+                    <td>@item.torque_full</td>
+                    <td>@item.torque_locked_rotor</td>
+                    <td>@item.torque_pull_up</td>
+                    <td>@item.torque_rotor_gd2</td>
+                    <td>@item.weight_kg</td>
+                    <td><a href="@item.url" target="_blank" class="btn btn-primary btn-sm">Xem</a></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 <!-- Popup xác nhận xóa -->
 <div id="deleteModal" class="modal fade" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
