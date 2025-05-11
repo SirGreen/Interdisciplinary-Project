@@ -31,7 +31,7 @@ namespace DADN.Models
 
         public Dictionary<string, double> existingData { get; set; }
     }
-    
+
     // Model nhận dữ liệu từ request
     public class CalGearRequestModel
     {
@@ -45,6 +45,19 @@ namespace DADN.Models
         public double[] tlist { get; set; }
     }
 
+    public class MomenKetQua
+    {
+        public double N1 { get; set; }
+        public double U1 { get; set; }  // nếu có tính
+        public double T1 { get; set; }
+
+        public double N2 { get; set; }
+        public double U2 { get; set; }  // nếu có tính
+        public double T2 { get; set; }
+
+        public string MoTa { get; set; }  // nếu vẫn muốn giữ chuỗi mô tả
+    }
+
     public class TechnicalData
     {
         public double OverloadFactor { get; set; }
@@ -56,14 +69,15 @@ namespace DADN.Models
         public string MomenSoVongQuay { get; set; }
         public MotorCatalog Motor { get; set; }
 
-        public Dictionary<string, Dictionary<string, object>> vatLieuBoTruyen { get; set; }
-        public Dictionary<string, object> dauVaoUngSuat { get; set; }
-        public double ungSuatTiepXucChoPhep { get; set; }
-        public double pitch { get; set; }
-        public double shaftDistance { get; set; }
-        public bool chainSafe { get; set; }
-        public int contactStrength { get; set; }
-        public double shaftForce { get; set; }
-        public string diskDiameterCalc { get; set; }
+        public class GearInputModel
+        {
+            public double Lh { get; set; }
+            public double n1 { get; set; }
+            public double u1 { get; set; }
+            public double T1 { get; set; }
+            public double n2 { get; set; }
+            public double u2 { get; set; }
+            public double T2 { get; set; }
+        }
+
     }
-}
