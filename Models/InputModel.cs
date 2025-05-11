@@ -44,6 +44,19 @@ namespace DADN.Models
         public double[] Torchlist { get; set; }
         public double[] tlist { get; set; }
     }
+    
+    public class MomenKetQua
+    {
+        public double N1 { get; set; }
+        public double U1 { get; set; }  // nếu có tính
+        public double T1 { get; set; }
+
+        public double N2 { get; set; }
+        public double U2 { get; set; }  // nếu có tính
+        public double T2 { get; set; }
+
+        public string MoTa { get; set; }  // nếu vẫn muốn giữ chuỗi mô tả
+    }
 
     public class TechnicalData
     {
@@ -66,4 +79,15 @@ namespace DADN.Models
         public double shaftForce { get; set; }
         public string diskDiameterCalc { get; set; }
     }
+    public class GearInputModel
+    {
+        public double Lh { get; set; }
+        public double n1 { get; set; }
+        public double u1 { get; set; }
+        public double T1 { get; set; }
+        public double n2 { get; set; }
+        public double u2 { get; set; }
+        public double T2 { get; set; }
+    }
+
 }

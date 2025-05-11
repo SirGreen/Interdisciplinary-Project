@@ -7,7 +7,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Tính thông số</h4>
+                <h4 class="card-title mb-0 flex-grow-1">Tính thông số động cơ</h4>
             </div><!-- end card header -->
             <div class="card-body align-items-center d-flex">
                 <!-- With Controls -->
@@ -134,7 +134,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Tính thông số</h4>
+                <h4 class="card-title mb-0 flex-grow-1">Tính thông số bộ truyền xích</h4>
             </div><!-- end card header -->
             <div class="card-body align-items-center d-flex">
                 <!-- With Controls -->
@@ -194,12 +194,38 @@
     </div>
 </div>
 
+<!--Hiển thị kq bộ truyền xích -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Thông số bộ truyền xích</h4>
+            </div>
+            <div class="card-body align-items-center d-flex">
+                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                    <table class="table table-bordered table-hover w-100" id="chain-table">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header align-items-center d-flex">
-                <h4 class="card-title mb-0 flex-grow-1">Tính toán bộ truyền</h4>
+                <h4 class="card-title mb-0 flex-grow-1">Tính toán bộ truyền bánh răng</h4>
             </div>
             <div class="card-body">
                 <form action="javascript:void(0);" class="w-100">
@@ -267,6 +293,14 @@
                             <input id="ohAllow" type="number" class="form-control" readonly>
                         </div>
 
+                        <div class="col-6 mt-3">
+                            <label>Ứng suất uốn cho phép [MPa]</label>
+                            <input id="oh2Allow" type="number" class="form-control" readonly>
+                        </div>
+
+                        <!-- TODO b20 - 21 --> 
+
+
                     </div>
                 </form>
             </div>
@@ -274,6 +308,58 @@
     </div>
 </div>
 
+
+<!-- TODO b20 cấp nhanh --> 
+<!--Hiển thị kq bánh răng -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Thông số bánh răng cấp nhanh</h4>
+            </div>
+            <div class="card-body align-items-center d-flex">
+                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                    <table class="table table-bordered table-hover w-100" id="fastgear-table">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gearfast-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TODO b21 cấp chậm --> 
+<!--Hiển thị kq bánh răng -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header align-items-center d-flex">
+                <h4 class="card-title mb-0 flex-grow-1">Thông số bánh răng cấp chậm</h4>
+            </div>
+            <div class="card-body align-items-center d-flex">
+                <div style="max-height: 500px; flex-grow: 1; overflow-y: auto;">
+                    <table class="table table-bordered table-hover w-100" id="slowgear-table">
+                        <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                            <tr>
+                                <th>Thông số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gearslow-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <!-- /////////////////////////////////////////// -->
@@ -326,7 +412,7 @@
                 pdfContent = data;
                 console.log("data: ", data);
 
-                // Gán các giá trị đầu ra
+                // thông số động cơ
                 document.getElementById("overloadFactor").value = data.overloadFactor || "";
                 document.getElementById("overallEfficiency").value = data.overallEfficiency || "";
                 document.getElementById("requiredMotorEfficiency").value = data.requiredMotorEfficiency || "";
@@ -335,6 +421,7 @@
                 document.getElementById("Un").value = data.un || "";
                 document.getElementById("MomenSoVongQuay").value = data.momenSoVongQuay || "";
 
+                // thông số xích
                 document.getElementById("pitch").value = data.pitch || "";
                 document.getElementById("shaftDistance").value = data.shaftDistance || "";
                 document.getElementById("chainSafe").value = data.chainSafe ? "Đạt" : "Không đạt";
@@ -342,7 +429,8 @@
                 document.getElementById("contactStrength").value = data.contactStrength || "";
                 document.getElementById("shaftForce").value = data.shaftForce || "";
 
-
+                // gọi hàm hiển thị bảng xích
+                renderChainTable(data);
 
                 // Sửa tên đúng: vatLieuBoTruyen (viết thường)
                 const vl = data.vatLieuBoTruyen;
@@ -374,6 +462,13 @@
 
                 // Ứng suất tiếp xúc cho phép
                 document.getElementById("ohAllow").value = data.ungSuatTiepXucChoPhep || "";
+                document.getElementById("oh2Allow").value = data.ungSuatUonChoPhep || "";
+                const capnhanh = data.tinhBanhRangCapNhanh;
+                const capcham = data.tinhBanhRangCapCham;
+                //console.log("CapNhanh1", capnhanh);
+                renderGearFastTable(capnhanh);
+                renderGearSlowTable(capcham);
+
 
                 if (data.requiredMotorEfficiency && data.nsbSpeed) {
                     getFilteredCatalogs(data.requiredMotorEfficiency, data.nsbSpeed)
@@ -413,6 +508,123 @@
             formData.tlist
         );
     });
+
+
+    function renderChainTable(data) {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = ""; // Clear nội dung cũ
+
+        const rows = [
+            { label: "Số bánh răng dẫn", value: data.soRangDan ?? "chưa tính" },
+            { label: "Số bánh răng bị dẫn", value: data.soRangBiDan ?? "chưa tính" },
+            { label: "Bước xích (mm)", value: data.pitch ?? "chưa tính" },
+            { label: "Chiều dài ống lót (mm)", value: data.ongLot ?? "chưa tính" },
+            { label: "Đường kính chốt (mm)", value: data.duongKinhChot ?? "chưa tính" },
+            { label: "Số mắt xích", value: data.soMatXich ?? "chưa tính" },
+            { label: "Khoảng cách trục (mm)", value: data.shaftDistance ?? "chưa tính" },
+            { label: "Đường kính vòng chia đĩa dẫn (mm)", value: data.diaDan ?? "chưa tính" },
+            { label: "Đường kính vòng chia đĩa bị dẫn (mm)", value: data.diaBiDan ?? "chưa tính" },
+            { label: "Lực tác dụng lên trục (N)", value: data.shaftForce ?? "chưa tính" },
+            { label: "Vật liệu đĩa 1", value: data.vatLieuDia1 ?? "chưa tính" },
+            { label: "Vật liệu đĩa 2", value: data.vatLieuDia2 ?? "chưa tính" },
+        ];
+
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.label}</strong></td>
+                <td>${row.value}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function renderGearFastTable(data) {
+        console.log("CapNhanh", data);
+        const tableBody = document.getElementById("gearfast-body");
+        tableBody.innerHTML = ""; // Clear bảng cũ nếu có
+
+        if (!data || typeof data !== "object") {
+            console.warn("Dữ liệu CapNhanh không tồn tại hoặc sai định dạng:", data);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td colspan="2">Không có dữ liệu để hiển thị</td>`;
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        const normalizedData = {};
+        Object.keys(data).forEach(key => {
+            normalizedData[key.toLowerCase()] = data[key];
+        });
+
+        const rows = [
+            { label: "Khoảng cách trục (mm)", value: `aw = ${normalizedData.aw ?? "chưa tính"}` },
+            { label: "Modul pháp (mm)", value: `m = ${normalizedData.m ?? "chưa tính"}` },
+            { label: "Chiều rộng vành răng (mm)", value: `bw = ${normalizedData.bw ?? "chưa tính"}` },
+            { label: "Tỷ số truyền", value: `um = ${normalizedData.um ?? "chưa tính"}` },
+            { label: "Góc nghiêng răng (°)", value: `β = ${normalizedData.gocnghieng ?? "chưa tính"}°` },
+            { label: "Số răng bánh răng", value: `z₁ = ${normalizedData.z1 ?? "chưa tính"}, z₂ = ${normalizedData.z2 ?? "chưa tính"}` },
+            { label: "Hệ số dịch chỉnh", value: `x₁ = ${normalizedData.x1 ?? "chưa tính"}, x₂ = ${normalizedData.x2 ?? "chưa tính"}` },
+            { label: "Đường kính vòng chia (mm)", value: `d₁ = ${normalizedData.d1 ?? "chưa tính"}, d₂ = ${normalizedData.d2 ?? "chưa tính"}` },
+            { label: "Đường kính đỉnh răng (mm)", value: `da₁ = ${normalizedData.da1 ?? "chưa tính"}, da₂ = ${normalizedData.da2 ?? "chưa tính"}` },
+            { label: "Đường kính đáy răng (mm)", value: `df₁ = ${normalizedData.df1 ?? "chưa tính"}, df₂ = ${normalizedData.df2 ?? "chưa tính"}` },
+            { label: "Đường kính vòng lăn (mm)", value: `dw₁ = ${normalizedData.dw1 ?? "chưa tính"}, dw₂ = ${normalizedData.dw2 ?? "chưa tính"}` }
+        ];
+
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.label}</strong></td>
+                <td>${row.value}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function renderGearSlowTable(data) {
+        console.log("CapCham", data);
+        const tableBody = document.getElementById("gearslow-body");
+        tableBody.innerHTML = ""; // Clear bảng cũ nếu có
+
+        if (!data || typeof data !== "object") {
+            console.warn("Dữ liệu CapCham không tồn tại hoặc sai định dạng:", data);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td colspan="2">Không có dữ liệu để hiển thị</td>`;
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        const normalizedData = {};
+        Object.keys(data).forEach(key => {
+            normalizedData[key.toLowerCase()] = data[key];
+        });
+
+        const rows = [
+            { label: "Khoảng cách trục (mm)", value: `aw = ${normalizedData.aw ?? "chưa tính"}` },
+            { label: "Modul pháp (mm)", value: `m = ${normalizedData.m ?? "chưa tính"}` },
+            { label: "Chiều rộng vành răng (mm)", value: `bw = ${normalizedData.bw ?? "chưa tính"}` },
+            { label: "Tỷ số truyền", value: `um = ${normalizedData.um ?? "chưa tính"}` },
+            { label: "Góc nghiêng răng (°)", value: `β = ${normalizedData.gocnghieng ?? "chưa tính"}°` },
+            { label: "Số răng bánh răng", value: `z₁ = ${normalizedData.z1 ?? "chưa tính"}, z₂ = ${normalizedData.z2 ?? "chưa tính"}` },
+            { label: "Hệ số dịch chỉnh", value: `x₁ = ${normalizedData.x1 ?? "chưa tính"}, x₂ = ${normalizedData.x2 ?? "chưa tính"}` },
+            { label: "Đường kính vòng chia (mm)", value: `d₁ = ${normalizedData.d1 ?? "chưa tính"}, d₂ = ${normalizedData.d2 ?? "chưa tính"}` },
+            { label: "Đường kính đỉnh răng (mm)", value: `da₁ = ${normalizedData.da1 ?? "chưa tính"}, da₂ = ${normalizedData.da2 ?? "chưa tính"}` },
+            { label: "Đường kính đáy răng (mm)", value: `df₁ = ${normalizedData.df1 ?? "chưa tính"}, df₂ = ${normalizedData.df2 ?? "chưa tính"}` },
+            { label: "Đường kính vòng lăn (mm)", value: `dw₁ = ${normalizedData.dw1 ?? "chưa tính"}, dw₂ = ${normalizedData.dw2 ?? "chưa tính"}` }
+        ];
+
+        rows.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><strong>${row.label}</strong></td>
+                <td>${row.value}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+
+
 
 
     let catalogs = null;
