@@ -4,6 +4,7 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Configuration;
 using System.Text.RegularExpressions;
+using System.IO.Pipelines;
 
 public class AdminController : Controller
 {
@@ -156,14 +157,14 @@ public class AdminController : Controller
     public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
-
+        Console.WriteLine("FilterCatalogs: "+requiredMotorEfficiency+" " + NsbSpeed);
         // Khoảng tốc độ quay hợp lệ
         double minSpeed = NsbSpeed * 0.96;
         double maxSpeed = NsbSpeed * 1.04;
 
         // In thông số ra console
-        Console.WriteLine($"Min Speed (RPS): {minSpeed}");
-        Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
+        // Console.WriteLine($"Min Speed (RPS): {minSpeed}");
+        // Console.WriteLine($"Max Speed (RPS): {maxSpeed}");
         // Lọc danh sách động cơ phù hợp
         var filteredCatalogs = catalogs
             .Where(m =>
@@ -173,8 +174,6 @@ public class AdminController : Controller
                 return motorPower >= requiredMotorEfficiency && motorSpeed >= minSpeed && motorSpeed <= maxSpeed;
             })
             .ToList();
-
-        Console.WriteLine($"Số động cơ phù hợp: {filteredCatalogs.Count}");
         return Ok(filteredCatalogs);
     }
 }
