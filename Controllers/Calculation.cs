@@ -289,7 +289,7 @@ public class GearboxDesign
         return Rad*180/Math.PI;
     }
 
-    private Dictionary<string, double> TinhBanhRangCapNhanh(double n1, double u1, double T1,double allowOh,int sodo) {
+    private Dictionary<string, double> TinhBanhRangCapNhanh(double n1, double u1, double T1,double allowOh,double allowOf,int sodo) {
         // 20.1
         double Wba = 0.315; double Ka = 43;
         double Wbd = 0.53*Wba*(u1+1);
@@ -375,8 +375,8 @@ public class GearboxDesign
         double Khv = 1 + vH*bW1*dW1/(2*T1*Khb*KHa);
         double KH = Khb*KHa*Khv;
         double thisOH = ZM*ZH*Ze*Math.Sqrt(2*T1*KH*(Um1+1)/(bW1*Um1*dW1*dW1));
+        bool thoaManDoBentx = thisOH < allowOh;
 
-        // còn 1 lần tính và so với điều kiện Oh' nữa, mà thôi khỏi :v
         // 20.4
         double Ye = 1/eA;
         double Yb = 1-B/140;
@@ -397,13 +397,18 @@ public class GearboxDesign
         double thisOF1 = 2*T1*KF*Ye*Yb*YF1/(bW1*dW1*m1);
         double thisOF2 = thisOF1*YF2/YF1;
 
-        // còn kiểm tra hai cái Of kia với điều kiện OF' mà thôi khỏi :v
+        // còn kiểm tra hai cái Of kia với điều kiện OF', chắc vậy
+        bool thoaManBenUon = thisOF1 < allowOf && thisOF2 < allowOf;
         // 20.5
         // 20.5 là so sánh điều kiện với câu trước mà đang không rõ đk nào lắm :v
         // double Kqt = 2.2;
         // double OHmax = thisOH*Math.Sqrt(Kqt);
+        bool thoaManQuaTai = thisOF1 < allowOf && thisOF2 < allowOf;
 
         // 20.6
+        double duongKinhVongChia1 = m1*Z1/Math.Cos(Deg2Rad(B));
+        double duongKinhVongChia2 = m1*Z2/Math.Cos(Deg2Rad(B));
+
         return new Dictionary<string,double>
         {
             { "aw", aW1},               // Khoảng cách trục (mm)
@@ -420,22 +425,21 @@ public class GearboxDesign
             { "x1", 0 },                  // Bánh răng 1
             { "x2", 0 },                  // Bánh răng 2
             
-            // không chắc mấy cái này đâu ra :v
             // Đường kính vòng chia (mm)
-            // { "d1", 48.1037 },              // Bánh răng 1
-            // { "d2", 271.8965 },             // Bánh răng 2
+            { "d1", duongKinhVongChia1 },              // Bánh răng 1
+            { "d2", duongKinhVongChia2 },             // Bánh răng 2
             
             // // Đường kính đỉnh răng (mm)
-            // { "da1", 52.1037 },             // Bánh răng 1
-            // { "da2", 275.8965 },            // Bánh răng 2
+            { "da1", duongKinhVongChia1 + 2*m1 },             // Bánh răng 1
+            { "da2", duongKinhVongChia2 + 2*m1 },            // Bánh răng 2
             
             // // Đường kính đáy răng (mm)
-            // { "df1", 43.1037 },             // Bánh răng 1
-            // { "df2", 266.8965 },            // Bánh răng 2
+            { "df1", duongKinhVongChia1 - 2.5*m1 },             // Bánh răng 1
+            { "df2", duongKinhVongChia2 - 2.5*m1 },            // Bánh răng 2
             
             // // Đường kính vòng lăn (mm)
-            // { "dw1", dW1 },             // Bánh răng 1
-            // { "dw2", 271.8965 }             // Bánh răng 2
+            { "dw1", dW1 },             // Bánh răng 1
+            { "dw2", dW1*Um1 }             // Bánh răng 2
         }; 
     }
     // B21
@@ -447,7 +451,7 @@ public class GearboxDesign
         double allowOh = TinhUngSuatChoPhep(Lh,n2,inp);
         double allowOf = TinhUngXuatUonChoPhep(Lh,n2,u2,inp);
         // B21 con lai
-        return TinhBanhRangCapNhanh(n2,u2,T2,allowOh,5);
+        return TinhBanhRangCapNhanh(n2,u2,T2,allowOh,allowOf,5);
     }
     // B22
     private bool kiemTraBoiTron(Dictionary<string, double> res1, Dictionary<string, double> res2) {
@@ -467,12 +471,11 @@ public class GearboxDesign
         // B19
         double allowOf = TinhUngXuatUonChoPhep(Lh,n1,u1,inp);
         // B20
-        var res1 = TinhBanhRangCapNhanh(n1,u1,T1,allowOh,3);
+        var res1 = TinhBanhRangCapNhanh(n1,u1,T1,allowOh,allowOf,3);
         // B21
         var res2 = TinhBoTruyenCapCham(Lh,u2,n2,T2);
         // B22
-        // do chưa rõ dữ liệu trên 2 bước kia nên chưa dùng đc nha
-        // bool duBoiTron = kiemTraBoiTron(res1,res2);
+        bool duBoiTron = kiemTraBoiTron(res1,res2);
     }
 
     public Dictionary<string, object> CalcTruyen()

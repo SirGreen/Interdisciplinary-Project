@@ -9,55 +9,7 @@ public class PdfExportService
 {
     public byte[] GenerateGearboxPdf(TechnicalData content)
     {
-        // Debug output for TechnicalData
-        Console.WriteLine("--- TechnicalData Debug Output ---");
-        Console.WriteLine($"OverloadFactor: {content.OverloadFactor}");
-        Console.WriteLine($"OverallEfficiency: {content.OverallEfficiency}");
-        Console.WriteLine($"RequiredMotorEfficiency: {content.RequiredMotorEfficiency}");
-        Console.WriteLine($"RequiredMotorSpeed: {content.RequiredMotorSpeed}");
-        Console.WriteLine($"NsbSpeed: {content.NsbSpeed}");
-        Console.WriteLine($"Un: {content.Un}");
-        Console.WriteLine($"MomenSoVongQuay: {content.MomenSoVongQuay ?? "null"}");
-
-        // Debug motor details if present
-        if (content.Motor != null)
-        {
-            Console.WriteLine("--- Motor Data ---");
-            Console.WriteLine($"Technology: {content.Motor.Technology}");
-            Console.WriteLine($"Power: {content.Motor.Power}");
-            Console.WriteLine($"Model: {content.Motor.Model}");
-            Console.WriteLine($"FrameSize: {content.Motor.FrameSize}");
-            Console.WriteLine($"Speed: {content.Motor.Speed}");
-            Console.WriteLine($"Standard: {content.Motor.Standard}");
-            Console.WriteLine($"Voltage: {content.Motor.Voltage}");
-            Console.WriteLine($"MountingType: {content.Motor.MountingType}");
-            Console.WriteLine($"Material: {content.Motor.Material}");
-            Console.WriteLine($"Protection: {content.Motor.Protection}");
-            Console.WriteLine($"ShaftDiameter: {content.Motor.ShaftDiameter}");
-            Console.WriteLine($"URL: {content.Motor.URL}");
-
-            if (content.Motor.Image != null && content.Motor.Image.Any())
-            {
-                Console.WriteLine($"Image Count: {content.Motor.Image.Count()}");
-                for (int i = 0; i < content.Motor.Image.Count(); i++)
-                {
-                    Console.WriteLine($"Image {i + 1} Length: {content.Motor.Image.ElementAt(i)?.Length ?? 0}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("No motor images available");
-            }
-        }
-        else
-        {
-            Console.WriteLine("No motor data available");
-        }
-
-        Console.WriteLine("--- End of Debug Output ---");
         QuestPDF.Settings.License = LicenseType.Community;
-        var culture = (System.Globalization.CultureInfo)System.Globalization.CultureInfo.InvariantCulture.Clone();
-        culture.NumberFormat.NumberDecimalSeparator = ",";
 
         var stream = new MemoryStream();
 
@@ -144,52 +96,27 @@ public class PdfExportService
                                 {
                                     if (string.IsNullOrWhiteSpace(line)) continue;
 
-                                    try
-                                    {
-                                        // Split by colon and check if we have at least 2 parts
-                                        var parts = line.Split(':', 2);
-                                        if (parts.Length < 2) continue;
-                                        
-                                        var shaft = parts[0].Trim();
-                                        var dataSection = parts[1].Trim();
+                                    var parts = line.Split(':');
+                                    var shaft = parts[0].Trim();
+                                    var values = parts[1].Split(',');
 
-                                        // Extract values using regex pattern for more reliability
-                                        var powerMatch = System.Text.RegularExpressions.Regex.Match(dataSection, @"Power\s*=\s*([0-9,.]+)");
-                                        var speedMatch = System.Text.RegularExpressions.Regex.Match(dataSection, @"Speed\s*=\s*([0-9,.]+)");
-                                        var torqueMatch = System.Text.RegularExpressions.Regex.Match(dataSection, @"Torque\s*=\s*([0-9,.]+)");
+                                    // Shaft column
+                                    torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(shaft);
 
-                                        // Shaft column
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(shaft);
+                                    // Power column
+                                    var pow = double.Parse(values[0].Split('=')[1].Trim().Split(" ")[0]);
+                                    torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                        .Text((Math.Ceiling(pow*100)/100).ToString());
 
-                                        // Power column
-                                        var powerText = powerMatch.Success ? 
-                                            Math.Ceiling(double.Parse(powerMatch.Groups[1].Value, culture) * 100) / 100 : 0;
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                            .Text(powerText.ToString());
+                                    // Speed column
+                                    var spd = double.Parse(values[1].Split('=')[1].Trim().Split(" ")[0]);
+                                    torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                        .Text((Math.Ceiling(spd*100)/100).ToString());
 
-                                        // Speed column
-                                        var speedText = speedMatch.Success ? 
-                                            Math.Ceiling(double.Parse(speedMatch.Groups[1].Value, culture) * 100) / 100 : 0;
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                            .Text(speedText.ToString());
-
-                                        // Torque column
-                                        var torqueText = torqueMatch.Success ? 
-                                            Math.Ceiling(double.Parse(torqueMatch.Groups[1].Value, culture) * 100) / 100 : 0;
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
-                                            .Text(torqueText.ToString());
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Log the error but continue processing
-                                        Console.WriteLine($"Error parsing line: {line}. Error: {ex.Message}");
-                                        
-                                        // Fill in blank cells to maintain table structure
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Error");
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("-");
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("-");
-                                        torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("-");
-                                    }
+                                    // Torque column
+                                    var tor = double.Parse(values[2].Split('=')[1].Trim().Split(" ")[0]);
+                                    torqueTable.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                        .Text((Math.Ceiling(tor*100)/100).ToString());
                                 }
                             });
                         }
@@ -261,7 +188,7 @@ public class PdfExportService
                                     try
                                     {
                                         byte[] imageBytes = Convert.FromBase64String(imageData);
-                                        column.Item().Width(2, Unit.Inch).Image(imageBytes);
+                                        column.Item().Width(2,Unit.Inch).Image(imageBytes);
                                     }
                                     catch
                                     {
@@ -274,6 +201,84 @@ public class PdfExportService
                                 column.Item().Text("Không có ảnh");
                             }
                         }
+                        
+                        column.Item().PaddingTop(30);
+                        column.Item().PaddingTop(20).Text("Thông số bộ truyền").FontSize(16).Bold();
+                        column.Item().PaddingTop(10);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); // Property column
+                                columns.RelativeColumn(3); // Value column
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().BorderBottom(2).Padding(8).Text("Thông số").Bold();
+                                header.Cell().BorderBottom(2).Padding(8).Text("Giá trị").Bold();
+                            });
+
+                            // Simple properties
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overload Factor");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Vật liệu"].ToString());
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overall Efficiency");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.OverallEfficiency.ToString("P2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Efficiency");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorEfficiency.ToString("F2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Speed");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorSpeed.ToString("F2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("NSB Speed");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.NsbSpeed.ToString("F2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Un");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.Un.ToString("F2"));
+                        });
+
+                        column.Item().PaddingTop(30);
+                        column.Item().PaddingTop(20).Text("Thông số bộ truyền").FontSize(16).Bold();
+                        column.Item().PaddingTop(10);
+
+                        column.Item().Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(2); // Property column
+                                columns.RelativeColumn(3); // Value column
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().BorderBottom(2).Padding(8).Text("Thông số").Bold();
+                                header.Cell().BorderBottom(2).Padding(8).Text("Giá trị").Bold();
+                            });
+
+                            // Simple properties
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overload Factor");
+                            table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.vatLieuBoTruyen["Bánh nhỏ"]["Vật liệu"].ToString());
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Overall Efficiency");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.OverallEfficiency.ToString("P2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Efficiency");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorEfficiency.ToString("F2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Required Motor Speed");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.RequiredMotorSpeed.ToString("F2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("NSB Speed");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.NsbSpeed.ToString("F2"));
+
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text("Un");
+                            // table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(content.Un.ToString("F2"));
+                        });
+
+
                         column.Item().PaddingTop(30);
                         column.Item().Text($"Generated on {DateTime.Now}");
                     });
