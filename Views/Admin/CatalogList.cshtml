@@ -63,12 +63,12 @@
                     <td>@item.output_hp</td>
                     <td>@item.weight_kg</td>
                     <td>
-                        <button class="btn btn-primary btn-sm" onclick="showDetails(@i)">
-                            <i class="fas fa-info-circle"></i> Xem
+                        <button class="btn btn-sm view-button" onclick="showDetails(@i)">
+                            <i class="fas fa-info-circle"></i>
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">
+                        <button class="btn btn-sm delete-button" onclick="confirmDelete('@item.Id')">
                             <i class="fas fa-trash"></i> Xóa
                         </button>
                     </td>
