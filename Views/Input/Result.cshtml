@@ -555,6 +555,18 @@
                 document.getElementById("pitch").value = data.pitch || "";
                 document.getElementById("shaftDistance").value = data.shaftDistance || "";
                 document.getElementById("chainSafe").value = data.chainSafe ? "Đạt" : "Không đạt";
+                let chainSafeEl = document.getElementById("chainSafe");
+                chainSafeEl.innerText = data.chainSafe ? "Đạt" : "Không đạt";
+
+                // Xóa class cũ trước
+                chainSafeEl.classList.remove("text-success", "text-danger");
+
+                // Thêm class màu tương ứng
+                if (data.chainSafe) {
+                    chainSafeEl.classList.add("text-success");
+                } else {
+                    chainSafeEl.classList.add("text-danger");
+                }
                 document.getElementById("diskDiameterCalc").value = data.diskDiameterCalc || "";
                 document.getElementById("contactStrength").value = data.contactStrength || "";
                 document.getElementById("shaftForce").value = data.shaftForce || "";
@@ -600,8 +612,20 @@
                 renderGearSlowTable(capcham);
 
                 const ktraboitron = data.kiemTraBoiTron; // biến bool
-                const trangThaiBoiTron = ktraboitron ? "Đã bôi trơn" : "Chưa bôi trơn";
+                const trangThaiBoiTron = ktraboitron ? "Thỏa điều kiện bôi trơn" : "Không thỏa điều kiện bôi trơn";
                 document.getElementById("boitron").value = trangThaiBoiTron;
+                let boiTronEl = document.getElementById("boitron");
+                boiTronEl.innerText = data.chainSafe ? "Thỏa điều kiện bôi trơn" : "Không thỏa điều kiện bôi trơn";
+
+                // Xóa class cũ trước
+                boiTronEl.classList.remove("text-success", "text-danger");
+
+                // Thêm class màu tương ứng
+                if (data.kiemTraBoiTron) {
+                    boiTronEl.classList.add("text-success");
+                } else {
+                    boiTronEl.classList.add("text-danger");
+                }
 
 
                 if (data.requiredMotorEfficiency && data.nsbSpeed) {
