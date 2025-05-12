@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using DADN.Models;
 using System.Text.Json;
+using Calculation2;
 
 namespace DADN.Controllers
 {
@@ -57,10 +58,12 @@ namespace DADN.Controllers
     public class GearBoxController : Controller
     {
         private readonly PdfExportService _pdfExportService;
+        private readonly CalculationSecond _calculation2;
 
         public GearBoxController()
         {
             _pdfExportService = new PdfExportService();
+            _calculation2 = new CalculationSecond();
         }
         [HttpPost("ExportPdf")]
         public IActionResult ExportToPdf([FromBody] TechnicalData content)
@@ -156,7 +159,7 @@ namespace DADN.Controllers
             var ungSuatTiepXuc = truyenResult.GetValueOrDefault("UngSuatTiepXucChoPhep");
             var ungSuatUon = truyenResult.GetValueOrDefault("UngSuatUonChoPhep");
             var boiTron = truyenResult.GetValueOrDefault("KiemTraBoiTron");
-            
+
             // Xử lý ép kiểu an toàn sang Dictionary<string, object>
             object tinhBanhRangCapNhanh = null;
             object tinhBanhRangCapCham = null;
@@ -173,6 +176,21 @@ namespace DADN.Controllers
             }
             // Tính bộ truyền xích
             var transmissionResult = transmission.CalChain();
+
+            var dicBRCC = ((Dictionary<string, double>)tinhBanhRangCapCham);
+            var dicBRCN = (Dictionary<string, double>)tinhBanhRangCapNhanh;
+
+            var truc = _calculation2.tinhFullTruc(kq.T1, kq.T2, kq.T3, dicBRCC["bw"], dicBRCN["bw"], dicBRCC["d1"], 
+            dicBRCC["gocNghieng"], dicBRCC["alphatw"], dicBRCN["gocNghieng"], dicBRCN["alphatw"],
+            dicBRCC["d2"], dicBRCN["d1"], transmission.Calculate(), dicBRCN["d2"]);
+            // tinhBanhRangCapNhanh, gearboxResult["Un"], gearboxResult["overallEfficiency"], gearboxResult["requiredMotorEfficiency"], gearboxResult["requiredMotorSpeed"], gearboxResult["NsbSpeed"]);
+
+            var tr1 = truc["Truc1"];
+            var tr2 = truc["Truc2"];
+            var tr3 = truc["Truc3"];
+            var le1 = truc["Len1"];
+            var le2 = truc["Len2"];
+            var le3 = truc["Len3"];
 
             return Ok(new
             {
@@ -209,7 +227,35 @@ namespace DADN.Controllers
                 diaDan = transmissionResult.GetValueOrDefault("diaDan"),
                 diaBiDan = transmissionResult.GetValueOrDefault("diaBiDan"),
                 vatLieuDia1 = transmissionResult.GetValueOrDefault("vatLieuDia1"),
-                vatLieuDia2 = transmissionResult.GetValueOrDefault("vatLieuDia2")
+                vatLieuDia2 = transmissionResult.GetValueOrDefault("vatLieuDia2"),
+
+                t1A = tr1[0], //Cac duong kinh truc 1
+                t1B = tr1[1],
+                t1C = tr1[2],
+                t1D = tr1[3],
+
+                //Cac chieu dai truc 1
+                l11 = le1[0],
+                l12 = le1[1],
+                l13 = le1[3],
+
+                t2A = tr2[0], //Cac duong kinh truc 2
+                t2B = tr2[1],
+                t2C = tr2[2],
+                t2D = tr2[3],
+
+                l21 = le2[0],
+                l22 = le1[1],
+                l23 = le1[2],
+
+                t3A = tr3[0], //Cac duong kinh truc 3
+                t3B = tr3[1],
+                t3C = tr3[2],
+                t3D = tr3[3],
+
+                l31 = le3[0],
+                l32 = le3[1],
+                l33 = le3[2],
             });
         }
 

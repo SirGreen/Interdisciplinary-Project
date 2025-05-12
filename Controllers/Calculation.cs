@@ -126,6 +126,7 @@ public class GearboxDesign
             N2 = N2,
             U2 = U2,
             T2 = T2,
+            T3 = T3,
             MoTa = $"Shaft 1: Power = {P1} kW, Speed = {N1} rpm, Torque = {T1} Nm\n" +
                 $"Shaft 2: Power = {P2} kW, Speed = {N2} rpm, Torque = {T2} Nm\n" +
                 $"Shaft 3: Power = {P3} kW, Speed = {N3} rpm, Torque = {T3} Nm"
@@ -172,7 +173,31 @@ public class GearboxDesign
         };
     }
 
+    public Dictionary<string, object> TinhTruc()
+    {
 
+        return new Dictionary<string, object>
+        {
+            { "Bánh nhỏ", new Dictionary<string, object>
+                {
+                    { "Vật liệu", "Thép 40X - Tôi cải thiện" },
+                    { "Ob", 950 },
+                    { "Och", 700 },
+                    { "HB", "260 : 280" },
+                    { "Kích thước S", "<= 60" }
+                }
+            },
+            { "Bánh lớn", new Dictionary<string, object>
+                {
+                    { "Vật liệu", "Thép 40X - Tôi cải thiện" },
+                    { "Ob", 850 },
+                    { "Och", 550 },
+                    { "HB", "230 : 260" },
+                    { "Kích thước", "<= 100" }
+                }
+            }
+        };
+    }
 
 
     // Chương 4: 2 bánh răng trong hộp giảm tốc
@@ -440,6 +465,7 @@ public class GearboxDesign
 
         return new Dictionary<string, double>
         {
+            {"alphatw",at},
             { "aw", aW1},               // Khoảng cách trục (mm)
             { "m", m1 },                   // Modul pháp (mm)
             { "bw", bW1 },                // Chiều rộng vành răng (mm)
@@ -509,8 +535,6 @@ public class GearboxDesign
         // B22
         bool duBoiTron = kiemTraBoiTron(res1, res2);
     }
-
-
 
     public Dictionary<string, object> CalcBoTruyen(Dictionary<string, double> dict, double Lh)
     {
