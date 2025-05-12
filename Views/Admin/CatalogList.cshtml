@@ -10,6 +10,15 @@
     <div class="alert alert-success">@TempData["Success"]</div>
 }
 
+<div class="mb-3">
+    <a href="/Admin/AddMotorManual" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Thêm động cơ mới
+    </a>
+    <a href="/Admin/UploadCatalog" class="btn btn-success">
+        <i class="fas fa-file-import"></i> Thêm từ trang web
+    </a>
+</div>
+
 <div class="table-responsive">
     <table class="table table-bordered table-hover">
         <thead class="table-dark">
@@ -23,22 +32,6 @@
                 <th>Frame Size</th>
                 <th>Output (kW)</th>
                 <th>Output (HP)</th>
-                <th>Full Load RPM</th>
-                <th>Current (380V)</th>
-                <th>Current (400V)</th>
-                <th>Current (415V)</th>
-                <th>LRC Current</th>
-                <th>Efficiency (1/2)</th>
-                <th>Efficiency (3/4)</th>
-                <th>Efficiency (Full)</th>
-                <th>Power Factor (1/2)</th>
-                <th>Power Factor (3/4)</th>
-                <th>Power Factor (Full)</th>
-                <th>Breakdown Torque</th>
-                <th>Full Load Torque</th>
-                <th>Locked Rotor Torque</th>
-                <th>Pull-up Torque</th>
-                <th>Rotor GD²</th>
                 <th>Weight (kg)</th>
                 <th>Chi tiết</th>
                 <th>Hành động</th>
@@ -68,31 +61,167 @@
                     <td>@item.frame_size</td>
                     <td>@item.output_kw</td>
                     <td>@item.output_hp</td>
-                    <td>@item.full_load_rpm</td>
-                    <td>@item.current_380v</td>
-                    <td>@item.current_400v</td>
-                    <td>@item.current_415v</td>
-                    <td>@item.current_lrc</td>
-                    <td>@item.efficiency_1_2</td>
-                    <td>@item.efficiency_3_4</td>
-                    <td>@item.efficiency_full</td>
-                    <td>@item.power_factor_1_2</td>
-                    <td>@item.power_factor_3_4</td>
-                    <td>@item.power_factor_full</td>
-                    <td>@item.torque_break_down</td>
-                    <td>@item.torque_full</td>
-                    <td>@item.torque_locked_rotor</td>
-                    <td>@item.torque_pull_up</td>
-                    <td>@item.torque_rotor_gd2</td>
                     <td>@item.weight_kg</td>
-                    <td><a href="@item.url" target="_blank" class="btn btn-primary btn-sm">Xem</a></td>
                     <td>
-                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">Xóa</button>
+                        <button class="btn btn-primary btn-sm" onclick="showDetails(@i)">
+                            <i class="fas fa-info-circle"></i> Xem
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('@item.Id')">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+</div>
+
+<!-- Modal hiển thị chi tiết -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Chi tiết động cơ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Thông số cơ bản</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Brand:</th>
+                                <td id="detail-brand"></td>
+                            </tr>
+                            <tr>
+                                <th>Category:</th>
+                                <td id="detail-category"></td>
+                            </tr>
+                            <tr>
+                                <th>Product Name:</th>
+                                <td id="detail-product-name"></td>
+                            </tr>
+                            <tr>
+                                <th>Motor Type:</th>
+                                <td id="detail-motor-type"></td>
+                            </tr>
+                            <tr>
+                                <th>Frame Size:</th>
+                                <td id="detail-frame-size"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Thông số kỹ thuật</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Output (kW):</th>
+                                <td id="detail-output-kw"></td>
+                            </tr>
+                            <tr>
+                                <th>Output (HP):</th>
+                                <td id="detail-output-hp"></td>
+                            </tr>
+                            <tr>
+                                <th>Full Load RPM:</th>
+                                <td id="detail-full-load-rpm"></td>
+                            </tr>
+                            <tr>
+                                <th>Weight (kg):</th>
+                                <td id="detail-weight"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Thông số dòng điện</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Current (380V):</th>
+                                <td id="detail-current-380v"></td>
+                            </tr>
+                            <tr>
+                                <th>Current (400V):</th>
+                                <td id="detail-current-400v"></td>
+                            </tr>
+                            <tr>
+                                <th>Current (415V):</th>
+                                <td id="detail-current-415v"></td>
+                            </tr>
+                            <tr>
+                                <th>LRC Current:</th>
+                                <td id="detail-current-lrc"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Hiệu suất</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Efficiency (1/2):</th>
+                                <td id="detail-efficiency-1-2"></td>
+                            </tr>
+                            <tr>
+                                <th>Efficiency (3/4):</th>
+                                <td id="detail-efficiency-3-4"></td>
+                            </tr>
+                            <tr>
+                                <th>Efficiency (Full):</th>
+                                <td id="detail-efficiency-full"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <h6>Hệ số công suất</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Power Factor (1/2):</th>
+                                <td id="detail-power-factor-1-2"></td>
+                            </tr>
+                            <tr>
+                                <th>Power Factor (3/4):</th>
+                                <td id="detail-power-factor-3-4"></td>
+                            </tr>
+                            <tr>
+                                <th>Power Factor (Full):</th>
+                                <td id="detail-power-factor-full"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Mô men xoắn</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Breakdown Torque:</th>
+                                <td id="detail-torque-break-down"></td>
+                            </tr>
+                            <tr>
+                                <th>Full Load Torque:</th>
+                                <td id="detail-torque-full"></td>
+                            </tr>
+                            <tr>
+                                <th>Locked Rotor Torque:</th>
+                                <td id="detail-torque-locked-rotor"></td>
+                            </tr>
+                            <tr>
+                                <th>Pull-up Torque:</th>
+                                <td id="detail-torque-pull-up"></td>
+                            </tr>
+                            <tr>
+                                <th>Rotor GD²:</th>
+                                <td id="detail-torque-rotor-gd2"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Popup xác nhận xóa -->
@@ -117,10 +246,47 @@
 </div>
 
 <script>
+    // Lưu trữ dữ liệu động cơ
+    const motorData = @Html.Raw(Json.Serialize(Model));
+
     function confirmDelete(catalogId) {
         var deleteForm = document.getElementById("deleteForm");
         deleteForm.action = "/Admin/DeleteMotorCatalog/" + catalogId;
         var deleteModal = new bootstrap.Modal(document.getElementById("deleteModal"));
         deleteModal.show();
+    }
+
+    function showDetails(index) {
+        const motor = motorData[index];
+
+        // Cập nhật thông tin trong modal
+        document.getElementById('detail-brand').textContent = motor.brand || '-';
+        document.getElementById('detail-category').textContent = motor.category || '-';
+        document.getElementById('detail-product-name').textContent = motor.product_name || '-';
+        document.getElementById('detail-motor-type').textContent = motor.motor_type || '-';
+        document.getElementById('detail-frame-size').textContent = motor.frame_size || '-';
+        document.getElementById('detail-output-kw').textContent = motor.output_kw || '-';
+        document.getElementById('detail-output-hp').textContent = motor.output_hp || '-';
+        document.getElementById('detail-full-load-rpm').textContent = motor.full_load_rpm || '-';
+        document.getElementById('detail-weight').textContent = motor.weight_kg || '-';
+        document.getElementById('detail-current-380v').textContent = motor.current_380v || '-';
+        document.getElementById('detail-current-400v').textContent = motor.current_400v || '-';
+        document.getElementById('detail-current-415v').textContent = motor.current_415v || '-';
+        document.getElementById('detail-current-lrc').textContent = motor.current_lrc || '-';
+        document.getElementById('detail-efficiency-1-2').textContent = motor.efficiency_1_2 || '-';
+        document.getElementById('detail-efficiency-3-4').textContent = motor.efficiency_3_4 || '-';
+        document.getElementById('detail-efficiency-full').textContent = motor.efficiency_full || '-';
+        document.getElementById('detail-power-factor-1-2').textContent = motor.power_factor_1_2 || '-';
+        document.getElementById('detail-power-factor-3-4').textContent = motor.power_factor_3_4 || '-';
+        document.getElementById('detail-power-factor-full').textContent = motor.power_factor_full || '-';
+        document.getElementById('detail-torque-break-down').textContent = motor.torque_break_down || '-';
+        document.getElementById('detail-torque-full').textContent = motor.torque_full || '-';
+        document.getElementById('detail-torque-locked-rotor').textContent = motor.torque_locked_rotor || '-';
+        document.getElementById('detail-torque-pull-up').textContent = motor.torque_pull_up || '-';
+        document.getElementById('detail-torque-rotor-gd2').textContent = motor.torque_rotor_gd2 || '-';
+
+        // Hiển thị modal
+        var detailsModal = new bootstrap.Modal(document.getElementById("detailsModal"));
+        detailsModal.show();
     }
 </script>

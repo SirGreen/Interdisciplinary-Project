@@ -11,8 +11,8 @@
     <input type="hidden" asp-for="motor_id" />
 
     <div class="mb-3">
-        <label class="form-label">Brand <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" asp-for="brand" required />
+        <label class="form-label">Brand</label>
+        <input type="text" class="form-control" asp-for="brand" />
     </div>
 
     <div class="mb-3">
@@ -31,8 +31,8 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Frame Size</label>
-        <input type="text" class="form-control" asp-for="frame_size" />
+        <label class="form-label">Frame Size <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="frame_size" required />
     </div>
 
     <div class="mb-3">
@@ -46,8 +46,8 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Full Load RPM</label>
-        <input type="text" class="form-control" asp-for="full_load_rpm" />
+        <label class="form-label">Full Load RPM <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" asp-for="full_load_rpm" required />
     </div>
 
     <div class="mb-3">
@@ -81,8 +81,8 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Efficiency at Full Load <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" asp-for="efficiency_full" required />
+        <label class="form-label">Efficiency at Full Load</label>
+        <input type="text" class="form-control" asp-for="efficiency_full" />
     </div>
 
     <div class="mb-3">
@@ -151,35 +151,49 @@
 
 <script>
     function validateForm(event) {
-        const requiredFields = ['Power', 'Model', 'Voltage', 'Speed'];
+        const requiredFields = [
+            'product_name',
+            'frame_size',
+            'output_kw',
+            'full_load_rpm'
+        ];
         let isValid = true;
+        let errorMessage = 'Vui lòng nhập đầy đủ các thông tin bắt buộc:\n';
 
         requiredFields.forEach(fieldName => {
             const input = document.querySelector(`[name="${fieldName}"]`);
-            if (!input) return; // Nếu không có input thì bỏ qua
+            if (!input) return;
 
-            const value = input.value.trim().toLowerCase();
+            const value = input.value.trim();
+            const label = input.previousElementSibling?.textContent?.replace(' *', '') || fieldName;
 
-            // Kiểm tra giá trị có phải là số hợp lệ và không phải "unknown" hay "n/a"
-            if (value === '' || value === 'unknown' || value === 'n/a' || isNaN(value)) {
+            if (value === '' || value.toLowerCase() === 'unknown' || value.toLowerCase() === 'n/a') {
                 isValid = false;
-                input.classList.add('is-invalid'); // Bootstrap có sẵn viền đỏ
+                input.classList.add('is-invalid');
+                errorMessage += `- ${label}\n`;
             } else {
                 input.classList.remove('is-invalid');
+            }
+
+            // Kiểm tra nếu là trường số
+            if (['output_kw', 'full_load_rpm'].includes(fieldName)) {
+                if (isNaN(value) || parseFloat(value) <= 0) {
+                    isValid = false;
+                    input.classList.add('is-invalid');
+                    errorMessage += `- ${label} phải là số lớn hơn 0\n`;
+                }
             }
         });
 
         if (!isValid) {
-            event.preventDefault(); // Chặn submit
-            alert('Vui lòng nhập đầy đủ Power, Model, Voltage, Speed và không được ghi "unknown", "N/A" hoặc giá trị không hợp lệ.');
+            event.preventDefault();
+            alert(errorMessage);
         }
     }
 
     // Gắn sự kiện submit vào form
     const form = document.querySelector('form');
     if (form) {
-        form.addEventListener('submit', function (event) {
-            validateForm(event);
-        });
+        form.addEventListener('submit', validateForm);
     }
 </script>
