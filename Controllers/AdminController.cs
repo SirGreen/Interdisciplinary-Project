@@ -116,10 +116,10 @@ public class AdminController : Controller
     public async Task<IActionResult> CatalogList()
     {
         var catalogs = await _catalogService.GetAllAsync();
-        foreach (var item in catalogs)
-        {
-            Console.WriteLine($"Id: {item.Id}, Motor Type: {item.motor_type}");
-        }
+        // foreach (var item in catalogs)
+        // {
+        //     Console.WriteLine($"Id: {item.Id}, Motor Type: {item.motor_type}");
+        // }
         return View(catalogs);
     }
 
@@ -157,7 +157,7 @@ public class AdminController : Controller
     public async Task<IActionResult> FilterCatalogs(double requiredMotorEfficiency, double NsbSpeed)
     {
         var catalogs = await _catalogService.GetAllAsync();
-        Console.WriteLine("FilterCatalogs: "+requiredMotorEfficiency+" " + NsbSpeed);
+        Console.WriteLine("FilterCatalogs: " + requiredMotorEfficiency + " " + NsbSpeed);
         // Khoảng tốc độ quay hợp lệ
         double minSpeed = NsbSpeed * 0.96;
         double maxSpeed = NsbSpeed * 1.04;
