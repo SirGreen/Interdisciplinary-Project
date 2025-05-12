@@ -822,14 +822,23 @@
                 <td>${motor.output_kw || "Không có dữ liệu"}</td>
                 <td>${motor.output_hp || "Không có dữ liệu"}</td>
                 <td>${motor.weight_kg || "Không có dữ liệu"}</td>
-                <td class= "d-flex gap-4 mt-4 align-items-center">
-                    <button class="btn view-button btn-sm" onclick='showDetails(${JSON.stringify(motor)})'>
+                <td class="d-flex gap-4 mt-4 align-items-center">
+                    <button class="btn view-button btn-sm" 
+                            onclick='showDetails(${JSON.stringify(motor)})'
+                            data-bs-toggle="tooltip" 
+                            title="Xem chi tiết">
                         <i class="fas fa-info-circle"></i>
                     </button>
-                    <button class="btn check-button btn-sm select-motor-btn" onclick="selectMotor(${index})" style="display: none;">
+
+                    <button class="btn check-button btn-sm select-motor-btn" 
+                            onclick="selectMotor(${index})" 
+                            style="display: none;"
+                            data-bs-toggle="tooltip" 
+                            title="Chọn động cơ này">
                         <i class="fas fa-check"></i>
                     </button>
                 </td>
+
 
             </tr>`;
 
@@ -1089,6 +1098,13 @@
                 });
             });
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    })
 
     //////////////////////////////////
 </script>
