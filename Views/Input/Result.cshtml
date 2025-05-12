@@ -62,7 +62,7 @@
 
                         <div class="col-6">
                             <div class="mb-3">
-                                <label for="MomenSoVongQuay" class="form-label">MomenSoVongQuay</label>
+                                <label for="MomenSoVongQuay" class="form-label">Momen Số Vòng Quay</label>
                                 <textarea class="form-control" id="MomenSoVongQuay" rows="4" readonly></textarea>
                             </div>
                         </div>
@@ -330,7 +330,7 @@
             </div>
             <div class="card-body align-items-center d-flex">
                 <div style="max-height: 500px; flex-grow: 1;">
-                    <table class="table table-bordered table-hover w-100" id="chain-table">
+                    <table class="table table-bordered table-hover w-100 mb-3" id="chain-table">
                         <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
                             <tr>
                                 <th>Thông số</th>
@@ -666,7 +666,7 @@
         rows.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td><strong>${row.label}</strong></td>
+                <td class="mb-2"><strong>${row.label}</strong></td>
                 <td>${row.value}</td>
             `;
             tableBody.appendChild(tr);
@@ -822,12 +822,12 @@
                 <td>${motor.output_kw || "Không có dữ liệu"}</td>
                 <td>${motor.output_hp || "Không có dữ liệu"}</td>
                 <td>${motor.weight_kg || "Không có dữ liệu"}</td>
-                <td>
-                    <button class="btn btn-primary btn-sm" onclick='showDetails(${JSON.stringify(motor)})'>
-                        <i class="fas fa-info-circle"></i> Xem
+                <td class= "d-flex gap-4 mt-4 align-items-center">
+                    <button class="btn view-button btn-sm" onclick='showDetails(${JSON.stringify(motor)})'>
+                        <i class="fas fa-info-circle"></i>
                     </button>
-                    <button class="mt-2 btn btn-success btn-sm select-motor-btn" onclick="selectMotor(${index})" style="display: none;">
-                        <i class="fas fa-check"></i> Chọn
+                    <button class="btn check-button btn-sm select-motor-btn" onclick="selectMotor(${index})" style="display: none;">
+                        <i class="fas fa-check"></i>
                     </button>
                 </td>
 
