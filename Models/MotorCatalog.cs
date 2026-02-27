@@ -34,4 +34,5 @@ public class MotorCatalog
     public required string torque_rotor_gd2 { get; set; }
     public required string url { get; set; }
     public required string weight_kg { get; set; }
+    public string? Image { get; set; }
 }

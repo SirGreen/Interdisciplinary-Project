@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DADN.Services;
 
 public class ExtractionService : IExtractionService
 {
@@ -18,7 +19,10 @@ public class ExtractionService : IExtractionService
     public ExtractionService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiToken}");
+        if (!ApiConfig.UseCustomApi)
+        {
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {ApiToken}");
+        }
     }
 
     public async Task<MotorCatalog> ExtractDataFromWebAsync(string url)
@@ -110,70 +114,50 @@ public class ExtractionService : IExtractionService
     {
         try
         {
-            var prompt = $"Hãy trích xuất thông tin động cơ từ văn bản sau và trả về JSON hợp lệ:\n\n{inputText}\n\n" +
-                         "Định dạng JSON: { \"Power\": \"\", \"Model\": \"\", \"Voltage\": \"\", \"Speed\": \"\", \"Standard\": \"\", " +
-                         "\"Material\": \"\", \"Protection\": \"\", \"Shaft Diameter\": \"\", \"FrameSize\": \"\", \"MountingType\": \"\", " +
-                         "\"Footprint\": \"\", \"Technology\": \"\" }";
-
-            var requestBody = new
+            if (ApiConfig.UseCustomApi)
             {
-                inputs = prompt,
-                parameters = new { max_length = 512 }
-            };
+                var requestBody = new
+                {
+                    text = inputText
+                };
 
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                var responseString = await CallCustomApi(jsonContent);
+                if (responseString == null)
+                {
+                    Console.WriteLine("Không nhận được dữ liệu từ API.");
+                    return null;
+                }
 
-            // Gọi API HuggingFace và nhận kết quả
-            var responseString = await CallHuggingFaceApi(jsonContent);
-            if (responseString == null)
-            {
-                Console.WriteLine("Không nhận được dữ liệu từ HuggingFace API.");
-                return null;
+                Console.WriteLine($"Output từ model: {responseString}");
+                var extractedData = ParseOutput(responseString);
+                return MapToMotorCatalog(url, extractedData);
             }
-
-            Console.WriteLine($"Output từ model: {responseString}");
-
-            var extractedData = ParseOutput(responseString);
-
-            if (!extractedData.ContainsKey("Power") || !extractedData.ContainsKey("Model") || !extractedData.ContainsKey("Speed"))
+            else
             {
-                Console.WriteLine("API không trả đủ thông tin cần thiết.");
-                return null;
+                var prompt = $"Hãy trích xuất thông tin động cơ từ văn bản sau và trả về JSON hợp lệ:\n\n{inputText}\n\n" +
+                            "Định dạng JSON: { \"Power\": \"\", \"Model\": \"\", \"Voltage\": \"\", \"Speed\": \"\", \"Standard\": \"\", " +
+                            "\"Material\": \"\", \"Protection\": \"\", \"Shaft Diameter\": \"\", \"FrameSize\": \"\", \"MountingType\": \"\", " +
+                            "\"Footprint\": \"\", \"Technology\": \"\" }";
+
+                var requestBody = new
+                {
+                    inputs = prompt,
+                    parameters = new { max_length = 512 }
+                };
+
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+                var responseString = await CallHuggingFaceApi(jsonContent);
+                if (responseString == null)
+                {
+                    Console.WriteLine("Không nhận được dữ liệu từ HuggingFace API.");
+                    return null;
+                }
+
+                Console.WriteLine($"Output từ model: {responseString}");
+                var extractedData = ParseOutput(responseString);
+                return MapToMotorCatalog(url, extractedData);
             }
-
-            // Map old fields to new structure
-            return new MotorCatalog
-            {
-                Id = ObjectId.GenerateNewId().ToString(),
-                motor_id = url,
-                brand = "Unknown",
-                category = "Motor",
-                current_380v = "0",
-                current_400v = "0",
-                current_415v = "0",
-                current_lrc = "0",
-                efficiency_1_2 = "0",
-                efficiency_3_4 = "0",
-                efficiency_full = "0",
-                frame_size = extractedData.GetValueOrDefault("FrameSize", extractedData.GetValueOrDefault("Model", "Unknown")),
-                full_load_rpm = extractedData.GetValueOrDefault("Speed", "0"),
-                image_url = "",
-                motor_type = extractedData.GetValueOrDefault("Technology", extractedData.GetValueOrDefault("Standard", "Unknown")),
-                output_hp = "0",
-                output_kw = extractedData.GetValueOrDefault("Power", "0"),
-                power_factor_1_2 = "0",
-                power_factor_3_4 = "0",
-                power_factor_full = "0",
-                product_name = extractedData.GetValueOrDefault("Model", "Unknown"),
-                source_page = url,
-                torque_break_down = "0",
-                torque_full = "0",
-                torque_locked_rotor = "0",
-                torque_pull_up = "0",
-                torque_rotor_gd2 = "0",
-                url = url,
-                weight_kg = "0"
-            };
         }
         catch (Exception ex)
         {
@@ -188,31 +172,57 @@ public class ExtractionService : IExtractionService
 
         try
         {
-            var jsonData = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(text);
-            if (jsonData == null || jsonData.Count == 0 || !jsonData[0].ContainsKey("generated_text"))
+            if (ApiConfig.UseCustomApi)
             {
-                Console.WriteLine("API không trả về dữ liệu hợp lệ.");
-                return result;
+                // Xử lý trường hợp text là một string chứa JSON
+                if (text.StartsWith("\"") && text.EndsWith("\""))
+                {
+                    // Bỏ dấu ngoặc kép ở đầu và cuối
+                    text = text.Substring(1, text.Length - 2);
+                }
+
+                // Parse từng cặp key-value
+                var pairs = text.Split(',');
+                foreach (var pair in pairs)
+                {
+                    var parts = pair.Split(':');
+                    if (parts.Length == 2)
+                    {
+                        var key = parts[0].Trim().Trim('"');
+                        var value = parts[1].Trim().Trim('"');
+                        result[key] = value;
+                    }
+                }
             }
-
-            string rawGeneratedText = jsonData[0]["generated_text"];
-
-            string ExtractValue(string key)
+            else
             {
-                var match = Regex.Match(rawGeneratedText, $@"\""{key}\"":\s*\""(.*?)\""");
-                return match.Success ? match.Groups[1].Value.Trim() : "N/A";
-            }
+                // Parse từ HuggingFace API response
+                var jsonData = JsonConvert.DeserializeObject<List<Dictionary<string, string>>>(text);
+                if (jsonData == null || jsonData.Count == 0 || !jsonData[0].ContainsKey("generated_text"))
+                {
+                    Console.WriteLine("API không trả về dữ liệu hợp lệ.");
+                    return result;
+                }
 
-            var keys = new[]
-            {
-                "Power", "Model", "Voltage", "Speed", "Standard", "Material",
-                "Protection", "Shaft Diameter", "FrameSize", "MountingType",
-                "Footprint", "Technology"
-            };
+                string rawGeneratedText = jsonData[0]["generated_text"];
 
-            foreach (var key in keys)
-            {
-                result[key] = ExtractValue(key);
+                string ExtractValue(string key)
+                {
+                    var match = Regex.Match(rawGeneratedText, $@"\""{key}\"":\s*\""(.*?)\""");
+                    return match.Success ? match.Groups[1].Value.Trim() : "N/A";
+                }
+
+                var keys = new[]
+                {
+                    "Power", "Model", "Voltage", "Speed", "Standard", "Material",
+                    "Protection", "Shaft Diameter", "FrameSize", "MountingType",
+                    "Footprint", "Technology"
+                };
+
+                foreach (var key in keys)
+                {
+                    result[key] = ExtractValue(key);
+                }
             }
         }
         catch (Exception ex)
@@ -223,6 +233,33 @@ public class ExtractionService : IExtractionService
         return result;
     }
 
+    private async Task<string?> CallCustomApi(StringContent jsonContent)
+    {
+        try
+        {
+            using var response = await _httpClient.PostAsync(ApiConfig.ApiUrl, jsonContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Lỗi gọi API: {response.StatusCode} - {response.ReasonPhrase}");
+                return null;
+            }
+
+            var responseString = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(responseString))
+            {
+                Console.WriteLine("API trả về dữ liệu rỗng.");
+                return null;
+            }
+
+            var responseObj = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseString);
+            return responseObj?["result"];
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi gọi API: {ex.Message}");
+            return null;
+        }
+    }
 
     private async Task<string?> CallHuggingFaceApi(StringContent jsonContent)
     {
@@ -256,5 +293,41 @@ public class ExtractionService : IExtractionService
             Console.WriteLine($"Lỗi khi gọi HuggingFace API: {ex.Message}");
             return null;
         }
+    }
+
+    private MotorCatalog MapToMotorCatalog(string url, Dictionary<string, string> extractedData)
+    {
+        return new MotorCatalog
+        {
+            Id = ObjectId.GenerateNewId().ToString(),
+            motor_id = url,
+            brand = "Unknown",
+            category = "Motor",
+            current_380v = "0",
+            current_400v = "0",
+            current_415v = "0",
+            current_lrc = "0",
+            efficiency_1_2 = "0",
+            efficiency_3_4 = "0",
+            efficiency_full = "0",
+            frame_size = extractedData.GetValueOrDefault("FrameSize", extractedData.GetValueOrDefault("Model", "Unknown")),
+            full_load_rpm = extractedData.GetValueOrDefault("Speed", "0"),
+            image_url = "",
+            motor_type = extractedData.GetValueOrDefault("Technology", extractedData.GetValueOrDefault("Standard", "Unknown")),
+            output_hp = "0",
+            output_kw = extractedData.GetValueOrDefault("Power", "0"),
+            power_factor_1_2 = "0",
+            power_factor_3_4 = "0",
+            power_factor_full = "0",
+            product_name = extractedData.GetValueOrDefault("Model", "Unknown"),
+            source_page = url,
+            torque_break_down = "0",
+            torque_full = "0",
+            torque_locked_rotor = "0",
+            torque_pull_up = "0",
+            torque_rotor_gd2 = "0",
+            url = url,
+            weight_kg = "0"
+        };
     }
 }
