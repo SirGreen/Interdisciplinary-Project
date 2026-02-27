@@ -54,7 +54,6 @@ namespace DADN.Models
         public double N2 { get; set; }
         public double U2 { get; set; }  // nếu có tính
         public double T2 { get; set; }
-        public double T3 { get; set; }  // nếu có tính
 
         public string MoTa { get; set; } = string.Empty;  // nếu vẫn muốn giữ chuỗi mô tả
     }
