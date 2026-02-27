@@ -161,8 +161,8 @@ namespace DADN.Controllers
             var boiTron = truyenResult.GetValueOrDefault("KiemTraBoiTron");
 
             // Xử lý ép kiểu an toàn sang Dictionary<string, object>
-            object tinhBanhRangCapNhanh = null;
-            object tinhBanhRangCapCham = null;
+            object? tinhBanhRangCapNhanh = null;
+            object? tinhBanhRangCapCham = null;
 
 
             if (truyenResult.TryGetValue("TinhBanhRangCapNhanh", out var capNhanhRaw) && capNhanhRaw is Dictionary<string, double> capNhanhDict)
@@ -177,8 +177,8 @@ namespace DADN.Controllers
             // Tính bộ truyền xích
             var transmissionResult = transmission.CalChain();
 
-            var dicBRCC = ((Dictionary<string, double>)tinhBanhRangCapCham);
-            var dicBRCN = (Dictionary<string, double>)tinhBanhRangCapNhanh;
+            var dicBRCC = (Dictionary<string, double>)tinhBanhRangCapCham!;
+            var dicBRCN = (Dictionary<string, double>)tinhBanhRangCapNhanh!;
 
             var truc = _calculation2.tinhFullTruc(kq.T1, kq.T2, kq.T3, dicBRCC["bw"], dicBRCN["bw"], dicBRCC["d1"], 
             dicBRCC["gocNghieng"], dicBRCC["alphatw"], dicBRCN["gocNghieng"], dicBRCN["alphatw"],
