@@ -402,6 +402,171 @@ class Calculation2
 
         TinhDuongKinhTruc(T1, T2, T3, bw1, bw2);
     }
+
+    /// <summary>
+    /// Combined shaft calculation method that orchestrates TinhDuongKinhTruc, TrucI, TrucII, TrucIII
+    /// and returns all results in a dictionary.
+    /// </summary>
+    public Dictionary<string, object> tinhFullTruc(
+        double T1, double T2, double T3,
+        double bw_CC, double bw_CN,
+        double d1_CC, double beta_CC, double alphatw_CC,
+        double beta_CN, double alphatw_CN,
+        double d2_CC, double d1_CN,
+        double Frx, double d2_CN)
+    {
+        // === Step 1: TinhDuongKinhTruc — compute preliminary shaft diameters & lengths ===
+        const int tau1 = 15, tau2 = 20, tau3 = 30;
+        double dI = Math.Pow(T1 / (0.2 * tau1), 1.0 / 3.0);
+        dI = Math.Round(dI / 5.0) * 5.0;
+        double dII = Math.Pow(T2 / (0.2 * tau2), 1.0 / 3.0);
+        dII = Math.Round(dII / 5.0) * 5.0 + 5.0;
+        double dIII = Math.Pow(T3 / (0.2 * tau3), 1.0 / 3.0);
+        dIII = Math.Round(dIII / 5.0) * 5.0 + 5.0;
+
+        int bo1 = GetBoFromDiameter((int)dI);
+        int bo2 = GetBoFromDiameter((int)dII);
+        int bo3 = GetBoFromDiameter((int)dIII);
+
+        const int k1 = 10, k2 = 7, k3 = 16, hn = 17;
+
+        double lm13 = Math.Max(1.5 * dI, bw_CC);
+        double lm22 = Math.Max(1.5 * dII, bw_CC);
+        double lm23 = Math.Max(1.5 * dII, bw_CN);
+        double lm32 = Math.Max(1.5 * dIII, bw_CN);
+        double lm33 = 1.5 * dIII;
+        double lm12 = 1.6 * dI;
+
+        double l22 = 0.5 * (lm22 + bo2) + k1 + k2;
+        double l23 = l22 + 0.5 * (lm22 + lm23) + k1;
+        double l21 = lm22 + lm23 + 3 * k1 + 2 * k2 + bo2;
+
+        double l13 = l22;
+        double l12 = 0.5 * (lm12 + bo1) + k3 + hn;
+        double l11 = l21;
+
+        double l32 = l23;
+        double lc33 = 0.5 * (lm33 + bo3) + k3 + hn;
+        double l31 = l21;
+        double l33 = l31 + lc33;
+
+        var len1 = new Dictionary<string, double> { ["l11"] = l11, ["l12"] = l12, ["l13"] = l13 };
+        var len2 = new Dictionary<string, double> { ["l21"] = l21, ["l22"] = l22, ["l23"] = l23 };
+        var len3 = new Dictionary<string, double> { ["l31"] = l31, ["l32"] = l32, ["l33"] = l33 };
+
+        // === Step 2: TrucI — shaft I (fast stage pinion side) ===
+        double Dt1 = GetDoFromDiameter((int)dI);
+        double Fr_I = 0.2 * 2 * (T1 / Dt1);
+
+        double Ft1 = 2 * (T1 / d1_CN);
+        double Fa1 = Ft1 * Math.Tan(beta_CN * Math.PI / 180);
+        double Fr1 = Ft1 * (Math.Tan(alphatw_CN * Math.PI / 180) / Math.Cos(beta_CN * Math.PI / 180));
+
+        double RBx_I = ((Fr_I * (l11 + l12)) + (Ft1 * (l11 - l13))) / l11;
+        double RDx_I = Fr_I + Ft1 - RBx_I;
+        double RBy_I = (Fr1 * (l11 - l13) + Fa1 * (d1_CN / 2)) / l11;
+        double RDy_I = Fr1 - RBy_I;
+
+        double MxCl_I = RBy_I * l13;
+        double MxCr_I = MxCl_I - Fa1 * d1_CN / 2;
+        double MyB_I = (-Fr_I) * l12;
+        double MyC_I = MyB_I + (-Fr_I + RBx_I) * l13;
+
+        double MtdA_I = Math.Sqrt(0 + 0 + T1 * T1 * 0.75);
+        double MtdB_I = Math.Sqrt(0 + MyB_I * MyB_I + T1 * T1 * 0.75);
+        double MtdC_I = Math.Sqrt(MxCr_I * MxCr_I + MyC_I * MyC_I + T1 * T1 * 0.75);
+        double MtdD_I = Math.Sqrt(0);
+
+        double dA_I = Math.Round(Math.Pow(MtdA_I / (0.1 * 63), 1.0 / 3.0) / 5.0) * 5.0;
+        double dB_I = Math.Round(Math.Pow(MtdB_I / (0.1 * 63), 1.0 / 3.0) / 5.0) * 5.0 + 5.0;
+        double dC_I = Math.Round(Math.Pow(MtdC_I / (0.1 * 63), 1.0 / 3.0) / 5.0) * 5.0 + 5.0;
+        double dD_I = dB_I;
+
+        var truc1 = new Dictionary<string, double>
+        {
+            ["dA"] = dA_I, ["dB"] = dB_I, ["dC"] = dC_I, ["dD"] = dD_I,
+            ["Ft1"] = Ft1, ["Fr1"] = Fr1, ["Fa1"] = Fa1
+        };
+
+        // === Step 3: TrucII — shaft II (between fast and slow stages) ===
+        double Ft2 = Ft1;
+        double Fr2 = Fr1;
+        double Fa2 = Fa1;
+        double Ft3 = 2 * (T2 / d1_CC);
+        double Fr3 = Ft3 * (Math.Tan(alphatw_CC * Math.PI / 180) / Math.Cos(beta_CC * Math.PI / 180));
+        double Fa3 = Ft3 * Math.Tan(beta_CC * Math.PI / 180);
+
+        double RAx_II = (Ft2 * (l21 - l22) + Ft3 * (l21 - l23)) / l21;
+        double RAy_II = (Fr2 * (l21 - l22) - Fr3 * (l21 - l23) - Fa2 * (d2_CN / 2) - Fa3 * (d1_CC / 2)) / l21;
+        double RDx_II = Ft2 + Ft3 - RAx_II;
+        double RDy_II = Fr2 - Fr3 - RAy_II;
+
+        double Mx_Bl_II = RAy_II * l22;
+        double Mx_Br_II = Mx_Bl_II - Fa2 * (d2_CN / 2);
+        double Mx_Cl_II = Mx_Br_II + (RAy_II - Fr2) * (l23 - l22);
+        double Mx_Cr_II = Mx_Cl_II - Fa3 * (d1_CC / 2);
+
+        double My_B_II = -RAx_II * l22;
+        double My_C_II = My_B_II - (RAx_II - Ft2) * (l23 - l22);
+
+        double Mz_II = -T2;
+        double a = 0.75;
+        double Mtd_A_II = Math.Sqrt(0 + 0 + a * Mz_II * Mz_II);
+        double Mtd_B_II = Math.Sqrt(Mx_Bl_II * Mx_Bl_II + My_B_II * My_B_II + a * Mz_II * Mz_II);
+        double Mtd_C_II = Math.Sqrt(Mx_Cl_II * Mx_Cl_II + My_C_II * My_C_II + a * Mz_II * Mz_II);
+        double Mtd_D_II = Math.Sqrt(a * Mz_II * Mz_II);
+
+        double dA_II = Math.Round(Math.Pow(Mtd_A_II / (0.1 * 50), 1.0 / 3.0) / 5.0) * 5.0 + 5.0;
+        double dB_II = Math.Round(Math.Pow(Mtd_B_II / (0.1 * 50), 1.0 / 3.0) / 5.0) * 5.0 + 5.0;
+        double dC_II = Math.Round(Math.Pow(Mtd_C_II / (0.1 * 50), 1.0 / 3.0) / 5.0) * 5.0 + 5.0;
+        double dD_II = dA_II;
+
+        var truc2 = new Dictionary<string, double>
+        {
+            ["dA"] = dA_II, ["dB"] = dB_II, ["dC"] = dC_II, ["dD"] = dD_II,
+            ["Ft3"] = Ft3, ["Fr3"] = Fr3, ["Fa3"] = Fa3
+        };
+
+        // === Step 4: TrucIII — shaft III (slow stage gear + chain) ===
+        double Ft4 = Ft3, Fr4 = Fr3, Fa4 = Fa3;
+        double RAy_III = (Fr4 * (l31 - l32) - Fa4 * (d2_CC / 2)) / l31;
+        double RCy_III = Fr4 - RAy_III;
+        double RAx_III = (Ft4 * (l31 - l32) + Frx * (l33 - l31)) / l31;
+        double RCx_III = -(Ft4 - RAx_III - Frx);
+
+        double Mx_Bl_III = -(-RAy_III) * l32;
+        double Mx_Br_III = Mx_Bl_III - Fa4 * (d2_CC / 2);
+
+        double My_B_III = -RAx_III * l32;
+        double My_C_III = My_B_III - (RAx_III - Ft4) * (l31 - l32);
+
+        double Mz_B_III = T3, Mz_C_III = T3, Mz_D_III = T3;
+
+        double Mtd_B_III = Math.Sqrt(Mx_Bl_III * Mx_Bl_III + My_B_III * My_B_III + a * Mz_B_III * Mz_B_III);
+        double Mtd_C_III = Math.Sqrt(0 + My_C_III * My_C_III + a * Mz_C_III * Mz_C_III);
+        double Mtd_A_III = Mtd_C_III;
+        double Mtd_D_III = Math.Sqrt(a * Mz_D_III * Mz_D_III);
+
+        double dA_III = Math.Round(Math.Pow(Mtd_A_III / (0.1 * 40), 1.0 / 3.0) / 5.0) * 5.0;
+        double dB_III = Math.Round(Math.Pow(Mtd_B_III / (0.1 * 40), 1.0 / 3.0) / 5.0) * 5.0 + 10.0;
+        double dC_III = Math.Round(Math.Pow(Mtd_C_III / (0.1 * 40), 1.0 / 3.0) / 5.0) * 5.0;
+        double dD_III = Math.Round(Math.Pow(Mtd_D_III / (0.1 * 40), 1.0 / 3.0) / 5.0) * 5.0;
+
+        var truc3 = new Dictionary<string, double>
+        {
+            ["dA"] = dA_III, ["dB"] = dB_III, ["dC"] = dC_III, ["dD"] = dD_III
+        };
+
+        return new Dictionary<string, object>
+        {
+            ["Truc1"] = truc1,
+            ["Truc2"] = truc2,
+            ["Truc3"] = truc3,
+            ["Len1"] = len1,
+            ["Len2"] = len2,
+            ["Len3"] = len3
+        };
+    }
 }
 
 

@@ -57,10 +57,12 @@ namespace DADN.Controllers
     public class GearBoxController : Controller
     {
         private readonly PdfExportService _pdfExportService;
+        private readonly Calculation2 _calculation2;
 
         public GearBoxController()
         {
             _pdfExportService = new PdfExportService();
+            _calculation2 = new Calculation2();
         }
         [HttpPost("ExportPdf")]
         public IActionResult ExportToPdf([FromBody] TechnicalData content)
